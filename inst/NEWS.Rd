@@ -1,10 +1,25 @@
 \name{NEWS}
 \title{NEWS file for the \pkg{Uniquorn} bioconductor package }
 
-\section{Changes in version 0.99.3 [2016-04-02]}{
+\section{Changes in version 0.99.5 [2016-03-22]}{
+    \subsection{Fixed Bug}{
+        \itemize{
+            \item Fixed a bug that lead to incorrect calculation of CoSMIC CLP CL mutation weights.
+        }
+    }
+}
+\section{Changes in version 0.99.4 [2016-03-16]}{
+    \subsection{Added features}{
+        \itemize{
+            \item Minimum amount of matching mutations required for a positive prediction between query and training sample can now be manually adjusted in the 'identify_vcf_file' function using the parameter 'miminum_matching_mutations'
+        }
+    }
+}
+
+\section{Changes in version 0.99.3 [2016-03-02]}{
     \subsection{Fixed bugs}{
         \itemize{
-            \item Fixed vignitte
+            \item Fixed vigniette
         }
     }
 }
