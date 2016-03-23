@@ -41,7 +41,8 @@ parse_cosmic_genotype_data = function( cosmic_file, sim_list ){
     new_coords = sapply( unique(cls), coords, cls, FUN = unify )
     
     tmp_list = lapply( new_coords, "names<-", value = c("V1", "V2"))
-    sim_list = do.call("rbind", lapply(tmp_list, data.frame, stringsAsFactors = FALSE))
+    new_sim_list = do.call("rbind", lapply(tmp_list, data.frame, stringsAsFactors = FALSE))
+    sim_list = rbind( sim_list, new_sim_list )
  
     return(sim_list)
 }

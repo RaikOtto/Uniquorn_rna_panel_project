@@ -1,6 +1,12 @@
 \name{NEWS}
 \title{NEWS file for the \pkg{Uniquorn} bioconductor package }
-
+\section{Changes in version 0.99.6 [2016-03-23]}{
+    \subsection{Fixed Bug}{
+        \itemize{
+            \item Minor bugfix concerning data parsing of CellMiner data.
+        }
+    }
+}
 \section{Changes in version 0.99.5 [2016-03-22]}{
     \subsection{Fixed Bug}{
         \itemize{
