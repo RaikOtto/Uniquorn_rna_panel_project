@@ -1,6 +1,6 @@
 Package: Uniquorn
 Title: Identification of cancer cell lines based on their weighted mutational/ variational fingerprint
-Version: 0.99.8
+Version: 0.99.9
 Authors@R: person("Raik", "Otto", email = "raik.otto@hu-berlin.de", role = c("aut", "cre"))
 Description: This packages enables users to identify cancer cell lines. Cancer cell line 
  misidentification and cross-contamination reprents a significant challenge for 
@@ -32,5 +32,6 @@ Suggests:
     knitr,
     rmarkdown
 biocViews: 
-    Software
+    Software,
+    StatisticalMethod
 VignetteBuilder: knitr
