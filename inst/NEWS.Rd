@@ -1,5 +1,13 @@
 \name{NEWS}
 \title{NEWS file for the \pkg{Uniquorn} bioconductor package }
+\section{Changes in version 0.99.10 [2016-03-30]}{
+    \subsection{Added Unit tests}{
+        \itemize{
+            \item Added Unit test feature
+        }
+    }
+}
+\s
 \section{Changes in version 0.99.9 [2016-03-29]}{
     \subsection{Improved documentation}{
         \itemize{
