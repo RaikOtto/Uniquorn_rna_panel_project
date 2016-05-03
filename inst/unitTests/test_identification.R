@@ -9,6 +9,6 @@ test_identification = function(){
   checkTrue( class(ident_result) == "data.frame" )
   
   checkTrue( dim(ident_result)[1] == 60 )
-  checkTrue( dim(ident_result)[2] == 9  )
+  checkTrue( dim(ident_result)[2] == 8  )
 
 }

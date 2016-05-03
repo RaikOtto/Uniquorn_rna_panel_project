@@ -1,5 +1,12 @@
 \name{NEWS}
 \title{NEWS file for the \pkg{Uniquorn} bioconductor package }
+\section{Changes in version 0.99.14 [2016-05-03]}{
+    \subsection{Major Update of statistics}{
+        \itemize{
+            \item Replaced the absolute and relative cutoff with a p an q-value based on a binomial distribution
+        }
+    }
+}
 \section{Changes in version 0.99.13 [2016-04-08]}{
     \subsection{Fixed unit tests}{
         \itemize{
