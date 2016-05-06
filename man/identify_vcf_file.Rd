@@ -8,7 +8,7 @@ identify_vcf_file(
 vcf_file,
 output_file = "",
 ref_gen = "GRCH37",
-minimum_matching_mutations = 4,
+minimum_matching_mutations = 5,
 mutational_weight_inclusion_threshold = 1.0,
 only_first_candidate = FALSE,
 distinct_mode = TRUE,

@@ -36,7 +36,7 @@
 #' vcf_file,
 #' output_file = "",
 #' ref_gen = "GRCH37",
-#' minimum_matching_mutations = 4,
+#' minimum_matching_mutations = 5,
 #' mutational_weight_inclusion_threshold = 1.0,
 #' only_first_candidate = FALSE,
 #' distinct_mode = TRUE,
@@ -56,7 +56,7 @@ identify_vcf_file = function(
     vcf_file,
     output_file = "",
     ref_gen = "GRCH37",
-    minimum_matching_mutations = 4,
+    minimum_matching_mutations = 5,
     mutational_weight_inclusion_threshold = 1.0,
     only_first_candidate = FALSE,
     distinct_mode = TRUE,
@@ -81,8 +81,6 @@ identify_vcf_file = function(
         distinct_mode = distinct_mode, request_table = "sim_list" )
     sim_list_stats = initiate_db_and_load_data( ref_gen = ref_gen, 
         distinct_mode = distinct_mode, request_table = "sim_list_stats" )
-    
-    contained_cls_original = sim_list_stats$CL
     
     if ( ( sum( grepl( "_COSMIC", sim_list_stats$CL ) ) + sum( grepl( "_CCLE", sim_list_stats$CL ) ) ) == 0 )
         
@@ -113,12 +111,12 @@ identify_vcf_file = function(
     sim_list = filtered_res$sim_list
     sim_list_stats = filtered_res$sim_list_stats
     
+    contained_cls_original = sim_list_stats$CL
     dif = length(contained_cls_original) - 
         length (sim_list_stats$CL)
     dif_cls = contained_cls_original[
         which(!(contained_cls_original %in% sim_list_stats$CL))
-    ]
-    
+        ]
     if ( (dif != 0) & verbose )
         warning(paste0(c(
             as.character(dif),
@@ -127,7 +125,7 @@ identify_vcf_file = function(
             paste0(c(dif_cls), collapse = ", ")
             , " Probably they are too closely simlar to other training CLs"),
             collapse=""
-        ))
+    ))
     
     found_mut_mapping = which( sim_list$Fingerprint %in% as.character(unlist(vcf_fingerprint)) ) # mapping
     
@@ -140,45 +138,7 @@ identify_vcf_file = function(
         q_value = q_value
     )
     
-    #add_missing_cls = function( res_table, dif_cls ){
-        
-     #   for (cl in dif_cls){
-            
-      #      res_table = data.frame(
-       #         "CL"                       = c( 
-        #            as.character(res_table$CL), 
-         #           as.character(cl)),
-          #      "CL_source"                = c( 
-           #         as.character( res_table$CL_source),
-            #        utils::tail(unlist(str_split(cl,"_")),1
-             #       )),
-              #  "Found_muts_abs"           = c( 
-               #     as.character( res_table$Found_muts_abs ),
-            #        as.character( "0" )),
-        #        "Count_mutations_abs"      = c( 
-        #            as.character( res_table$Count_mutations_abs),
-        #            as.character( "0" )),
-        #        "Found_muts_rel"           = c( 
-        #            as.character( res_table$Found_muts_rel),
-        #            as.character( "0" )),
-        #        "Found_muts_weighted"      = c( 
-        #            as.character( res_table$Found_muts_weighted),
-        #            as.character( "0" )),
-        #        "Count_mutations_weighted" = c( 
-        #            as.character( res_table$Count_mutations_weighted),
-        #            as.character( "0" )),
-#                "Found_muts_weighted_rel"  = c( 
- #                   as.character( res_table$Found_muts_weighted_rel),
-  #                  as.character( "0" )),
-   #             "Passed_threshold"         = c( 
-    #                as.character( res_table$Passed_threshold ),
-     #               as.character( "FALSE" ))
-      #      )
-      #  }
-        
-       # return( res_table )
-    #}
-    #res_table = add_missing_cls( res_table, dif_cls )
+    res_table = add_missing_cls( res_table, dif_cls )
     
     if (only_first_candidate)
         

@@ -1,5 +1,12 @@
 \name{NEWS}
 \title{NEWS file for the \pkg{Uniquorn} bioconductor package }
+\section{Changes in version 0.99.16 [2016-05-04]}{
+    \subsection{Further minor update of statistics module}{
+        \itemize{
+            \item Further minor fixes to statistics
+        }
+    }
+}
 \section{Changes in version 0.99.15 [2016-05-03]}{
     \subsection{Minor Update of statistics}{
         \itemize{

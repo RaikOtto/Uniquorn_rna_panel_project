@@ -40,7 +40,7 @@ calculate_similarity_results = function(
     
     if ( length( found_mut_mapping ) != 0){
         
-        ### unweighted scores
+        ### scores
         
         candidate_hits_abs = stats::aggregate( 
             rep(1, length(found_mut_mapping)),
@@ -61,51 +61,21 @@ calculate_similarity_results = function(
             1
         ) 
         
-        ### weighted scores
-        
-        # aggregate over weights & CL identifier
-        
-        aggregation = stats::aggregate(
-            x  = as.double( sim_list$Weight[ found_mut_mapping  ] ),
-            by = list( as.character( sim_list$CL[ found_mut_mapping ] )  ),
-            FUN = sum
-        )
-        
-        weight_all = sim_list_stats$All_weights[ 
-            match( aggregation$Group.1, sim_list_stats$CL )
-            ]
-        mapping_to_cls = match( 
-            list_of_cls,
-            aggregation$Group.1,
-            nomatch = 0
-        )
-        
-        names( res_cl_weighted ) = list_of_cls
-        res_cl_weighted[ names( res_cl_weighted ) %in% aggregation$Group.1  ] = 
-            aggregation$x[ mapping_to_cls ]
-        stats_all_weight = sim_list_stats$All_weights[ 
-            match( list_of_cls, sim_list_stats$CL  )
-            ]
-        
-        res_res_cl_weighted = round( as.double(res_cl_weighted  ) / 
-                                         stats_all_weight * 100, 1 )
-        res_cl_weighted = round(res_cl_weighted, 0)
-        
         cl_absolute_mutation_hits = sim_list_stats$Count[ cl_match_stats ]
     }
     
     # p and q-value calculation 
     
-    q = as.integer( candidate_hits_abs_all ) - 1
-    q[ q < 0 ] = 0
-    m = as.integer( cl_absolute_mutation_hits )
-    #k = sum( as.integer( candidate_hits_abs_all ) )
-    #n = k - q
-    p = m / sum(as.integer( cl_absolute_mutation_hits ))
-    
-    #p_values = phyper( q = q, m = m, n = n, k = k, lower.tail = F)
-    p_values = as.double( stats::pbinom( q = q, size = sum(q), p = p, lower.tail = FALSE) )
-    q_values = as.double( stats::p.adjust( p_values, "BH" ) )
+    p_values = calculate_p_and_q_values(
+        candidate_hits_abs_all,
+        cl_absolute_mutation_hits,
+        sim_list,
+        minimum_matching_mutations,
+        list_of_cls,
+        p_value,
+        q_value
+    )
+    q_values = stats::p.adjust( p_values, "BH")
 
     # treshold
     
@@ -132,13 +102,23 @@ calculate_similarity_results = function(
     panel_vec[ stringr::str_detect( list_of_cls, "_CELLMINER" ) ] = "CELLMINER"
     panel_vec[ stringr::str_detect( list_of_cls, "_CUSTOM" ) ] = "CUSTOM"
     
+    passed_threshold_vec_p_value[ 
+        as.integer( candidate_hits_abs_all )  < 
+        as.integer( minimum_matching_mutations ) 
+    ] = FALSE
+    
+    passed_threshold_vec_q_value[ 
+        as.integer( candidate_hits_abs_all )  < 
+            as.integer( minimum_matching_mutations ) 
+    ] = FALSE
+    
     res_table = data.frame(
         "CL"                        = output_cl_names,
         "CL_source"                 = panel_vec,
         "Found_muts"                = as.character( candidate_hits_abs_all ),
         "Count_mutations"           = as.character(  cl_absolute_mutation_hits ),
-        "P_values"                  = as.character( round( p_values, 3 ) ),
-        "Q_values"                  = as.character( round( q_values, 3 ) ),
+        "P_values"                  = as.character( p_values ),
+        "Q_values"                  = as.character( q_values ),
         "P_value_sig"               = as.character( passed_threshold_vec_p_value ),
         "Q_value_sig"               = as.character( passed_threshold_vec_q_value )
     )
@@ -147,7 +127,9 @@ calculate_similarity_results = function(
     #"Found_muts_weighted"      = as.character( res_cl_weighted ),
     #"Count_mutations_weighted" = as.character( round( stats_all_weight, 0 ) ),
     #"Found_muts_weighted_rel"  = as.character( res_res_cl_weighted )
-    
-    res_table = res_table[ order( as.double( as.character( res_table$P_values) ), decreasing = FALSE),  ]
 
+    #res_table = res_table[ order( as.double( as.character( res_table$P_values) ), decreasing = FALSE),  ]
+    res_table = res_table[ order( as.double( as.character( res_table$Found_muts) ), decreasing = TRUE),  ]
+    
+    return(res_table)
 }
