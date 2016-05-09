@@ -1,5 +1,12 @@
 \name{NEWS}
 \title{NEWS file for the \pkg{Uniquorn} bioconductor package }
+\section{Changes in version 1.0.1 [2016-05-09]}{
+    \subsection{Minor update of BED files}{
+        \itemize{
+            \item Extended length of BED file mutations shown in the IGV
+        }
+    }
+}
 \section{Changes in version 0.99.16 [2016-05-04]}{
     \subsection{Further minor update of statistics module}{
         \itemize{

@@ -69,7 +69,7 @@ create_bed_file = function( sim_list, vcf_fingerprint, res_table, output_file, r
             
             training_coords_res = sapply( training_coords, FUN = function( vec ){ 
                 chrom = paste( "chr", stringr::str_trim( vec[1] ), sep = "" )
-                return( paste0( c( chrom, as.character( as.integer( vec[2] ) ), as.integer( as.integer( vec[3] ) ) ), collapse = "\t" ) )
+                return( paste0( c( chrom, as.character( as.integer( vec[2] ) ), as.integer( as.integer( vec[3] ) + 1 ) ), collapse = "\t" ) )
             } )
             training_coords_res = c( training_bed_file, training_coords_res )
             
@@ -96,7 +96,7 @@ create_bed_file = function( sim_list, vcf_fingerprint, res_table, output_file, r
             
             query_coords_res = sapply( query_coords, FUN = function( vec ){ 
                 chrom = paste( "chr", stringr::str_trim( vec[1] ), sep = "" )
-                return( paste0( c( chrom, as.character( as.integer( vec[2] ) ), as.integer( as.integer( vec[3] ) ) ), collapse = "\t" ) )
+                return( paste0( c( chrom, as.character( as.integer( vec[2] ) ), as.integer( as.integer( vec[3] ) + 1 ) ), collapse = "\t" ) )
             } )
             query_res = c( query_bed_file, query_coords_res )
             
@@ -120,7 +120,7 @@ create_bed_file = function( sim_list, vcf_fingerprint, res_table, output_file, r
             
             missed_coords = sapply( missed_coords, FUN = function( vec ){ 
                 chrom = paste( "chr", stringr::str_trim( vec[1] ), sep = "" )
-                return( paste0( c( chrom, as.character( as.integer( vec[2] ) ), as.integer( as.integer( vec[3] ) ) ), collapse = "\t" ) )
+                return( paste0( c( chrom, as.character( as.integer( vec[2] ) ), as.integer( as.integer( vec[3] ) + 1 ) ), collapse = "\t" ) )
             } )
             missed_coords_res = c( missed_bed_file, missed_coords )
             
