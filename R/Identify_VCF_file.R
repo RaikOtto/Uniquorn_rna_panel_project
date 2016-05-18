@@ -156,7 +156,7 @@ identify_vcf_file = function(
     
     utils::write.table( res_table, output_file, sep ="\t", row.names = FALSE, quote = FALSE  )
     
-    if (output_bed_file & ( sum( as.logical(res_table$Passed_threshold) ) > 0 ))
+    if (output_bed_file & ( sum( as.logical(res_table$Q_value_sig) ) > 0 ))
          create_bed_file( 
              sim_list, 
              vcf_fingerprint, 

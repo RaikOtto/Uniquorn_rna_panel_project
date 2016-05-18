@@ -1,5 +1,12 @@
 \name{NEWS}
 \title{NEWS file for the \pkg{Uniquorn} bioconductor package }
+\section{Changes in version 1.0.3 [2016-05-18]}{
+    \subsection{Changes to treshold calculation}{
+        \itemize{
+            \item Fixed error in threshold calculation
+        }
+    }
+}
 \section{Changes in version 1.0.1 [2016-05-09]}{
     \subsection{Minor update of BED files}{
         \itemize{
