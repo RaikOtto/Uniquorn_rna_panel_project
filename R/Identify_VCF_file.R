@@ -20,8 +20,6 @@
 #' score is predicted to be present in the sample
 #' @param minimum_matching_mutations The minimum amount of mutations that 
 #' has to match between query and training sample for a positive prediction
-#' @param distinct_mode Show training data for the commonly or separately 
-#' normalized training sets. Options: TRUE/ FALSE
 #' @param manual_identifier_bed_file Manually enter a vector of CL 
 #' name(s) whose bed files should be created, independently from 
 #' them passing the detection threshold
@@ -30,22 +28,24 @@
 #' @param verbose Print additional information
 #' @param p_value Required p-value for identification
 #' @param q_value Required q-value for identification
+#' @param confidence_score Threshold above which a positive prediction occurs
+#' default 3.0
 #' @import DBI WriteXLS RSQLite
 #' @usage 
 #' identify_vcf_file( 
 #' vcf_file,
 #' output_file = "",
 #' ref_gen = "GRCH37",
-#' minimum_matching_mutations = 5,
+#' minimum_matching_mutations = 10,
 #' mutational_weight_inclusion_threshold = 1.0,
 #' only_first_candidate = FALSE,
-#' distinct_mode = TRUE,
 #' write_xls = FALSE,
 #' output_bed_file = FALSE,
 #' manual_identifier_bed_file = "",
 #' verbose = FALSE,
 #' p_value = .05,
-#' q_value = .05)
+#' q_value = .05,
+#' confidence_score = 3.0)
 #' @examples 
 #' HT29_vcf_file = system.file("extdata/HT29.vcf.gz", package="Uniquorn");
 #' 
@@ -56,16 +56,16 @@ identify_vcf_file = function(
     vcf_file,
     output_file = "",
     ref_gen = "GRCH37",
-    minimum_matching_mutations = 5,
+    minimum_matching_mutations = 10,
     mutational_weight_inclusion_threshold = 1.0,
     only_first_candidate = FALSE,
-    distinct_mode = TRUE,
     write_xls = FALSE,
     output_bed_file = FALSE,
     manual_identifier_bed_file = "",
     verbose = FALSE,
     p_value = .05,
-    q_value = .05
+    q_value = .05,
+    confidence_score = 3.0
     ){
   
     path_names = init_and_load_identification( 
@@ -77,12 +77,22 @@ identify_vcf_file = function(
     output_file_xls = path_names$output_file_xls
     vcf_fingerprint = path_names$vcf_fingerprint
 
-    sim_list       = initiate_db_and_load_data( ref_gen = ref_gen, 
-        distinct_mode = distinct_mode, request_table = "sim_list" )
-    sim_list_stats = initiate_db_and_load_data( ref_gen = ref_gen, 
-        distinct_mode = distinct_mode, request_table = "sim_list_stats" )
+    sim_list       = initiate_db_and_load_data( 
+        ref_gen = ref_gen, 
+        request_table = "sim_list" 
+    )
+    sim_list_stats = initiate_db_and_load_data(
+        ref_gen = ref_gen, 
+        request_table = "sim_list_stats"
+    )
     
-    if ( ( sum( grepl( "_COSMIC", sim_list_stats$CL ) ) + sum( grepl( "_CCLE", sim_list_stats$CL ) ) ) == 0 )
+    if ( ( 
+        sum( 
+            grepl( 
+                "_COSMIC", sim_list_stats$CL ) ) + sum( grepl( "_CCLE", sim_list_stats$CL ) 
+            ) 
+        ) == 0 
+    )
         
       if( verbose )
           warning("CCLE & CoSMIC CLP cancer cell line fingerprint NOT 
@@ -135,7 +145,8 @@ identify_vcf_file = function(
         found_mut_mapping = found_mut_mapping,
         minimum_matching_mutations = minimum_matching_mutations,
         p_value = p_value,
-        q_value = q_value
+        q_value = q_value,
+        confidence_score = confidence_score
     )
     
     res_table = add_missing_cls( res_table, dif_cls )
@@ -165,6 +176,9 @@ identify_vcf_file = function(
              ref_gen, 
              manual_identifier_bed_file
         )
+    
+    if ( !verbose )
+        res_table = res_table[ , !( colnames(res_table) %in% c("P_values","Q_values","P_value_sig","Q_value_sig") ) ]
 
     
     if ( write_xls )

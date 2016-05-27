@@ -1,5 +1,14 @@
 \name{NEWS}
 \title{NEWS file for the \pkg{Uniquorn} bioconductor package }
+\section{Changes in version 1.0.4 [2016-05-27]}{
+    \subsection{Introduction of confidence score}{
+        \itemize{
+            \item Confidence score is the central threshold now
+            \item Default is 3.0
+            \item The score is the negative log e of the q-value
+        }
+    }
+}
 \section{Changes in version 1.0.3 [2016-05-18]}{
     \subsection{Changes to treshold calculation}{
         \itemize{

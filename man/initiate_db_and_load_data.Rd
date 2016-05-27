@@ -6,16 +6,12 @@
 \usage{
 initiate_db_and_load_data(
 ref_gen, 
-distinct_mode,
 request_table,
 load_default_db )
 }
 \arguments{
 \item{ref_gen}{Reference genome version. All training sets are 
 associated with a reference genome version. Default: GRCH37}
-
-\item{distinct_mode}{Show training data for the commonly or separately 
-normalized training sets. Options: TRUE/ FALSE}
 
 \item{request_table}{Names of the tables to be extracted from the database}
 

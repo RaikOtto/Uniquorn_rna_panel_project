@@ -9,7 +9,6 @@ add_custom_vcf_to_database(
 ref_gen = "GRCH37", 
 name_cl = "", 
 safe_mode = FALSE, 
-distinct_mode = TRUE,
 test_mode = FALSE)
 }
 \arguments{
@@ -24,9 +23,6 @@ will automatically be added as suffix.}
 \item{safe_mode}{Only add mutations to the database where there already are 
 mutations found in the cannonical cancer cell lines. This is a safety 
 mechanism against overfitting if there are too few custom training samples.}
-
-\item{distinct_mode}{Show training data for the commonly or separately 
-normalized training sets. Options: TRUE/ FALSE}
 
 \item{test_mode}{Is this a test? Just for internal use}
 }
@@ -43,7 +39,6 @@ vcf_file_path = HT29_vcf_file,
 name_cl = "",
 ref_gen = "GRCH37",
 safe_mode = FALSE,
-distinct_mode = TRUE,
 test_mode = TRUE )
 }
 

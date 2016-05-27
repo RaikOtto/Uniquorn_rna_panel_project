@@ -8,16 +8,16 @@ identify_vcf_file(
 vcf_file,
 output_file = "",
 ref_gen = "GRCH37",
-minimum_matching_mutations = 5,
+minimum_matching_mutations = 10,
 mutational_weight_inclusion_threshold = 1.0,
 only_first_candidate = FALSE,
-distinct_mode = TRUE,
 write_xls = FALSE,
 output_bed_file = FALSE,
 manual_identifier_bed_file = "",
 verbose = FALSE,
 p_value = .05,
-q_value = .05)
+q_value = .05,
+confidence_score = 3.0)
 }
 \arguments{
 \item{vcf_file}{Input vcf file. Only one sample column allowed.}
@@ -38,9 +38,6 @@ with a weight of at least x. Range: 0.0 to 1.0. 1= unique to CL.
 \item{only_first_candidate}{Only the CL identifier with highest 
 score is predicted to be present in the sample}
 
-\item{distinct_mode}{Show training data for the commonly or separately 
-normalized training sets. Options: TRUE/ FALSE}
-
 \item{write_xls}{Create identification results additionally 
 as xls file for easier reading}
 
@@ -56,6 +53,9 @@ them passing the detection threshold}
 \item{p_value}{Required p-value for identification}
 
 \item{q_value}{Required q-value for identification}
+
+\item{confidence_score}{Threshold above which a positive prediction occurs
+default 3.0}
 }
 \value{
 R table with a statistic of the identification result

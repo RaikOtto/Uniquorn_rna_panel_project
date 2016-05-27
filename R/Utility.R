@@ -9,20 +9,16 @@
 #' @usage 
 #' initiate_db_and_load_data(
 #' ref_gen, 
-#' distinct_mode,
 #' request_table,
 #' load_default_db )
 #' @import DBI RSQLite
-initiate_db_and_load_data = function( ref_gen, distinct_mode, request_table, load_default_db = FALSE ){
+initiate_db_and_load_data = function( ref_gen, request_table, load_default_db = FALSE ){
     
     package_path = system.file("", package="Uniquorn")
     default_database_path =  paste( package_path, "uniquorn_db_default.sqlite", sep ="/" )
 
     database_path = paste( package_path, "uniquorn_distinct_panels_db.sqlite", sep ="/" )
 
-    if (!distinct_mode)
-        database_path =  paste( package_path, "uniquorn_non_distinct_panels_db.sqlite", sep ="/" )
-    
     drv = RSQLite::SQLite()
     
     if( file.exists( database_path) & (! load_default_db ) & (file.size( database_path ) != 0 ) )
@@ -52,15 +48,13 @@ initiate_db_and_load_data = function( ref_gen, distinct_mode, request_table, loa
 #' content_table, 
 #' table_name,
 #' ref_gen,
-#' distinct_mode,
 #' overwrite,
 #' test_mode )
 #' @import DBI RSQLite
 write_data_to_db = function( 
     content_table, 
     table_name, 
-    ref_gen = "GRCH37", 
-    distinct_mode = TRUE, 
+    ref_gen = "GRCH37",
     overwrite = TRUE, 
     test_mode = FALSE 
     ){
@@ -69,9 +63,6 @@ write_data_to_db = function(
     
     database_path =  paste( package_path, "uniquorn_distinct_panels_db.sqlite", sep ="/" )
 
-    if (!distinct_mode)
-        database_path =  paste( package_path, "uniquorn_non_distinct_panels_db.sqlite", sep ="/" )
-    
     drv = RSQLite::SQLite()
     con = DBI::dbConnect(drv, dbname = database_path)
     
@@ -91,20 +82,13 @@ write_data_to_db = function(
 #' @return A list containing both the sim_list at pos 1 and sim_list_stats at pos 2 data frames.
 #' @param sim_list R Table which contains a mapping 
 #' from mutations/ variations to their containing CLs
-re_calculate_cl_weights = function( sim_list, ref_gen, distinct_mode ){
+re_calculate_cl_weights = function( sim_list, ref_gen ){
     
     package_path    = system.file("", package="Uniquorn")
     
     list_of_cls = unique( as.character( sim_list$CL ) )
     panels = sapply( list_of_cls, FUN = stringr::str_split, "_"  )
     panels = as.character(unique( as.character( sapply( panels, FUN = utils::tail, 1) ) ))
-    
-    if (!distinct_mode){
-        
-        panels = paste0( c(panels), collapse ="|"  )
-        database_path =  paste( package_path, 
-            "uniquorn_non_distinct_panels_db.sqlite3", sep ="/" )
-    }
     
     print( paste( "Distinguishing between panels:",
         paste0( c(panels), collapse = ", "), sep = " ") )

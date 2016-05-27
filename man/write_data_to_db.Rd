@@ -8,7 +8,6 @@ write_data_to_db(
 content_table, 
 table_name,
 ref_gen,
-distinct_mode,
 overwrite,
 test_mode )
 }
@@ -19,9 +18,6 @@ test_mode )
 
 \item{ref_gen}{Reference genome version. All training sets are 
 associated with a reference genome version. Default: GRCH37}
-
-\item{distinct_mode}{Show training data for the commonly or separately 
-normalized training sets. Options: TRUE/ FALSE}
 
 \item{overwrite}{Overwrite the potentially existing table}
 

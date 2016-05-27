@@ -4,7 +4,7 @@
 \alias{re_calculate_cl_weights}
 \title{Re-calculate sim_list_weights}
 \usage{
-re_calculate_cl_weights(sim_list, ref_gen, distinct_mode)
+re_calculate_cl_weights(sim_list, ref_gen)
 }
 \arguments{
 \item{sim_list}{R Table which contains a mapping 
@@ -12,9 +12,6 @@ from mutations/ variations to their containing CLs}
 
 \item{ref_gen}{Reference genome version. All training sets are 
 associated with a reference genome version. Default: GRCH37}
-
-\item{distinct_mode}{Show training data for the commonly or separately 
-normalized training sets. Options: TRUE/ FALSE}
 }
 \value{
 A list containing both the sim_list at pos 1 and sim_list_stats at pos 2 data frames.

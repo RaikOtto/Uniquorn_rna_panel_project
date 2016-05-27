@@ -6,15 +6,12 @@
 \usage{
 show_contained_mutations_for_cl( 
 name_cl, 
-ref_gen, 
-distinct_mode )
+ref_gen)
 }
 \arguments{
 \item{name_cl}{Name of the cancer cell line sample stored in the database}
 
 \item{ref_gen}{Reference genome version}
-
-\item{distinct_mode}{Show mutations for either distinct or non-distinct normalization of mutational weights}
 }
 \value{
 R table which contains all mutations associated with the defined cancer cell line and reference genome
@@ -25,7 +22,6 @@ Show all mutations present in the database for a selected cancer cell line and r
 \examples{
 SK_OV_3_CELLMINER_mutations = show_contained_mutations_for_cl(
 name_cl = "SK_OV_3_CELLMINER_mutations",
-ref_gen = "GRCH37",
-distinct_mode = TRUE)
+ref_gen = "GRCH37")
 }
 

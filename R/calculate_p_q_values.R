@@ -43,8 +43,12 @@ calculate_p_and_q_values = function(
         q                    = white_balls_found - 1
         q[ q < 0 ]           = 0
 
-        p_values_panel = as.double( stats::pbinom( q = q, size = 
-            sum( white_balls_found ), p = likelihood, lower.tail = FALSE ) )
+        p_values_panel       = as.double( stats::pbinom( 
+            q = q, 
+            size = sum( white_balls_found ), 
+            p = likelihood, 
+            lower.tail = FALSE 
+        ) )
         p_values_panel[ white_balls_found < minimum_matching_mutations ] = 1.0
 
         p_values[ index_panel_list ] = p_values_panel

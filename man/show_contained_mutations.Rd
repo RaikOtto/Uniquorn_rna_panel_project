@@ -5,13 +5,10 @@
 \title{show_contained_mutations}
 \usage{
 show_contained_mutations( 
-ref_gen, 
-distinct_mode )
+ref_gen )
 }
 \arguments{
 \item{ref_gen}{Reference genome version}
-
-\item{distinct_mode}{Show mutations for either distinct or non-distinct normalization of mutational weights}
 }
 \value{
 R Table which contains all mutations associated with a particular cancer cell line for a specified reference genome
@@ -22,6 +19,6 @@ This function shows all training-set mutations for a selected reference genome, 
 for identification of query cancer cell lines.
 }
 \examples{
-contained_cls = show_contained_mutations( ref_gen = "GRCH37", distinct_mode = TRUE )
+contained_cls = show_contained_mutations( ref_gen = "GRCH37" )
 }
 

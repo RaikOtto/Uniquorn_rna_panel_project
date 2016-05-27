@@ -5,13 +5,10 @@
 \title{show_contained_cls}
 \usage{
 show_contained_cls( 
-ref_gen, 
-distinct_mode )
+ref_gen)
 }
 \arguments{
 \item{ref_gen}{Reference genome version. All training sets are associated with a reference genome version. Default: GRCH37}
-
-\item{distinct_mode}{Show training data for the commonly or separately normalized training sets. Options: TRUE/ FALSE}
 }
 \value{
 R table which contains the identifier of all cancer cell line samples with the specific reference genome and the weight of all mutations
@@ -23,7 +20,6 @@ for a chosen reference genome.
 }
 \examples{
 contained_cls = show_contained_cls( 
-ref_gen = "GRCH37", 
-distinct_mode = TRUE )
+ref_gen = "GRCH37")
 }
 

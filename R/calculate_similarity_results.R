@@ -6,6 +6,8 @@
 #' @param minimum_matching_mutations Minimal amount of required matching mutations
 #' @param p_value Required maximal p-value
 #' @param q_value Required maximal q-value
+#' @param confidence_score Threshold above which a positive prediction occurs
+#' default 3.0
 #' @return Results table
 calculate_similarity_results = function(
     sim_list,
@@ -13,7 +15,8 @@ calculate_similarity_results = function(
     found_mut_mapping,
     minimum_matching_mutations,
     p_value,
-    q_value
+    q_value,
+    confidence_score
 ){
     
     list_of_cls       = unique( sim_list$CL )
@@ -75,7 +78,9 @@ calculate_similarity_results = function(
         p_value,
         q_value
     )
-    q_values = stats::p.adjust( p_values, "BH")
+    q_values       = stats::p.adjust( p_values, "BH")
+    conf_score_vec = -log( q_values ) 
+    conf_score_vec[ is.infinite( conf_score_vec ) | as.double( conf_score_vec ) > 100 ] = 100
 
     # treshold
     
@@ -112,24 +117,24 @@ calculate_similarity_results = function(
             as.integer( minimum_matching_mutations ) 
     ] = FALSE
     
+    passed_threshold_vec_con_score =
+        as.double( conf_score_vec ) >=
+        as.double( confidence_score)
+    
     res_table = data.frame(
         "CL"                        = output_cl_names,
         "CL_source"                 = panel_vec,
         "Found_muts"                = as.character( candidate_hits_abs_all ),
-        "Count_mutations"           = as.character(  cl_absolute_mutation_hits ),
+        "Count_mutations"           = as.character( cl_absolute_mutation_hits ),
         "P_values"                  = as.character( p_values ),
         "Q_values"                  = as.character( q_values ),
+        "Conf_score"                = as.character( conf_score_vec ),
         "P_value_sig"               = as.character( passed_threshold_vec_p_value ),
-        "Q_value_sig"               = as.character( passed_threshold_vec_q_value )
+        "Q_value_sig"               = as.character( passed_threshold_vec_q_value ),
+        "Conf_score_sig"            = as.character( passed_threshold_vec_con_score )
     )
     
-    #"Found_muts_rel"           = as.character(  candidate_hits_rel ),
-    #"Found_muts_weighted"      = as.character( res_cl_weighted ),
-    #"Count_mutations_weighted" = as.character( round( stats_all_weight, 0 ) ),
-    #"Found_muts_weighted_rel"  = as.character( res_res_cl_weighted )
-
-    #res_table = res_table[ order( as.double( as.character( res_table$P_values) ), decreasing = FALSE),  ]
-    res_table = res_table[ order( as.double( as.character( res_table$Found_muts) ), decreasing = TRUE),  ]
+    res_table = res_table[ order( as.double( as.character( res_table$Conf_score) ), decreasing = TRUE),  ]
     
     return(res_table)
 }

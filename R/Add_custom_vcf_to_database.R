@@ -7,8 +7,6 @@
 #' @param safe_mode Only add mutations to the database where there already are 
 #' mutations found in the cannonical cancer cell lines. This is a safety 
 #' mechanism against overfitting if there are too few custom training samples.
-#' @param distinct_mode Show training data for the commonly or separately 
-#' normalized training sets. Options: TRUE/ FALSE
 #' @param test_mode Is this a test? Just for internal use
 #' @return Message if the adding has succeeded
 #' @import DBI
@@ -18,7 +16,6 @@
 #' ref_gen = "GRCH37", 
 #' name_cl = "", 
 #' safe_mode = FALSE, 
-#' distinct_mode = TRUE,
 #' test_mode = FALSE)
 #' @examples 
 #' HT29_vcf_file = system.file("extdata/HT29.vcf.gz", package="Uniquorn");
@@ -27,7 +24,6 @@
 #' name_cl = "",
 #' ref_gen = "GRCH37",
 #' safe_mode = FALSE,
-#' distinct_mode = TRUE,
 #' test_mode = TRUE )
 #' @export
 add_custom_vcf_to_database = function( 
@@ -35,7 +31,6 @@ add_custom_vcf_to_database = function(
     ref_gen = "GRCH37",
     name_cl = "",
     safe_mode = FALSE,
-    distinct_mode = TRUE,
     test_mode = FALSE
     ){
     
@@ -45,8 +40,10 @@ add_custom_vcf_to_database = function(
     
     base::print( base::paste0( "Reference genome: ",ref_gen ) )
     
-    sim_list_stats = initiate_db_and_load_data( ref_gen = ref_gen, 
-        distinct_mode = distinct_mode, request_table = "sim_list_stats")
+    sim_list_stats = initiate_db_and_load_data( 
+        ref_gen = ref_gen, 
+        request_table = "sim_list_stats"
+    )
     
     sim_list_stats = sim_list_stats[ sim_list_stats$Ref_Gen == ref_gen,]
     
@@ -99,8 +96,10 @@ add_custom_vcf_to_database = function(
             collapse = "" )  )
     }
     
-    sim_list = initiate_db_and_load_data( ref_gen = ref_gen, 
-        distinct_mode = distinct_mode, request_table = "sim_list" )
+    sim_list = initiate_db_and_load_data( 
+        ref_gen = ref_gen, 
+        request_table = "sim_list" 
+    )
     sim_list = sim_list[ sim_list$Ref_Gen == ref_gen,]
     sim_list = sim_list[, base::which( 
         colnames(sim_list) != "Ref_Gen"
@@ -127,18 +126,28 @@ add_custom_vcf_to_database = function(
     
     print("Finished parsing, aggregating over parsed Cancer Cell Line data")
     
-    res_vec = re_calculate_cl_weights( sim_list = sim_list, 
-        ref_gen = ref_gen, distinct_mode = TRUE )
+    res_vec = re_calculate_cl_weights( 
+        sim_list = sim_list, 
+        ref_gen = ref_gen
+    )
     
     print("Finished aggregating, saving to database")
     
-    write_data_to_db( content_table = res_vec[1], "sim_list",       
-        ref_gen = "GRCH37",  distinct_mode = distinct_mode, 
-        overwrite = TRUE, test_mode = test_mode )
+    write_data_to_db( 
+        content_table = res_vec[1], 
+        "sim_list",       
+        ref_gen = ref_gen, 
+        overwrite = TRUE,
+        test_mode = test_mode 
+    )
     
-    write_data_to_db( content_table = res_vec[2], "sim_list_stats", 
-        ref_gen = "GRCH37", distinct_mode = distinct_mode, 
-        overwrite = TRUE, test_mode = test_mode )
+    write_data_to_db( 
+        content_table = res_vec[2], 
+        "sim_list_stats", 
+        ref_gen = ref_gen,
+        overwrite = TRUE, 
+        test_mode = test_mode 
+    )
     
     print("Finished adding CL")
 }
