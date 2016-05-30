@@ -11,7 +11,7 @@
 #' initiate_canonical_databases( 
 #' cosmic_file = "CosmicCLP_MutantExport.tsv", 
 #' ccle_file = "CCLE_hybrid_capture1650_hg19_NoCommonSNPs_CDS_2012.05.07.maf", 
-#' ref_gen = "GRCH37")
+#' ref_gen = "GRCH37“)
 #' @examples 
 #' initiate_canonical_databases(
 #' cosmic_file = "CosmicCLP_MutantExport.tsv",

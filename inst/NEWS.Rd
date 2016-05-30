@@ -1,5 +1,12 @@
 \name{NEWS}
 \title{NEWS file for the \pkg{Uniquorn} bioconductor package }
+\section{Changes in version 1.0.5 [2016-05-30]}{
+    \subsection{Minor Bugfixes}{
+        \itemize{
+            \item Fixed errors connected to adding CLs
+        }
+    }
+}
 \section{Changes in version 1.0.4 [2016-05-27]}{
     \subsection{Introduction of confidence score}{
         \itemize{

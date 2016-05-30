@@ -153,12 +153,12 @@ identify_vcf_file = function(
     
     if (only_first_candidate)
         
-      res_table$P_value_sig[ seq(2, length(res_table$Passed_threshold)) ] = FALSE
+      res_table$Conf_score_sig[ seq(2, length(res_table$Conf_score_sig)) ] = FALSE
     
     if ( verbose )
         
       print( paste0( "Candidate(s): ", paste0( ( unique( 
-            as.character( res_table$CL )[ res_table$P_value_sig == TRUE  ]) ), 
+            as.character( res_table$CL )[ res_table$Conf_score_sig == TRUE  ]) ), 
             collapse = "," ) )  )
     
     if( verbose )
