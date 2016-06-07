@@ -29,14 +29,14 @@
 #' @param p_value Required p-value for identification
 #' @param q_value Required q-value for identification
 #' @param confidence_score Threshold above which a positive prediction occurs
-#' default 3.0
+#' default 25.0
 #' @import DBI WriteXLS RSQLite
 #' @usage 
 #' identify_vcf_file( 
 #' vcf_file,
 #' output_file = "",
 #' ref_gen = "GRCH37",
-#' minimum_matching_mutations = 10,
+#' minimum_matching_mutations = 0,
 #' mutational_weight_inclusion_threshold = 1.0,
 #' only_first_candidate = FALSE,
 #' write_xls = FALSE,
@@ -45,7 +45,7 @@
 #' verbose = FALSE,
 #' p_value = .05,
 #' q_value = .05,
-#' confidence_score = 3.0)
+#' confidence_score = 25.0)
 #' @examples 
 #' HT29_vcf_file = system.file("extdata/HT29.vcf.gz", package="Uniquorn");
 #' 
@@ -56,7 +56,7 @@ identify_vcf_file = function(
     vcf_file,
     output_file = "",
     ref_gen = "GRCH37",
-    minimum_matching_mutations = 10,
+    minimum_matching_mutations = 0,
     mutational_weight_inclusion_threshold = 1.0,
     only_first_candidate = FALSE,
     write_xls = FALSE,
@@ -65,7 +65,7 @@ identify_vcf_file = function(
     verbose = FALSE,
     p_value = .05,
     q_value = .05,
-    confidence_score = 3.0
+    confidence_score = 25.0
     ){
   
     path_names = init_and_load_identification( 

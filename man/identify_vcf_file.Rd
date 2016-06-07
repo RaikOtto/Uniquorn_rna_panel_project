@@ -8,7 +8,7 @@ identify_vcf_file(
 vcf_file,
 output_file = "",
 ref_gen = "GRCH37",
-minimum_matching_mutations = 10,
+minimum_matching_mutations = 0,
 mutational_weight_inclusion_threshold = 1.0,
 only_first_candidate = FALSE,
 write_xls = FALSE,
@@ -17,7 +17,7 @@ manual_identifier_bed_file = "",
 verbose = FALSE,
 p_value = .05,
 q_value = .05,
-confidence_score = 3.0)
+confidence_score = 25.0)
 }
 \arguments{
 \item{vcf_file}{Input vcf file. Only one sample column allowed.}
@@ -55,7 +55,7 @@ them passing the detection threshold}
 \item{q_value}{Required q-value for identification}
 
 \item{confidence_score}{Threshold above which a positive prediction occurs
-default 3.0}
+default 25.0}
 }
 \value{
 R table with a statistic of the identification result

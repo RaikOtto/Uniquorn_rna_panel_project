@@ -20,7 +20,7 @@ with a reference genome version. Default: GRCH37}
 \item{name_cl}{Name of the to-be-added cancer cell line sample. '_CUSTOM' 
 will automatically be added as suffix.}
 
-\item{safe_mode}{Only add mutations to the database where there already are 
+\item{safe_mode}{Only add mutations to the database where there already are
 mutations found in the cannonical cancer cell lines. This is a safety 
 mechanism against overfitting if there are too few custom training samples.}
 

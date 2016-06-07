@@ -2,16 +2,18 @@
 #' 
 #' Parses data into r list variable
 #' 
-#' @param cosmic_file The path to the cosmic DNA genotype data file. Ensure that the right reference genome is used
-#' @param ccle_file The path to the ccle DNA genotype data file. Ensure that the right reference genome is used
+#' @param cosmic_file The path to the cosmic DNA genotype data file. 
+#' Ensure that the right reference genome is used
+#' @param ccle_file The path to the ccle DNA genotype data file. 
+#' Ensure that the right reference genome is used
 #' @param ref_gen Reference genome version
 #' @return Returns message if parsing process has succeeded
 #' @import DBI R.utils RSQLite stringr
 #' @usage 
-#' initiate_canonical_databases( 
-#' cosmic_file = "CosmicCLP_MutantExport.tsv", 
-#' ccle_file = "CCLE_hybrid_capture1650_hg19_NoCommonSNPs_CDS_2012.05.07.maf", 
-#' ref_gen = "GRCH37“)
+#' initiate_canonical_databases(
+#' cosmic_file = "CosmicCLP_MutantExport.tsv",
+#' ccle_file = "CCLE_hybrid_capture1650_hg19_NoCommonSNPs_CDS_2012.05.07.maf",
+#' ref_gen = "GRCH37")
 #' @examples 
 #' initiate_canonical_databases(
 #' cosmic_file = "CosmicCLP_MutantExport.tsv",

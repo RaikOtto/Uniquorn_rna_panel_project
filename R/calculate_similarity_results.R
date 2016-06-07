@@ -71,6 +71,7 @@ calculate_similarity_results = function(
         candidate_hits_abs_all,
         cl_absolute_mutation_hits,
         sim_list,
+        sim_list_stats,
         minimum_matching_mutations,
         list_of_cls,
         p_value,
