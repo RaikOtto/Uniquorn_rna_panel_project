@@ -1,5 +1,12 @@
 \name{NEWS}
 \title{NEWS file for the \pkg{Uniquorn} bioconductor package }
+\section{Changes in version 1.0.7 [2016-06-13 calculation]}{
+    \subsection{Optimization confidence score}{
+        \itemize{
+            \item Optimized the way confidence scores are calculated to increase the sensitivity and specificity of the method 
+        }
+    }
+}
 \section{Changes in version 1.0.6 [2016-06-05]}{
     \subsection{Optimization of default confidence score}{
         \itemize{

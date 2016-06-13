@@ -33,7 +33,7 @@ create_bed_file = function( sim_list, vcf_fingerprint, res_table, output_file, r
     
     print("Creating bed files")
     
-    found_res_tab = res_table[ as.logical( res_table$P_value_sig ), ]
+    found_res_tab = res_table[ as.logical( res_table$Conf_score_sig ), ]
     found_identifier = paste( found_res_tab$CL, found_res_tab$CL_source, sep = "_")
     
     found_identifier = unique( c( manual_identifier, found_identifier ) )

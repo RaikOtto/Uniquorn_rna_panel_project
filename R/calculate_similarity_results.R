@@ -78,7 +78,7 @@ calculate_similarity_results = function(
         q_value
     )
     q_values       = stats::p.adjust( p_values, "BH")
-    conf_score_vec = -log( q_values ) 
+    conf_score_vec = round( -log( q_values ), 2 )
     conf_score_vec[ is.infinite( conf_score_vec ) | as.double( conf_score_vec ) >= 100 ] = 100
 
     # treshold
