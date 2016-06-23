@@ -9,6 +9,9 @@
 #' @param list_of_cls List of CLs
 #' @param p_value Required maximal p-value
 #' @param q_value Required maximal q-value
+#' @param vcf_fingerprint The start and end positions of variants in the query
+#' @param panels The reference libraries
+#' @import stats
 #' @return Results table
 calculate_p_and_q_values = function(
     candidate_hits_abs_all,
@@ -18,20 +21,12 @@ calculate_p_and_q_values = function(
     minimum_matching_mutations,
     list_of_cls,
     p_value,
-    q_value
+    q_value,
+    vcf_fingerprint,
+    panels
 ){
     
     p_values <<- rep( 1.0, length(list_of_cls))
-
-    panels = unique( sapply( list_of_cls, FUN = function( cl_name ){
-        return(
-            paste0( "_",
-                utils::tail( 
-                    unlist( stringr::str_split( cl_name, pattern = "_") ),
-                1 ) 
-            )
-        )
-    } ) )
     
     for ( panel in panels ){
     
@@ -39,39 +34,47 @@ calculate_p_and_q_values = function(
         index_panel_sim_stats= grep( sim_list_stats$CL, pattern = panel )
         index_panel_list     = grep( list_of_cls, pattern = panel )
         
-        var_per_panel        = length( sim_list$Fingerprint[ index_panel_sim ] )
-        muts_per_cl          = cl_absolute_mutation_hits[ index_panel_list ]
-        white_balls_possible = var_per_panel - muts_per_cl
+        white_balls_possible = sim_list_stats$Count[ index_panel_sim_stats ]
         
         if ( ( panel == "_CUSTOM") && 
              ( length( p_values_panel ) == 1 ) && 
              ( white_balls_possible == 0 ) 
         )
             
-            message("There is only one CL in the customt set. 
-                  A confidence scoere calculation is only 
-                  possible with more than one sample!")
+        message("There is only one CL in the customt set. 
+              A confidence scoere calculation is only 
+              possible with more than one sample!")
             
         white_balls_found    = candidate_hits_abs_all[ index_panel_list ]
-        black_balls          = var_per_panel - white_balls_possible
+        white_balls_found_least_one = sum( white_balls_found > 0 )
+        black_balls          = sum( white_balls_possible ) - white_balls_possible
         
-        likelihood           = 1 / sim_list_stats$Count[index_panel_sim_stats]
+        #background_cls_traces = sum( white_balls_found_least_one >= mean( white_balls_found_least_one ) )
+        #sig_p_values = sum( p_values >= mean( white_balls_found_least_one ) )
+        background_cls_traces = sum( white_balls_found >= mean( white_balls_found ) )
+        
+        x = seq(0,1, length = 100)
+        penalty = max( ( stats::pbeta( x, 1, background_cls_traces ) - x ) )
+        
+        likelihood = 1 / white_balls_possible
+        #likelihood[ likelihood > .5 ] = .5
+        #likelihood = likelihood + abs( likelihood - .5 ) * penalty
         
         q                    = white_balls_found - 1
         q[ q < 0 ]           = 0
 
         p_values_panel       = as.double( stats::pbinom( 
             q = q,
-            size = white_balls_found,
+            size = sum( white_balls_found ),
             p = likelihood,
             lower.tail = FALSE 
         ) )
         
-        p_values_panel[ white_balls_found == 0 ] = 1.0
         p_values_panel[ white_balls_found == white_balls_possible ] = 0.0
-
+        p_values_panel[ p_values_panel >= 1.0 ] = 1.0
+        p_values_panel[ white_balls_found == 0 ] = 1.0
         p_values_panel[ white_balls_found < minimum_matching_mutations ] = 1.0
-
+        
         p_values[ index_panel_list ] = p_values_panel
         
     }

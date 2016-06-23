@@ -1,6 +1,13 @@
 \name{NEWS}
 \title{NEWS file for the \pkg{Uniquorn} bioconductor package }
-\section{Changes in version 1.0.7 [2016-06-13 calculation]}{
+\section{Changes in version 1.0.8 [2016-06-17]}{
+    \subsection{Optimization confidence score}{
+        \itemize{
+            \item Fixed the installation of the package
+        }
+    }
+}
+\section{Changes in version 1.0.7 [2016-06-13]}{
     \subsection{Optimization confidence score}{
         \itemize{
             \item Optimized the way confidence scores are calculated to increase the sensitivity and specificity of the method 

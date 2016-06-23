@@ -8,6 +8,9 @@
 #' @param q_value Required maximal q-value
 #' @param confidence_score Threshold above which a positive prediction occurs
 #' default 3.0
+#' @param vcf_fingerprint The start and end positions of variants in the query
+#' @param panels The reference libraries
+#' @param list_of_cls List of cancer cell lines
 #' @return Results table
 calculate_similarity_results = function(
     sim_list,
@@ -16,10 +19,12 @@ calculate_similarity_results = function(
     minimum_matching_mutations,
     p_value,
     q_value,
-    confidence_score
+    confidence_score,
+    vcf_fingerprint,
+    panels,
+    list_of_cls
 ){
     
-    list_of_cls       = unique( sim_list$CL )
     nr_cls            = length( list_of_cls  ) # amount cls
     
     candidate_hits_abs_all = rep(0, nr_cls)
@@ -75,11 +80,13 @@ calculate_similarity_results = function(
         minimum_matching_mutations,
         list_of_cls,
         p_value,
-        q_value
+        q_value,
+        vcf_fingerprint,
+        panels = panels
     )
     q_values       = stats::p.adjust( p_values, "BH")
     conf_score_vec = round( -log( q_values ), 2 )
-    conf_score_vec[ is.infinite( conf_score_vec ) | as.double( conf_score_vec ) >= 100 ] = 100
+    conf_score_vec[ is.infinite(conf_score_vec)] = 100
 
     # treshold
     
@@ -126,7 +133,8 @@ calculate_similarity_results = function(
         "Conf_score"                = as.character( conf_score_vec ),
         "P_value_sig"               = as.character( passed_threshold_vec_p_value ),
         "Q_value_sig"               = as.character( passed_threshold_vec_q_value ),
-        "Conf_score_sig"            = as.character( passed_threshold_vec_con_score )
+        "Conf_score_sig"            = as.character( passed_threshold_vec_con_score ),
+        stringsAsFactors = F
     )
     
     res_table = res_table[ order( as.integer( as.character( res_table$Found_muts) ), decreasing = TRUE),  ]

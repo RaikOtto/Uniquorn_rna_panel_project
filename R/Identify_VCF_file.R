@@ -30,7 +30,7 @@
 #' @param q_value Required q-value for identification
 #' @param confidence_score Threshold above which a positive prediction occurs
 #' default 25.0
-#' @import DBI WriteXLS RSQLite
+#' @import DBI WriteXLS RSQLite stats
 #' @usage 
 #' identify_vcf_file( 
 #' vcf_file,
@@ -139,6 +139,18 @@ identify_vcf_file = function(
     
     found_mut_mapping = which( sim_list$Fingerprint %in% as.character(unlist(vcf_fingerprint)) ) # mapping
     
+    list_of_cls = unique( sim_list$CL )
+    
+    panels = unique( sapply( list_of_cls, FUN = function( cl_name ){
+        return(
+            paste0( "_",
+                    utils::tail( 
+                        unlist( stringr::str_split( cl_name, pattern = "_") ),
+                        1 ) 
+            )
+        )
+    } ) )
+    
     res_table = calculate_similarity_results(
         sim_list = sim_list,
         sim_list_stats = sim_list_stats,
@@ -146,11 +158,44 @@ identify_vcf_file = function(
         minimum_matching_mutations = minimum_matching_mutations,
         p_value = p_value,
         q_value = q_value,
-        confidence_score = confidence_score
+        confidence_score = confidence_score,
+        vcf_fingerprint,
+        panels = panels,
+        list_of_cls = list_of_cls
     )
     
     res_table = add_missing_cls( res_table, dif_cls )
     
+    ### correction background
+    
+    nr_matching_variants = as.double( res_table$Found_muts[ 
+        as.double( res_table$Found_muts ) > 0 
+    ] )
+    mean_matching_mutations = mean( as.double( nr_matching_variants ) )
+    nr_above_average = sum( 
+        as.double( nr_matching_variants ) >= mean_matching_mutations 
+    )
+    
+    if ( ( minimum_matching_mutations == 0 ) & ( nr_above_average > 1) ){
+        
+        x = seq(0,1, length = 100)
+        penalty = exp( 
+            1 + max( ( stats::pbeta( x, 1, ( nr_above_average - 1 ) ) - x ) )
+        )
+        minimum_matching_mutations = ceiling( mean_matching_mutations * penalty )
+        
+        res_table$Conf_score_sig = as.character( 
+            ( as.double( res_table$Found_muts ) >= 
+                minimum_matching_mutations ) &
+            as.logical( res_table$Conf_score_sig )
+        )
+        
+        message( paste0( collapse = "", c( 
+            "Adjusting background matches due to scale-freeness of amount of matches, 
+            requiring at least ", 
+            as.character( minimum_matching_mutations ), " variants to match." ) ) )
+    }
+   
     if (only_first_candidate)
         
       res_table$Conf_score_sig[ seq(2, length(res_table$Conf_score_sig)) ] = FALSE
