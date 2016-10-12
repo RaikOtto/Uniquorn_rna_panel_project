@@ -34,7 +34,11 @@ calculate_p_and_q_values = function(
         index_panel_sim_stats= grep( sim_list_stats$CL, pattern = panel )
         index_panel_list     = grep( list_of_cls, pattern = panel )
         
-        white_balls_possible = sim_list_stats$Count[ index_panel_sim_stats ]
+        #white_balls_possible = sim_list_stats$Count[ index_panel_sim_stats ]
+        white_balls_possible   = subset( 
+            x = sim_list_stats$Count, 
+            grepl( panel, sim_list_stats$CL)
+        )
         
         if ( ( panel == "_CUSTOM") && 
              ( length( p_values_panel ) == 1 ) && 
@@ -56,9 +60,8 @@ calculate_p_and_q_values = function(
         x = seq(0,1, length = 100)
         penalty = max( ( stats::pbeta( x, 1, background_cls_traces ) - x ) )
         
-        likelihood = 1 / white_balls_possible
-        #likelihood[ likelihood > .5 ] = .5
-        #likelihood = likelihood + abs( likelihood - .5 ) * penalty
+        #likelihood = 1 / white_balls_possible
+        likelihood = white_balls_possible / sum( white_balls_possible )
         
         q                    = white_balls_found - 1
         q[ q < 0 ]           = 0

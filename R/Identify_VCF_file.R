@@ -45,7 +45,7 @@
 #' verbose = FALSE,
 #' p_value = .05,
 #' q_value = .05,
-#' confidence_score = 25.0)
+#' confidence_score = 10.0)
 #' @examples 
 #' HT29_vcf_file = system.file("extdata/HT29.vcf.gz", package="Uniquorn");
 #' 
@@ -65,7 +65,7 @@ identify_vcf_file = function(
     verbose = FALSE,
     p_value = .05,
     q_value = .05,
-    confidence_score = 25.0
+    confidence_score = 10.0
     ){
   
     path_names = init_and_load_identification( 
@@ -122,12 +122,16 @@ identify_vcf_file = function(
     sim_list_stats = filtered_res$sim_list_stats
     
     contained_cls_original = sim_list_stats$CL
+    
     dif = length(contained_cls_original) - 
         length (sim_list_stats$CL)
+    
     dif_cls = contained_cls_original[
         which(!(contained_cls_original %in% sim_list_stats$CL))
-        ]
-    if ( (dif != 0) & verbose )
+    ]
+    
+    if ( ( dif != 0 ) & verbose )
+        
         warning(paste0(c(
             as.character(dif),
             " CLs have no mutations for the chosen weight 
@@ -137,7 +141,13 @@ identify_vcf_file = function(
             collapse=""
     ))
     
-    found_mut_mapping = which( sim_list$Fingerprint %in% as.character(unlist(vcf_fingerprint)) ) # mapping
+    found_mut_mapping = which(
+        sim_list$Fingerprint %in% as.character(
+            unlist(
+                vcf_fingerprint
+            )
+        )
+    ) # mapping
     
     list_of_cls = unique( sim_list$CL )
     
@@ -168,33 +178,54 @@ identify_vcf_file = function(
     
     ### correction background
     
+    res_table_tmp = res_table[1,]
+    res_table     = res_table[-1,]
+    
     nr_matching_variants = as.double( res_table$Found_muts[ 
         as.double( res_table$Found_muts ) > 0 
     ] )
-    mean_matching_mutations = mean( as.double( nr_matching_variants ) )
-    nr_above_average = sum( 
-        as.double( nr_matching_variants ) >= mean_matching_mutations 
-    )
     
-    if ( ( minimum_matching_mutations == 0 ) & ( nr_above_average > 1) ){
+    if ( length(nr_matching_variants) == 0 ){
         
-        x = seq(0,1, length = 100)
-        penalty = exp( 
-            1 + max( ( stats::pbeta( x, 1, ( nr_above_average - 1 ) ) - x ) )
-        )
-        minimum_matching_mutations = ceiling( mean_matching_mutations * penalty )
+        penalty = 0
+        penalty_mutations = 0
+        
+    } else{ 
+
+        penalty = integrate(
+            f = pbeta,
+            0,
+            1,
+            max(nr_matching_variants),
+            max( nr_matching_variants ) / mean( nr_matching_variants ),
+            stop.on.error = FALSE
+        )$value
+        
+        penalty_mutations = 
+            ceiling(
+                mean( nr_matching_variants ) + 
+                    ( max( nr_matching_variants ) * penalty ) / 
+                    ( 1 - penalty )
+            )
+    }
+    
+    
+    if ( ( minimum_matching_mutations == 0 ) & ( penalty > 0.01) ){
         
         res_table$Conf_score_sig = as.character( 
-            ( as.double( res_table$Found_muts ) >= 
-                minimum_matching_mutations ) &
+            ( as.double( res_table$Found_muts ) > 
+                  penalty_mutations ) &
             as.logical( res_table$Conf_score_sig )
         )
         
         message( paste0( collapse = "", c( 
-            "Adjusting background matches due to scale-freeness of amount of matches, 
+            "Correcting the background due to traces of random, scale-freeness amounts of matches, 
             requiring at least ", 
-            as.character( minimum_matching_mutations ), " variants to match." ) ) )
+            as.character( penalty_mutations ), " variants to match." ) )
+        )
     }
+    
+    res_table = rbind( res_table_tmp , res_table) 
    
     if (only_first_candidate)
         
@@ -210,7 +241,13 @@ identify_vcf_file = function(
         
       print( paste0("Storing information in table: ",output_file ) )
     
-    utils::write.table( res_table, output_file, sep ="\t", row.names = FALSE, quote = FALSE  )
+    utils::write.table( 
+        res_table,
+        output_file,
+        sep ="\t",
+        row.names = FALSE,
+        quote = FALSE
+    )
     
     if (output_bed_file & ( sum( as.logical(res_table$Q_value_sig) ) > 0 ))
          create_bed_file( 
@@ -223,12 +260,26 @@ identify_vcf_file = function(
         )
     
     if ( !verbose )
-        res_table = res_table[ , !( colnames(res_table) %in% c("P_values","Q_values","P_value_sig","Q_value_sig") ) ]
+        res_table = res_table[ ,
+            !( colnames( res_table ) %in% c(
+                "P_values",
+                "Q_values",
+                "P_value_sig",
+                "Q_value_sig"
+                )
+            )
+        ]
 
     
     if ( write_xls )
 
-        WriteXLS::WriteXLS( x = res_table, path.expand( output_file_xls ), row.names = FALSE)
+        WriteXLS::WriteXLS( 
+            x = res_table,
+            path.expand(
+                output_file_xls
+            ),
+            row.names = FALSE
+        )
     
     return( res_table )
 }

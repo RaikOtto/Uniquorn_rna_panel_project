@@ -1,6 +1,6 @@
 Package: Uniquorn
 Title: Identification of cancer cell lines based on their weighted mutational/ variational fingerprint
-Version: 1.0.8
+Version: 1.0.9
 Authors@R: person("Raik", "Otto", email = "raik.otto@hu-berlin.de", role = c("aut", "cre"))
 Description: This packages enables users to identify cancer cell lines. Cancer cell line 
  misidentification and cross-contamination reprents a significant challenge for 
@@ -9,13 +9,15 @@ Description: This packages enables users to identify cancer cell lines. Cancer c
  The input format is vcf/ vcf.gz and the files have to contain a single cancer cell line sample 
  (i.e. a single member/genotype/gt column in the vcf file).
  The implemented method is optimized for the Next-generation whole exome and whole genome DNA-sequencing 
-    technology. 
-Imports: 
+    technology. RNA-seq data is very likely to work as well but hasn't been rigiously tested yet. Panel-seq
+    will require manual adjustment of thresholds
+Imports:
     DBI,
     stringr,
     RSQLite,
     R.utils,
-    WriteXLS
+    WriteXLS,
+    stats
 Depends: 
     R (>= 3.3)
 License: Artistic-2.0
@@ -36,5 +38,6 @@ Suggests:
 biocViews: 
     Software,
     StatisticalMethod,
-    WholeGenome
+    WholeGenome,
+    ExomeSeq
 VignetteBuilder: knitr

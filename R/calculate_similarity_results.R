@@ -54,16 +54,30 @@ calculate_similarity_results = function(
             FUN = sum
         )
         
-        candidate_hits_abs_all[ which( list_of_cls %in% candidate_hits_abs$Group.1) ] = 
-            as.integer( candidate_hits_abs$x[ match( 
-                list_of_cls, 
-                candidate_hits_abs$Group.1, 
-                nomatch = 0 ) ] 
+        candidate_hits_abs_all[ 
+            which(
+                list_of_cls %in% candidate_hits_abs$Group.1
             )
+        ] = as.integer( 
+            candidate_hits_abs$x[
+                match( 
+                    list_of_cls, 
+                    candidate_hits_abs$Group.1, 
+                    nomatch = 0
+                )
+            ] 
+        )
         
-        cl_match_stats    = match( list_of_cls, sim_list_stats$CL, nomatch = 0 ) # mapping
+        cl_match_stats    = match(
+            list_of_cls,
+            sim_list_stats$CL,
+            nomatch = 0
+        ) # mapping
         candidate_hits_rel = round( 
-            candidate_hits_abs_all / sim_list_stats$Count[ cl_match_stats ] * 100,
+            candidate_hits_abs_all /
+            sim_list_stats$Count[
+                cl_match_stats
+            ] * 100,
             1
         ) 
         
@@ -97,7 +111,12 @@ calculate_similarity_results = function(
     passed_threshold_vec_q_value = rep(FALSE,length(q_values))
     passed_threshold_vec_q_value[ q_values <= q_value] = TRUE
     
-    output_cl_names = stringr::str_replace( list_of_cls, pattern = "_CCLE|_COSMIC|_CELLMINER|_CUSTOM", replacement = "" )
+    output_cl_names = stringr::str_replace(
+        list_of_cls,
+        pattern = "_CCLE|_COSMIC|_CELLMINER|_CUSTOM",
+        replacement = ""
+    )
+    
     panel_vec = rep("", length( output_cl_names ))
     panel_vec[ stringr::str_detect( list_of_cls, "_CCLE" ) ] = "CCLE"
     panel_vec[ stringr::str_detect( list_of_cls, "_COSMIC" ) ] = "COSMIC"
@@ -126,19 +145,43 @@ calculate_similarity_results = function(
     res_table = data.frame(
         "CL"                        = output_cl_names,
         "CL_source"                 = panel_vec,
-        "Found_muts"                = as.character( candidate_hits_abs_all ),
-        "Count_mutations"           = as.character( cl_absolute_mutation_hits ),
-        "P_values"                  = as.character( p_values ),
-        "Q_values"                  = as.character( q_values ),
-        "Conf_score"                = as.character( conf_score_vec ),
-        "P_value_sig"               = as.character( passed_threshold_vec_p_value ),
-        "Q_value_sig"               = as.character( passed_threshold_vec_q_value ),
-        "Conf_score_sig"            = as.character( passed_threshold_vec_con_score ),
-        stringsAsFactors = F
+        "Found_muts"                = as.character(
+            candidate_hits_abs_all
+        ),
+        "Count_mutations"           = as.character(
+            cl_absolute_mutation_hits
+        ),
+        "P_values"                  = as.character(
+            p_values
+        ),
+        "Q_values"                  = as.character(
+            q_values
+        ),
+        "Conf_score"                = as.character(
+            conf_score_vec
+        ),
+        "P_value_sig"               = as.character(
+            passed_threshold_vec_p_value
+        ),
+        "Q_value_sig"               = as.character(
+            passed_threshold_vec_q_value
+        ),
+        "Conf_score_sig"            = as.character( 
+            passed_threshold_vec_con_score
+        ),
+        stringsAsFactors = FALSE
     )
     
-    res_table = res_table[ order( as.integer( as.character( res_table$Found_muts) ), decreasing = TRUE),  ]
-    #res_table = res_table[ order( as.double( as.character( res_table$Conf_score) ), decreasing = TRUE),  ]
+    res_table = res_table[ 
+        order( 
+            as.integer(
+                as.character(
+                    res_table$Found_muts
+                )
+            ),
+            decreasing = TRUE
+        ),
+    ]
     
     return(res_table)
 }

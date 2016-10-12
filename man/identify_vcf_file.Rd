@@ -17,7 +17,7 @@ manual_identifier_bed_file = "",
 verbose = FALSE,
 p_value = .05,
 q_value = .05,
-confidence_score = 25.0)
+confidence_score = 10.0)
 }
 \arguments{
 \item{vcf_file}{Input vcf file. Only one sample column allowed.}
