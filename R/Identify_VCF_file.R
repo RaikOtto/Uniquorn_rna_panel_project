@@ -194,30 +194,33 @@ identify_vcf_file = function(
         penalty_mutations = 0
         
     } else{ 
+        
+        mean_match = mean( nr_matching_variants )
+        max_match  = max( nr_matching_variants )
 
         penalty = integrate(
             f = pbeta,
             0,
             1,
-            max( nr_matching_variants ) / mean( nr_matching_variants ),
-            max( nr_matching_variants ) / mean( nr_matching_variants ),
+            max_match/ mean_match,
+            max_match/ mean_match,
             stop.on.error = FALSE
         )$value
         
         penalty_mutations = 
             ceiling(
-                mean( nr_matching_variants ) + 
-                    ( max( nr_matching_variants ) * penalty ) / 
+                mean_match + 
+                    ( max_match * penalty ) / 
                     ( 1 - penalty )
             )
     }
     
     
-    if ( ( minimum_matching_mutations == 0 ) & ( penalty > 0.01) ){
+    if ( ( minimum_matching_mutations == 0 ) & ( penalty != 0.0) ){
         
         res_table$Conf_score_sig = as.character( 
             ( as.integer( res_table$Found_muts ) > 
-                  as.integer( penalty_mutations ) ) &&
+                  as.integer( penalty_mutations ) ) &
             as.logical( res_table$Conf_score_sig )
         )
         
@@ -228,8 +231,6 @@ identify_vcf_file = function(
         )
     }
     
-    res_table = rbind( res_table_statistic , res_table) 
-   
     if (only_first_candidate)
         
       res_table$Conf_score_sig[ seq(2, length(res_table$Conf_score_sig)) ] = FALSE
