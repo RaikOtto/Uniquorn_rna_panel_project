@@ -1,5 +1,26 @@
 \name{NEWS}
 \title{NEWS file for the \pkg{Uniquorn} bioconductor package }
+\section{Changes in version 1.1.2 [2016-28-11]}{
+    \subsection{Change of penalty function}{
+        \itemize{
+            \item The function that measures random background-noise matches and calculates a threshold above the background strength has been updated to be more strict.
+        }
+    }
+}
+\section{Changes in version 1.1.1 [2016-10-18]}{
+    \subsection{Change of default inclusion threshold}{
+        \itemize{
+            \item the new default inclusion weight has been set to 0.5 to optimally fit the new probabilistic model of version 1.0.9.
+        }
+    }
+}
+\section{Changes in version 1.0.9 [2016-10-11]}{
+    \subsection{Re-engineering of probabilistic model}{
+        \itemize{
+            \item The likelihood to observe a mutation/ variant in a query that matches a reference CCL's variant has been changed. The likelihood was 1 / #all variants in library and is now set to # number of variants in reference CCL / #all variants in library
+        }
+    }
+}
 \section{Changes in version 1.0.8 [2016-06-17]}{
     \subsection{Optimization confidence score}{
         \itemize{

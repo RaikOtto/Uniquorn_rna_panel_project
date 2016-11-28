@@ -47,6 +47,12 @@ initiate_canonical_databases = function(
       
         sim_list = parse_cosmic_genotype_data( cosmic_file, sim_list )
     }
+    
+    t_t_index = grep( 
+        sim_list$CL,
+        pattern = "T-T_COSMIC"
+    )
+    sim_list$CL[ t_t_index ] = "TT2_COSMIC"
   
     if (file.exists(ccle_file)){
       

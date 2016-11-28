@@ -29,7 +29,7 @@
 #' @param p_value Required p-value for identification
 #' @param q_value Required q-value for identification
 #' @param confidence_score Threshold above which a positive prediction occurs
-#' default 25.0
+#' default 10.0
 #' @import DBI WriteXLS RSQLite stats
 #' @usage 
 #' identify_vcf_file( 
@@ -37,7 +37,7 @@
 #' output_file = "",
 #' ref_gen = "GRCH37",
 #' minimum_matching_mutations = 0,
-#' mutational_weight_inclusion_threshold = 1.0,
+#' mutational_weight_inclusion_threshold = 0.5,
 #' only_first_candidate = FALSE,
 #' write_xls = FALSE,
 #' output_bed_file = FALSE,
@@ -57,7 +57,7 @@ identify_vcf_file = function(
     output_file = "",
     ref_gen = "GRCH37",
     minimum_matching_mutations = 0,
-    mutational_weight_inclusion_threshold = 1.0,
+    mutational_weight_inclusion_threshold = 0.5,
     only_first_candidate = FALSE,
     write_xls = FALSE,
     output_bed_file = FALSE,
@@ -178,11 +178,14 @@ identify_vcf_file = function(
     
     ### correction background
     
-    res_table_tmp = res_table[1,]
-    res_table     = res_table[-1,]
+    res_table_statistic = res_table[ 
+        res_table$Found_muts != res_table$Count_mutations
+    , ]
+    # this is done to avoid distortion of the statistic
+    # due to benchmarking the DB with its own fingerprints
     
-    nr_matching_variants = as.double( res_table$Found_muts[ 
-        as.double( res_table$Found_muts ) > 0 
+    nr_matching_variants = as.double( res_table_statistic$Found_muts[ 
+        as.double( res_table_statistic$Found_muts ) > 0 
     ] )
     
     if ( length(nr_matching_variants) == 0 ){
@@ -196,7 +199,7 @@ identify_vcf_file = function(
             f = pbeta,
             0,
             1,
-            max(nr_matching_variants),
+            max( nr_matching_variants ) / mean( nr_matching_variants ),
             max( nr_matching_variants ) / mean( nr_matching_variants ),
             stop.on.error = FALSE
         )$value
@@ -213,8 +216,8 @@ identify_vcf_file = function(
     if ( ( minimum_matching_mutations == 0 ) & ( penalty > 0.01) ){
         
         res_table$Conf_score_sig = as.character( 
-            ( as.double( res_table$Found_muts ) > 
-                  penalty_mutations ) &
+            ( as.integer( res_table$Found_muts ) > 
+                  as.integer( penalty_mutations ) ) &&
             as.logical( res_table$Conf_score_sig )
         )
         
@@ -225,7 +228,7 @@ identify_vcf_file = function(
         )
     }
     
-    res_table = rbind( res_table_tmp , res_table) 
+    res_table = rbind( res_table_statistic , res_table) 
    
     if (only_first_candidate)
         
