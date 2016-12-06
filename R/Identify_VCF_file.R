@@ -202,7 +202,7 @@ identify_vcf_file = function(
             f = pbeta,
             0,
             1,
-            max_match/ mean_match,
+            max_match,
             max_match/ mean_match,
             stop.on.error = FALSE
         )$value

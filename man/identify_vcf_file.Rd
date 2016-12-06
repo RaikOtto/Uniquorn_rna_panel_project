@@ -9,7 +9,7 @@ vcf_file,
 output_file = "",
 ref_gen = "GRCH37",
 minimum_matching_mutations = 0,
-mutational_weight_inclusion_threshold = 1.0,
+mutational_weight_inclusion_threshold = 0.5,
 only_first_candidate = FALSE,
 write_xls = FALSE,
 output_bed_file = FALSE,
@@ -55,7 +55,7 @@ them passing the detection threshold}
 \item{q_value}{Required q-value for identification}
 
 \item{confidence_score}{Threshold above which a positive prediction occurs
-default 25.0}
+default 10.0}
 }
 \value{
 R table with a statistic of the identification result

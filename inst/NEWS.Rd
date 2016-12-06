@@ -1,5 +1,12 @@
 \name{NEWS}
 \title{NEWS file for the \pkg{Uniquorn} bioconductor package }
+\section{Changes in version 1.2.1 [2016-28-11]}{
+    \subsection{Fixed yet another penalty function bug}{
+        \itemize{
+            \item Fixed rather major bug that led to too high penalty scores.
+        }
+    }
+}
 \section{Changes in version 1.1.3 [2016-28-11]}{
     \subsection{Fixed penalty function bug}{
         \itemize{
