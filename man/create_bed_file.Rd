@@ -44,4 +44,3 @@ creation has succeeded
 \description{
 Creates BED files from the found and not found annotated mutations
 }
-

@@ -17,4 +17,3 @@ The R Table sim_list which contains the CCLE fingerprints
 \description{
 Parses ccle genotype data
 }
-

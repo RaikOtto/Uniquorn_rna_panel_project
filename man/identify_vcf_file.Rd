@@ -17,7 +17,8 @@ manual_identifier_bed_file = "",
 verbose = FALSE,
 p_value = .05,
 q_value = .05,
-confidence_score = 10.0)
+confidence_score = 10.0,
+n_threads = 1)
 }
 \arguments{
 \item{vcf_file}{Input vcf file. Only one sample column allowed.}
@@ -56,6 +57,8 @@ them passing the detection threshold}
 
 \item{confidence_score}{Threshold above which a positive prediction occurs
 default 10.0}
+
+\item{n_threads}{Number of threads to be used}
 }
 \value{
 R table with a statistic of the identification result
@@ -73,4 +76,3 @@ HT29_vcf_file = system.file("extdata/HT29.vcf.gz", package="Uniquorn");
 
 identification = identify_vcf_file( HT29_vcf_file )
 }
-

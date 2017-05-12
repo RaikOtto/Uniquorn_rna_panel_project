@@ -19,4 +19,3 @@ A list containing both the sim_list at pos 1 and sim_list_stats at pos 2 data fr
 \description{
 This function re-calculates the weights of mutation after a change of the training set
 }
-

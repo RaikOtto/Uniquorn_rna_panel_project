@@ -1,5 +1,12 @@
 \name{NEWS}
 \title{NEWS file for the \pkg{Uniquorn} bioconductor package }
+\section{Changes in version 1.4.1 [2017-12-05]}{
+    \subsection{Fixed yet another penalty function bug}{
+        \itemize{
+            \item Fixed critical bug which disabled identifying CCLs in single-thread mode.
+        }
+    }
+}
 \section{Changes in version 1.3.1 [2016-28-11]}{
     \subsection{Fixed yet another penalty function bug}{
         \itemize{

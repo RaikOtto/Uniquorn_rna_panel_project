@@ -29,4 +29,3 @@ the sim_list and sim_list_stats variable
 \description{
 Intern utility function, writes to database the sim_list and sim_list_stats variables
 }
-

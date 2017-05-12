@@ -22,4 +22,3 @@ for a chosen reference genome.
 contained_cls = show_contained_cls( 
 ref_gen = "GRCH37")
 }
-

@@ -10,14 +10,17 @@
 #' associated with a reference genome version. Default: GRCH37
 #' @param vcf_file Path to vcf_file
 #' @param output_file Path to output report file
+#' @param n_threads Specifies number of threads to be used
+#' @import BiocParallel
 #' @usage 
 #' init_and_load_identification( 
 #' verbose,
 #' ref_gen,
 #' vcf_file,
-#' output_file)
+#' output_file,
+#' n_threads)
 #' @return Three file path instances and the fingerprint
-init_and_load_identification = function( verbose, ref_gen, vcf_file, output_file ){
+init_and_load_identification = function( verbose, ref_gen, vcf_file, output_file, n_threads ){
 
     if ( verbose )  
         print( paste0("Assuming reference genome ", ref_gen) )
@@ -27,7 +30,8 @@ init_and_load_identification = function( verbose, ref_gen, vcf_file, output_file
     if (verbose)
         print( paste0("Reading VCF file: ", vcf_file ) )
     
-    vcf_fingerprint = parse_vcf_file( vcf_file )
+    vcf_fingerprint = parse_vcf_file( vcf_file, n_threads )
+    vcf_file_name = utils::tail( as.character( unlist( stringr::str_split( vcf_file, "/" ) ) ), 1 )
     
     if ( output_file == ""  ){
         
@@ -35,10 +39,15 @@ init_and_load_identification = function( verbose, ref_gen, vcf_file, output_file
         
     }else if ( base::dir.exists( output_file ) ){
         
-        vcf_file_name = utils::tail( as.character( unlist( stringr::str_split( vcf_file, "/" ) ) ), 1 )
-        output_file = base::paste( output_file, base::paste( 
-            vcf_file_name, "uniquorn_ident.tab", sep ="_"), sep = "/") 
-        
+        output_file = base::paste(
+            output_file,
+            base::paste( 
+                vcf_file_name,
+                "uniquorn_ident.tab",
+                sep ="_"
+            ),
+            sep = "/"
+        ) 
     }
     output_file_xls = stringr::str_replace( output_file, ".tab$", ".xls" ) 
     
@@ -48,7 +57,8 @@ init_and_load_identification = function( verbose, ref_gen, vcf_file, output_file
     res_list = list( 
         "output_file"     = output_file,
         "output_file_xls" = output_file_xls,
-        "vcf_fingerprint" = vcf_fingerprint
+        "vcf_fingerprint" = vcf_fingerprint,
+        "vcf_file_name"   = vcf_file_name
     )
     
     return( res_list )

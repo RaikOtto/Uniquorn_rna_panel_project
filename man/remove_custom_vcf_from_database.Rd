@@ -30,4 +30,3 @@ name_cl = "HT29_CELLMINER",
 ref_gen = "GRCH37",
 test_mode = TRUE )
 }
-

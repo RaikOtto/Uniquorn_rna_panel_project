@@ -23,4 +23,3 @@ Returns the sim_list and sim_list_stats variable
 \description{
 Intern utility function, loads database and return the sim_list and sim_list_stats variables.
 }
-

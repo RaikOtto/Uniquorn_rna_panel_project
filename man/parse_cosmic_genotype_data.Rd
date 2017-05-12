@@ -17,4 +17,3 @@ The R Table sim_list which contains the CoSMIC CLP fingerprints
 \description{
 Parses cosmic genotype data
 }
-

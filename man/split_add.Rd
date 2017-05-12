@@ -15,4 +15,3 @@ Transformed entry of vcf file, reduced to start and length
 \description{
 split_add
 }
-

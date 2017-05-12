@@ -81,6 +81,123 @@ parse_ccle_genotype_data = function( ccle_file, sim_list ){
     return(sim_list)
 }
 
+#' parse_vcf_file
+#' 
+#' Parses the vcf file and filters all information except for the start and length of variations/ mutations.
+#' 
+#' @param vcf_file_path Path to the vcf file on the operating system
+#' @param n_threads Specifies number of threads to be used
+#' @import BiocParallel
+#' @usage 
+#' parse_vcf_file( vcf_file_path, n_threads)
+#' @return Loci-based DNA-mutational fingerprint of the cancer cell line as found in the input VCF file 
+parse_vcf_file = function( vcf_file_path, n_threads ){
+    
+    if ( base::file.exists( vcf_file_path ) ){
+        
+        vcf_handle = utils::read.table(
+            vcf_file_path,
+            sep ="\t",
+            header = FALSE,
+            comment.char = "#",
+            fill = TRUE,
+            stringsAsFactors = FALSE
+        )
+        
+        if (n_threads > 1){
+        
+            fingerprint = BiocParallel::bplapply( 
+                1:n_threads,
+                FUN = split_add_parallel,
+                vcf_matrix_row = vcf_handle,
+                MARGIN = 1,
+                n_threads = n_threads
+            )
+        } else {
+            
+            fingerprint = apply(
+                vcf_handle,
+                FUN = split_add,
+                MARGIN = 1
+            )
+        }
+        fingerprint = unique( as.character( unlist(fingerprint) ) )
+
+        return( fingerprint )
+        
+    } else {
+        
+        stop( paste0( "Did not find VCF file: ", vcf_file_path  ) )
+    }
+}
+
+#' split_add_parallel
+#' 
+#' @param para_index row of the vcf file
+#' @param vcf_matrix_row A row of the parsed vcf file
+#' @param vcf_handle Handle to the parsed VCF file
+#' @param MARGIN Margin of the parse operation
+#' @param n_threads Specifies number of threads to be used
+#' @return Transformed entry of vcf file, reduced to start and length
+split_add_parallel = function( para_index, vcf_matrix_row, vcf_handle, MARGIN, n_threads ){
+    
+    length_overall = nrow(vcf_matrix_row)
+    intervals = round(seq( 1 , nrow(vcf_matrix_row), length.out = n_threads + 1))
+
+    start_para = intervals[para_index]
+    end_para   = intervals[para_index+1]
+    vcf_matrix_row = vcf_matrix_row[start_para:end_para,]
+
+    fingerprint = apply( 
+        vcf_matrix_row,
+        MARGIN = 1,
+        FUN = function( entry_line ){
+            
+            variations = as.character( unlist( stringr::str_split( unlist( entry_line[5] ), "," ) ) )
+            amount_variations = length(unlist( stringr::str_split( unlist( entry_line[5] ), "," ) ) )
+        
+            chrom = stringr::str_replace(
+                stringr::str_to_upper(
+                    stringr::str_trim(
+                        as.character(
+                            unlist(
+                                entry_line[1]
+                            )
+                        )
+                    )
+                ),
+                "CHR",
+                ""
+            )
+            line_chrom = rep( chrom, amount_variations )
+            line_start = rep( str_trim( as.character( entry_line[2] ) ), amount_variations )
+            line_fingerprint = c()
+        
+            for (j in 1:amount_variations){
+                
+                if ( ( line_chrom[j] %in% c(1:22,"X","Y","M","MT") ) ){
+                
+                    variant_length = nchar( variations[j] ) - 1
+                    line_end = as.character( as.integer(line_start[j]) + variant_length )
+                    
+                    line_fingerprint = c(line_fingerprint,
+                         paste0(
+                             c( 
+                                 str_trim( as.character(line_chrom[j]) ),
+                                 str_trim( as.character(line_start[j]) ),
+                                 str_trim( as.character(line_end) )
+                             ),
+                             collapse = "_"
+                         )
+                    )
+                }
+            }
+            return(line_fingerprint)
+    } )
+    return( fingerprint )
+}
+
+
 #' split_add
 #' 
 #' @param vcf_matrix_row row of the vcf file
@@ -95,7 +212,8 @@ split_add = function( vcf_matrix_row ){
     chromosome = rep( as.character( vcf_matrix_row[1] ), length(variations)  )
     start      = as.integer( rep( vcf_matrix_row[2], length(variations)  ) )
     
-    fingerprint = as.character()
+    fingerprint_split_add = as.character()
+    
     for ( i in seq( length_variations ) ){ 
         
         start_var  = as.character( start[i] )
@@ -107,8 +225,8 @@ split_add = function( vcf_matrix_row ){
         
         chrom      = stringr::str_replace( stringr::str_to_upper( stringr::str_trim( as.character( unlist( chromosome[i] ) ) ) ), "CHR", "" )
         
-        fingerprint = c( 
-            fingerprint, 
+        fingerprint_split_add = c( 
+            fingerprint_split_add, 
             paste0( c( 
                 as.character(chrom),
                 as.character(start_var),
@@ -118,30 +236,5 @@ split_add = function( vcf_matrix_row ){
         )
     }
     
-    return( fingerprint )
-}
-
-#' parse_vcf_file
-#' 
-#' Parses the vcf file and filters all information except for the start and length of variations/ mutations.
-#' 
-#' @param vcf_file_path Path to the vcf file on the operating system
-#' @usage 
-#' parse_vcf_file( vcf_file_path )
-#' @return Loci-based DNA-mutational fingerprint of the cancer cell line as found in the input VCF file 
-parse_vcf_file = function( vcf_file_path  ){
-    
-    if ( base::file.exists( vcf_file_path ) ){
-        
-        vcf_handle = utils::read.table( vcf_file_path, sep ="\t", header = FALSE, comment.char = "#", fill = TRUE )
-        
-        fingerprint = apply( vcf_handle, FUN = split_add, MARGIN = 1  )
-        fingerprint = unique( as.character( unlist(fingerprint ) ) )
-        
-        return( fingerprint )
-        
-    } else {
-        
-        stop( paste0( "Did not find VCF file: ", vcf_file_path  ) )
-    }
+    return( fingerprint_split_add )
 }

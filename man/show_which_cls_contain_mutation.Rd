@@ -24,4 +24,3 @@ Cls_containing_mutations = show_which_cls_contain_mutation(
 mutation_name = "10_103354427_103354427", 
 ref_gen = "GRCH37")
 }
-

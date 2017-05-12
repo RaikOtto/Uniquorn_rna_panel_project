@@ -28,9 +28,10 @@
 #' @param verbose Print additional information
 #' @param p_value Required p-value for identification
 #' @param q_value Required q-value for identification
+#' @param n_threads Number of threads to be used
 #' @param confidence_score Threshold above which a positive prediction occurs
 #' default 10.0
-#' @import DBI WriteXLS RSQLite stats
+#' @import DBI WriteXLS RSQLite stats BiocParallel
 #' @usage 
 #' identify_vcf_file( 
 #' vcf_file,
@@ -45,7 +46,8 @@
 #' verbose = FALSE,
 #' p_value = .05,
 #' q_value = .05,
-#' confidence_score = 10.0)
+#' confidence_score = 10.0,
+#' n_threads = 1)
 #' @examples 
 #' HT29_vcf_file = system.file("extdata/HT29.vcf.gz", package="Uniquorn");
 #' 
@@ -65,13 +67,23 @@ identify_vcf_file = function(
     verbose = FALSE,
     p_value = .05,
     q_value = .05,
-    confidence_score = 10.0
+    confidence_score = 10.0,
+    n_threads = 1
     ){
   
+    if (n_threads >1)
+        BiocParallel::register(BiocParallel::MulticoreParam( n_threads ))
+    
     path_names = init_and_load_identification( 
-        verbose = verbose, vcf_file = vcf_file, 
-        ref_gen = ref_gen, output_file = output_file
+        verbose = verbose, 
+        vcf_file = vcf_file, 
+        ref_gen = ref_gen,
+        output_file = output_file,
+        n_threads = n_threads
     )
+    if (n_threads >1)
+      register(SerialParam(), default=TRUE)
+    
     vcf_file_name   = path_names$vcf_file_name
     output_file     = path_names$output_file
     output_file_xls = path_names$output_file_xls
@@ -140,6 +152,8 @@ identify_vcf_file = function(
             , " Probably they are too closely simlar to other training CLs"),
             collapse=""
     ))
+    
+    ### important mapping function which establishes the similarity
     
     found_mut_mapping = which(
         sim_list$Fingerprint %in% as.character(

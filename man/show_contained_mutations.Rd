@@ -21,4 +21,3 @@ for identification of query cancer cell lines.
 \examples{
 contained_cls = show_contained_mutations( ref_gen = "GRCH37" )
 }
-

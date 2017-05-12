@@ -5,26 +5,24 @@
 \title{Adds a custom vcf file to the three existing cancer cell line panels}
 \usage{
 add_custom_vcf_to_database( 
- vcf_file_path, 
+ vcf_input_files, 
 ref_gen = "GRCH37", 
-name_cl = "", 
-safe_mode = FALSE, 
-test_mode = FALSE)
+library = "", 
+test_mode = FALSE,
+n_threads = 1)
 }
 \arguments{
-\item{vcf_file_path}{Input vcf file. Only one sample column allowed.}
+\item{vcf_input_files}{Input vcf file.s This may be one or many vcf files}
 
 \item{ref_gen}{Reference genome version. All training sets are associated 
 with a reference genome version. Default: GRCH37}
 
-\item{name_cl}{Name of the to-be-added cancer cell line sample. '_CUSTOM' 
+\item{library}{The name of the library to add the CCLs to. Standard is '_CUSTOM' 
 will automatically be added as suffix.}
 
-\item{safe_mode}{Only add mutations to the database where there already are
-mutations found in the cannonical cancer cell lines. This is a safety 
-mechanism against overfitting if there are too few custom training samples.}
-
 \item{test_mode}{Is this a test? Just for internal use}
+
+\item{n_threads}{Specifies number of threads to be used}
 }
 \value{
 Message if the adding has succeeded
@@ -35,10 +33,9 @@ Adds a custom vcf file to the three existing cancer cell line panels
 \examples{
 HT29_vcf_file = system.file("extdata/HT29.vcf.gz", package="Uniquorn");
 add_custom_vcf_to_database( 
-vcf_file_path = HT29_vcf_file,
-name_cl = "",
+vcf_input_files = HT29_vcf_file,
+library = "",
 ref_gen = "GRCH37",
-safe_mode = FALSE,
-test_mode = TRUE )
+test_mode = TRUE,
+n_threads = 1)
 }
-

@@ -24,4 +24,3 @@ SK_OV_3_CELLMINER_mutations = show_contained_mutations_for_cl(
 name_cl = "SK_OV_3_CELLMINER_mutations",
 ref_gen = "GRCH37")
 }
-
