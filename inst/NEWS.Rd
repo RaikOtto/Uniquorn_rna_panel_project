@@ -1,5 +1,12 @@
 \name{NEWS}
 \title{NEWS file for the \pkg{Uniquorn} bioconductor package }
+\section{Changes in version 1.4.2 [2017-15-05]}{
+    \subsection{Added critical scripts}{
+        \itemize{
+            \item Added a script to parse vcf files in a non-parallelized fashion.
+        }
+    }
+}
 \section{Changes in version 1.4.1 [2017-12-05]}{
     \subsection{Fixed yet another penalty function bug}{
         \itemize{
