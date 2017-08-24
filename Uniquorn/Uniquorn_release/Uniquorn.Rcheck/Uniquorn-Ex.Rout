@@ -1,0 +1,233 @@
+
+R version 3.4.0 (2017-04-21) -- "You Stupid Darkness"
+Copyright (C) 2017 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin15.6.0 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> pkgname <- "Uniquorn"
+> source(file.path(R.home("share"), "R", "examples-header.R"))
+> options(warn = 1)
+> library('Uniquorn')
+> 
+> base::assign(".oldSearch", base::search(), pos = 'CheckExEnv')
+> cleanEx()
+> nameEx("add_custom_vcf_to_database")
+> ### * add_custom_vcf_to_database
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: add_custom_vcf_to_database
+> ### Title: Adds a custom vcf file to the three existing cancer cell line
+> ###   panels
+> ### Aliases: add_custom_vcf_to_database
+> 
+> ### ** Examples
+> 
+> HT29_vcf_file = system.file("extdata/HT29.vcf.gz", package="Uniquorn");
+> add_custom_vcf_to_database( 
++ vcf_input_files = HT29_vcf_file,
++ library = "",
++ ref_gen = "GRCH37",
++ test_mode = TRUE,
++ n_threads = 1)
+[1] "No library name entered, choosing 'CUSTOM' as library"
+[1] "Reference genome: GRCH37"
+[1] "Found following file, parsing: /Users/raikotto/Dropbox/PhD/Uniquorn_project/Uniquorn_release/Uniquorn.Rcheck/Uniquorn/extdata/HT29.vcf.gz"
+[1] "Finished parsing file: /Users/raikotto/Dropbox/PhD/Uniquorn_project/Uniquorn_release/Uniquorn.Rcheck/Uniquorn/extdata/HT29.vcf.gz"
+[1] "Aggregating over parsed Cancer Cell Line data"
+[1] "Distinguishing between panels: CELLMINER, CUSTOM"
+[1] "CELLMINER"
+[1] "Aggregating over mutational frequency to obtain mutational weight"
+[1] "CUSTOM"
+[1] "Aggregating over mutational frequency to obtain mutational weight"
+[1] "Finished aggregating, saving to database"
+[1] "Finished adding CCLs"
+> 
+> 
+> 
+> cleanEx()
+> nameEx("identify_vcf_file")
+> ### * identify_vcf_file
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: identify_vcf_file
+> ### Title: identify_VCF_file
+> ### Aliases: identify_vcf_file
+> 
+> ### ** Examples
+> 
+> HT29_vcf_file = system.file("extdata/HT29.vcf.gz", package="Uniquorn");
+> 
+> identification = identify_vcf_file( HT29_vcf_file )
+Correcting the background due to traces of random, scale-freeness amounts of matches, 
+            requiring at least 50 variants to match.
+> 
+> 
+> 
+> cleanEx()
+> nameEx("initiate_canonical_databases")
+> ### * initiate_canonical_databases
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: initiate_canonical_databases
+> ### Title: initiate_canonical_databases
+> ### Aliases: initiate_canonical_databases
+> 
+> ### ** Examples
+> 
+> initiate_canonical_databases(
++ cosmic_file = "CosmicCLP_MutantExport.tsv",
++ ccle_file = "CCLE_hybrid_capture1650_hg19_NoCommonSNPs_CDS_2012.05.07.maf",
++ ref_gen = "GRCH37")
+[1] "Reference genome: " "GRCH37"            
+Warning in initiate_canonical_databases(cosmic_file = "CosmicCLP_MutantExport.tsv",  :
+  Did neither find CCLE & CoSMIC CLP file! Aborting.
+> 
+> 
+> 
+> cleanEx()
+> nameEx("remove_custom_vcf_from_database")
+> ### * remove_custom_vcf_from_database
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: remove_custom_vcf_from_database
+> ### Title: Removes a cancer cell line training fingerprint (vcf file) from
+> ###   the database. The names of all training sets can be seen by using the
+> ###   function 'show_contained_cls'.
+> ### Aliases: remove_custom_vcf_from_database
+> 
+> ### ** Examples
+> 
+> remove_custom_vcf_from_database( 
++ name_cl = "HT29_CELLMINER", 
++ ref_gen = "GRCH37",
++ test_mode = TRUE )
+[1] "Reference genome: GRCH37"
+[1] "Found CL HT29_CELLMINER. Removing from database and recalculating training-sets."
+[1] "Found & removed the sample. Re-calculating the Cancer cell line data"
+[1] "Distinguishing between panels: CELLMINER"
+[1] "CELLMINER"
+[1] "Aggregating over mutational frequency to obtain mutational weight"
+[1] "Finished aggregating, saving to database"
+[1] "Finished removing CL HT29_CELLMINER"
+> 
+> 
+> 
+> cleanEx()
+> nameEx("show_contained_cls")
+> ### * show_contained_cls
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: show_contained_cls
+> ### Title: show_contained_cls
+> ### Aliases: show_contained_cls
+> 
+> ### ** Examples
+> 
+> contained_cls = show_contained_cls( 
++ ref_gen = "GRCH37")
+[1] "Reference genome: GRCH37"
+[1] "Found 60 many cancer cell lines fingerprints for reference genome GRCH37"
+[1] "CoSMIC CLP:  0"
+[1] "CCLE:  0"
+[1] "CellMiner:  60"
+[1] "CUSTOM:  0"
+> 
+> 
+> 
+> cleanEx()
+> nameEx("show_contained_mutations")
+> ### * show_contained_mutations
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: show_contained_mutations
+> ### Title: show_contained_mutations
+> ### Aliases: show_contained_mutations
+> 
+> ### ** Examples
+> 
+> contained_cls = show_contained_mutations( ref_gen = "GRCH37" )
+[1] "Reference genome: GRCH37"
+[1] "Found 68334 many cancer cell lines associated mutations for reference genome GRCH37"
+ Fingerprint             CL                Weight          Ref_Gen         
+ Length:68334       Length:68334       Min.   :0.01667   Length:68334      
+ Class :character   Class :character   1st Qu.:1.00000   Class :character  
+ Mode  :character   Mode  :character   Median :1.00000   Mode  :character  
+                                       Mean   :0.83797                     
+                                       3rd Qu.:1.00000                     
+                                       Max.   :1.00000                     
+> 
+> 
+> 
+> cleanEx()
+> nameEx("show_contained_mutations_for_cl")
+> ### * show_contained_mutations_for_cl
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: show_contained_mutations_for_cl
+> ### Title: show_contained_mutations_for_cl
+> ### Aliases: show_contained_mutations_for_cl
+> 
+> ### ** Examples
+> 
+> SK_OV_3_CELLMINER_mutations = show_contained_mutations_for_cl(
++ name_cl = "SK_OV_3_CELLMINER_mutations",
++ ref_gen = "GRCH37")
+[1] "Reference genome: GRCH37"
+Could not find the cancer cell line SK_OV_3_CELLMINER_mutations in the database.
+> 
+> 
+> 
+> cleanEx()
+> nameEx("show_which_cls_contain_mutation")
+> ### * show_which_cls_contain_mutation
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: show_which_cls_contain_mutation
+> ### Title: show_which_cls_contain_mutation
+> ### Aliases: show_which_cls_contain_mutation
+> 
+> ### ** Examples
+> 
+> Cls_containing_mutations = show_which_cls_contain_mutation( 
++ mutation_name = "10_103354427_103354427", 
++ ref_gen = "GRCH37")
+[1] "Reference genome: GRCH37"
+[1] "Found 1 many cancer cell lines for mutation 10_103354427_103354427 for reference genome GRCH37"
+> 
+> 
+> 
+> ### * <FOOTER>
+> ###
+> options(digits = 7L)
+> base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
+Time elapsed:  26.58 0.771 27.504 0 0 
+> grDevices::dev.off()
+null device 
+          1 
+> ###
+> ### Local variables: ***
+> ### mode: outline-minor ***
+> ### outline-regexp: "\\(> \\)?### [*]+" ***
+> ### End: ***
+> quit('no')

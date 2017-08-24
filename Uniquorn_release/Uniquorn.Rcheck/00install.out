@@ -1,0 +1,12 @@
+Bioconductor version 3.5 (BiocInstaller 1.26.0), ?biocLite for help
+* installing *source* package ‘Uniquorn’ ...
+** R
+** inst
+** preparing package for lazy loading
+** help
+*** installing help indices
+** building package indices
+** installing vignettes
+** testing if installed package can be loaded
+Bioconductor version 3.5 (BiocInstaller 1.26.0), ?biocLite for help
+* DONE (Uniquorn)

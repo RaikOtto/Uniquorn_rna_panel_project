@@ -1,0 +1,10 @@
+
+--This line, and those below, will be ignored--
+
+M    R/calculate_p_q_values.R
+M    R/calculate_similarity_results.R
+M    R/Identify_VCF_file.R
+M    DESCRIPTION
+M    NAMESPACE
+M    inst/extdata/HT29.vcf.gz_uniquorn_ident.tab
+M    inst/NEWS.Rd
