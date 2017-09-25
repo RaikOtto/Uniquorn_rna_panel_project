@@ -10,23 +10,35 @@ add_single_file = function(
 
     # reading vcf
     
-    name_present = base::grepl( library, sim_list_stats$CL )
+    vcf_name = str_to_upper( basename( vcf_file_path) )
+    vcf_name = str_replace_all(vcf_name, pattern = "\\.","_")
+    vcf_name = str_replace_all(vcf_name, pattern = "_VCF","")
+    vcf_full_name = paste(vcf_name, library, sep ="_")
     
+    name_present = base::grepl( vcf_full_name, sim_list_stats$CL )
     if( sum( name_present ) > 0 ){ 
-        stop( paste0( c("Fingerprint with name ",library, 
-                        " already present in database. Please change the 
+       print( paste0( c("Fingerprint with name ",vcf_full_name, 
+                      " already present in database. Please change the 
                         name or remove the old cancer cell line."), 
-                      collapse = "" )  )
+                    collapse = "" )  )
+        return(as.data.frame(matrix(as.character(), ncol=2,nrow=0)))
+    } else {
+    
+        print(paste(c("Adding CCL ",vcf_name," to library ",library),sep="",collapse= ""))
+        
+        vcf_fingerprint = as.character( parse_vcf_file(vcf_file_path, n_threads ) )
+        vcf_fingerprint_length = length(vcf_fingerprint)
+        
+        vcf_fingerprint = data.frame( 
+            "Fingerprint" = vcf_fingerprint,
+            "CL"  = rep(
+                vcf_full_name,
+                vcf_fingerprint_length
+            )
+        )
+        
+        print(paste0("Finished parsing file: ", vcf_file_path))
+
+        return(vcf_fingerprint)
     }
-
-    vcf_fingerprint = as.character( parse_vcf_file(vcf_file_path, n_threads ) )
-    
-    vcf_fingerprint = data.frame( 
-        "Fingerprint" = vcf_fingerprint,
-        "CL"  = rep( library, length(as.character(vcf_fingerprint)) )
-    )
-    
-    print(paste0("Finished parsing file: ", vcf_file_path))
-
-    return(vcf_fingerprint)
 }

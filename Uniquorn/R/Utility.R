@@ -21,12 +21,13 @@ initiate_db_and_load_data = function( ref_gen, request_table, load_default_db = 
 
     drv = RSQLite::SQLite()
     
-    if( file.exists( database_path) & (! load_default_db ) & (file.size( database_path ) != 0 ) )
+    if( file.exists( database_path) & (! load_default_db ) & (file.size( database_path ) != 0 ) ){
         con = DBI::dbConnect(drv, dbname = database_path)
-    else
+    }else{
         con = DBI::dbConnect(drv, dbname = default_database_path)
-
+    }
     res = as.data.frame( DBI::dbReadTable( con, request_table) )
+    res = res[, colnames(res) != "row_names"]
     
     DBI::dbDisconnect(con)
     

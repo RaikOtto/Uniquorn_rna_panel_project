@@ -1,4 +1,4 @@
-#' show_contained_cls
+#' show_amount_cls_per_database
 #' 
 #' Show all cancer cell line identifier present in the database for a selected reference genome:
 #' This function shows the names, amount of mutations/ variations, overall weight of the mutations of all contained training CLs 
@@ -7,25 +7,23 @@
 #' @param ref_gen Reference genome version. All training sets are associated with a reference genome version. Default: GRCH37
 #' @return R table which contains the identifier of all cancer cell line samples with the specific reference genome and the weight of all mutations
 #' @usage 
-#' show_contained_cls( 
+#' show_amount_cls_per_database( 
 #' ref_gen)
 #' @examples 
-#' contained_cls = show_contained_cls( 
+#' contained_cls = show_amount_cls_per_database( 
 #' ref_gen = "GRCH37")
 #' @import DBI RSQLite
 #' @export
-show_contained_cls = function( ref_gen = "GRCH37"){
+show_amount_cls_per_database = function( ref_gen = "GRCH37"){
 
-    print(paste0("Reference genome: ",ref_gen))
-    
     sim_list_stats = initiate_db_and_load_data( ref_gen = ref_gen, request_table = "sim_list_stats" )
     
-    print( paste0( c("Found ", dim(sim_list_stats)[1], " many cancer cell lines fingerprints for reference genome ", ref_gen ), collapse = ""  )  )
+    print( paste0( c("Found ", nrow(sim_list_stats), " many cancer cell lines fingerprints for reference genome ", ref_gen ), collapse = ""  )  )
 
-    print( paste( "CoSMIC CLP: ", as.character( sum( grepl( "_COSMIC", sim_list_stats$CL ) ) ) ) )
-    print( paste( "CCLE: ", as.character( sum( grepl( "_CCLE", sim_list_stats$CL ) ) ) ) )
-    print( paste( "CellMiner: ", as.character( sum( grepl( "_CELLMINER", sim_list_stats$CL ) ) ) ) )
-    print( paste( "CUSTOM: ", as.character( sum( grepl( "_CUSTOM", sim_list_stats$CL ) ) ) ) )
+    databases = unique( sapply( sim_list_stats[,1], FUN = function(vec){return(tail(as.character(unlist(str_split(vec,"_"))),1))} ) )
+    for( database in databases){
+        print( paste( database, as.character( sum( grepl( database, sim_list_stats$CL ) ) ) ) )
+    }
     
     return( sim_list_stats )
 }
