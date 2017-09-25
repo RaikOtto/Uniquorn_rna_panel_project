@@ -34,7 +34,7 @@ run_benchmark_endgegner = function(
         cellminer = F,
         type_benchmark = type_benchmark
     )
-    gold_t = read.table( file = "~/Dropbox/PhD/Uniquorn_project/Pub/Goldstandard.tab",sep="\t", header = TRUE)
+    gold_t = read.table( file = "~/Dropbox/PhD/Uniquorn_project/Pub/Goldstandard.tsv",sep="\t", header = TRUE)
 
   ## prep phase
   
