@@ -31,7 +31,7 @@ add_custom_vcfs_to_database = function(
     test_mode = FALSE,
     n_threads = 1
     ){
-    vcf_input_files = list.files("~/Uniquorn_data/EGA_results/vcf_hg19/",full.names = T)[-1* 1:3]
+    
     if (n_threads >1)
         BiocParallel::register(BiocParallel::MulticoreParam( n_threads ))
     
@@ -41,38 +41,6 @@ add_custom_vcfs_to_database = function(
         print("No library name entered, please enter a library name")
         library = "CUSTOM"
     }
-    
-    #if (cl_name == ""){
-        
-    #    vcf_identifier = as.character( 
-    #        utils::tail( 
-    #            unlist( 
-    #                stringr::str_split( 
-    #                    vcf_input_files[1], 
-    #                    "/" 
-    #                )
-    #            ), 
-    #            1)
-    #    )
-    #    cl_name = utils::head( 
-    #        unlist( stringr::str_split( vcf_identifier, ".vcf|.VCF" ) ) ,
-    #        1)
-    #    cl_name = stringr::str_to_upper( base::paste( 
-    #        cl_name, library, sep ="_"  
-    #    ))
-    #    print( base::paste0( 
-    #        "No cl name provided, adding auto-generated fingerprint: ",
-    #        cl_name
-    #    ) )
-    #} else {
-        
-    #    base::print( base::paste0( 
-    #            "Adding fingerprint with user-defined name: ",
-    #            paste( cl_name, library, sep ="_" )
-    #        )
-    #    )
-    #    cl_name = stringr::str_to_upper( paste( cl_name, library, sep ="_" ) )
-    #}
     
     base::print( base::paste0( "Reference genome: ",ref_gen ) )
     
