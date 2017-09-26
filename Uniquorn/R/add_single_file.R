@@ -1,44 +1,34 @@
-# pre processing
+#' Build Fingerprint From VCF File
+#' 
+#' Intern utility function. Wrapper function to filter VCF file using 
+#' \code{parse_vcf_file} and build fingerprint with identifier.
+#' 
+#' @param vcf_file_path character string giving the path to the vcf file
+#'  on the operating system.
+#' @param sim_list_stats table containing all cancer cell lines currently
+#' contained in the database.
+#' @param cl_id character string giving the cancer cell line identifier.
+#' @param n_threads integer specifying the number of threads to be used.
+#' @import BiocParallel
+#' @usage 
+#' add_single_file(vcf_file_path, sim_list_stats, cl_id, n_threads)
+#' @return Loci-based DNA-mutational fingerprint of the cancer cell line
+#'  associated with the respective identifier.
 
 add_single_file = function( 
     vcf_file_path,
-    library,
-    sim_list,
     sim_list_stats,
-    n_threads
+    cl_id
 ){
-
-    # reading vcf
-    
-    vcf_name = str_to_upper( basename( vcf_file_path) )
-    vcf_name = str_replace_all(vcf_name, pattern = "\\.","_")
-    vcf_name = str_replace_all(vcf_name, pattern = "_VCF","")
-    vcf_full_name = paste(vcf_name, library, sep ="_")
-    
-    name_present = base::grepl( vcf_full_name, sim_list_stats$CL )
-    if( sum( name_present ) > 0 ){ 
-       print( paste0( c("Fingerprint with name ",vcf_full_name, 
-                      " already present in database. Please change the 
-                        name or remove the old cancer cell line."), 
-                    collapse = "" )  )
-        return(as.data.frame(matrix(as.character(), ncol=2,nrow=0)))
-    } else {
-    
-        print(paste(c("Adding CCL ",vcf_name," to library ",library),sep="",collapse= ""))
-        
-        vcf_fingerprint = as.character( parse_vcf_file(vcf_file_path, n_threads ) )
-        vcf_fingerprint_length = length(vcf_fingerprint)
-        
-        vcf_fingerprint = data.frame( 
-            "Fingerprint" = vcf_fingerprint,
-            "CL"  = rep(
-                vcf_full_name,
-                vcf_fingerprint_length
-            )
-        )
-        
-        print(paste0("Finished parsing file: ", vcf_file_path))
-
-        return(vcf_fingerprint)
+    if(any(sim_list_stats[, CL == cl_id])){ 
+        stop("Fingerprint with name ", cl_id, 
+             " already present in database. Please change the", 
+             " name or remove the old cancer cell line.")
     }
+    vcf_fingerprint = parse_vcf_file(vcf_file_path)
+    vcf_fingerprint = data.table( 
+        "Fingerprint" = vcf_fingerprint,
+        "CL"  = rep(cl_id, length(as.character(vcf_fingerprint)) )
+    )
+    return(vcf_fingerprint)
 }

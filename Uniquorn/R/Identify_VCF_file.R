@@ -51,7 +51,7 @@
 #' @examples 
 #' HT29_vcf_file = system.file("extdata/HT29.vcf.gz", package="Uniquorn");
 #' 
-#' identification = identify_vcf_file( HT29_vcf_file )
+#' identification = identify_vcf_file(HT29_vcf_file)
 #' @return R table with a statistic of the identification result
 #' @export
 identify_vcf_file = function(
@@ -71,7 +71,7 @@ identify_vcf_file = function(
     n_threads = 1
     ){
   
-    if (n_threads >1)
+    if (n_threads > 1)
         BiocParallel::register(BiocParallel::MulticoreParam( n_threads ))
     
     path_names = init_and_load_identification( 
@@ -89,39 +89,26 @@ identify_vcf_file = function(
     output_file_xls = path_names$output_file_xls
     vcf_fingerprint = path_names$vcf_fingerprint
 
-    sim_list       = initiate_db_and_load_data( 
-        ref_gen = ref_gen, 
-        request_table = "sim_list" 
-    )
-    sim_list_stats = initiate_db_and_load_data(
-        ref_gen = ref_gen, 
-        request_table = "sim_list_stats"
-    )
+    sim_list_stats = initiate_db_and_load_data(request_table = "sim_list_stats",
+                                               subset = "*", ref_gen = ref_gen)
+    sim_list       = initiate_db_and_load_data(request_table = "sim_list",
+                                               subset = c("FINGERPRINT", "CL", "Weight"),
+                                               ref_gen = ref_gen)
     
-    if ( ( 
-        sum( 
-            grepl( 
-                "_COSMIC", sim_list_stats$CL ) ) + sum( grepl( "_CCLE", sim_list_stats$CL ) 
-            ) 
-        ) == 0 
-    )
-        
-      if( verbose )
-          warning("CCLE & CoSMIC CLP cancer cell line fingerprint NOT 
-              found, defaulting to 60 CellMiner cancer cell lines! 
-              It is strongly advised to add ~1900 CCLE & CoSMIC CLs, see readme."
-        )
-
-    sim_list = sim_list[ sim_list$Ref_Gen == ref_gen  ,]
-    sim_list_stats = sim_list_stats[ sim_list_stats$Ref_Gen == ref_gen  ,]
+    if(!(!any(sim_list_stats[, CL %like% "_COSMIC"]) && !any(sim_list_stats[, CL %like% "_CCLE"]))){
+      if(verbose){
+        warning("CCLE & CoSMIC CLP cancer cell line fingerprint NOT ",
+                "found, defaulting to 60 CellMiner cancer cell lines! ",
+                "It is strongly advised to add ~1900 CCLE & CoSMIC CLs ", 
+                "see readme.")
+      }
+    }
     
-    if (verbose)
-        print( base::paste0( c("Found ", base::as.character( 
-            base::length( unique(sim_list$CL) ) ), " many CLs for reference genome ", 
-            ref_gen ), collapse = "" ) )
-    
-    if (verbose)
-        print("Finished reading database, identifying CL")
+    if (verbose){
+        message("Found ", base::length(unique(sim_list$CL)), 
+                " many CLs for reference genome ", ref_gen, ".")
+        message("Finished reading database, identifying CL")
+    }
     
     filtered_res = filter_for_weights( 
         sim_list = sim_list,
@@ -130,51 +117,26 @@ identify_vcf_file = function(
         mutational_weight_inclusion_threshold = mutational_weight_inclusion_threshold,
         verbose = verbose
     )
+    contained_cls_original = sim_list_stats$CL
+    
     sim_list = filtered_res$sim_list
     sim_list_stats = filtered_res$sim_list_stats
     
-    contained_cls_original = sim_list_stats$CL
-    
-    dif = length(contained_cls_original) - 
-        length (sim_list_stats$CL)
-    
+    dif = length(contained_cls_original) - length(sim_list_stats$CL)
     dif_cls = contained_cls_original[
         which(!(contained_cls_original %in% sim_list_stats$CL))
     ]
     
-    if ( ( dif != 0 ) & verbose )
-        
-        warning(paste0(c(
-            as.character(dif),
-            " CLs have no mutations for the chosen weight 
-            and cannot be identified: ",
-            paste0(c(dif_cls), collapse = ", ")
-            , " Probably they are too closely simlar to other training CLs"),
-            collapse=""
-    ))
+    if (( dif != 0) & verbose){
+        warning(dif," CLs have no mutations for the chosen weight ",
+                "and cannot be identified: ", paste0(c(dif_cls), collapse = ", "),
+                 " . Probably they are too closely simlar to other training CLs", ".")
+    }
     
     ### important mapping function which establishes the similarity
-    
-    found_mut_mapping = which(
-        sim_list$Fingerprint %in% as.character(
-            unlist(
-                vcf_fingerprint
-            )
-        )
-    ) # mapping
-    
-    list_of_cls = unique( sim_list$CL )
-    
-    panels = unique( sapply( list_of_cls, FUN = function( cl_name ){
-        return(
-            paste0( "_",
-                    utils::tail( 
-                        unlist( stringr::str_split( cl_name, pattern = "_") ),
-                        1 ) 
-            )
-        )
-    } ) )
-    
+    found_mut_mapping = which(sim_list$Fingerprint %in% vcf_fingerprint)
+    panels = sim_list_stats[, unique(gsub("^.*_", "_" , unique(CL)))]
+
     res_table = calculate_similarity_results(
         sim_list = sim_list,
         sim_list_stats = sim_list_stats,
@@ -185,10 +147,12 @@ identify_vcf_file = function(
         confidence_score = confidence_score,
         vcf_fingerprint,
         panels = panels,
-        list_of_cls = list_of_cls
+        list_of_cls = unique(sim_list_stats$CL)
     )
     
-    res_table = add_missing_cls( res_table, dif_cls )
+    if(length(dif_cls > 0)){
+        res_table = add_missing_cls(res_table, dif_cls)
+    }
     
     ### correction background
     
@@ -301,4 +265,3 @@ identify_vcf_file = function(
     
     return( res_table )
 }
-

@@ -25,32 +25,37 @@ calculate_similarity_results = function(
     list_of_cls
 ){
     
-    nr_cls            = length( list_of_cls  ) # amount cls
+    nr_cls = length(list_of_cls) # amount cls
     
     candidate_hits_abs_all = rep(0, nr_cls)
     names(candidate_hits_abs_all) = list_of_cls
     
-    candidate_hits_abs      = rep( 0.0, nr_cls )
-    candidate_hits_abs_all  = rep( 0.0, nr_cls )
-    candidate_hits_rel      = rep( 0.0, nr_cls )
+    candidate_hits_abs      = rep(0.0, nr_cls)
+    candidate_hits_abs_all  = rep(0.0, nr_cls)
+    candidate_hits_rel      = rep(0.0, nr_cls)
     
-    cl_weight               = rep( 0.0, nr_cls )
-    cl_weight_rel           = rep( 0.0, nr_cls )
-    all_weighted            = rep( 0.0, nr_cls )
+    cl_weight               = rep(0.0, nr_cls)
+    cl_weight_rel           = rep(0.0, nr_cls)
+    all_weighted            = rep(0.0, nr_cls)
     
-    res_cl_weighted         = rep( 0.0, nr_cls )
-    res_res_cl_weighted     = rep( 0.0, nr_cls )
-    stats_all_weight        = rep( 0.0, nr_cls )
+    res_cl_weighted         = rep(0.0, nr_cls)
+    res_res_cl_weighted     = rep(0.0, nr_cls)
+    stats_all_weight        = rep(0.0, nr_cls)
     
-    cl_absolute_mutation_hits = rep( 0.0, nr_cls )
+    cl_absolute_mutation_hits = rep(0.0, nr_cls)
     
-    if ( length( found_mut_mapping ) != 0){
+    if (length(found_mut_mapping) != 0){
         
+        # Extract CLs with found mutations and reorder
+        #candidate_hits_abs = sim_list[, .(CL = CL[found_mut_mapping])][, .(Count=.N), by = CL]
+        #candidate_hits_abs_alls = candidate_hits_abs[order(match(CL, list_of_cls, nomatch = 0))]
+        
+        #candidate_hits_abs_all = candidate_hits_abss[]
+        #sim_list_stats = sim_list_stats[all_weights]
         ### scores
-        
         candidate_hits_abs = stats::aggregate( 
             rep(1, length(found_mut_mapping)),
-            by = list(sim_list$CL[ found_mut_mapping ]), 
+            by = list(sim_list$CL[found_mut_mapping]), 
             FUN = sum
         )
         
@@ -113,7 +118,7 @@ calculate_similarity_results = function(
     
     output_cl_names = stringr::str_replace(
         list_of_cls,
-        pattern = "_CCLE|_COSMIC|_CELLMINER|_CUSTOM",
+        pattern = "_CCLE|_COSMIC|_CELLMINER|_CUSTOM|_EGA",
         replacement = ""
     )
     
@@ -121,6 +126,7 @@ calculate_similarity_results = function(
     panel_vec[ stringr::str_detect( list_of_cls, "_CCLE" ) ] = "CCLE"
     panel_vec[ stringr::str_detect( list_of_cls, "_COSMIC" ) ] = "COSMIC"
     panel_vec[ stringr::str_detect( list_of_cls, "_CELLMINER" ) ] = "CELLMINER"
+    panel_vec[ stringr::str_detect( list_of_cls, "_EGA" ) ] = "EGA"
     panel_vec[ stringr::str_detect( list_of_cls, "_CUSTOM" ) ] = "CUSTOM"
     
     passed_threshold_vec_p_value[ 

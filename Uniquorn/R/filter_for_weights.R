@@ -28,33 +28,26 @@ filter_for_weights = function(
     ){
     
     # filter for weights
-    if ( mutational_weight_inclusion_threshold != 0.0  ){
+    if (mutational_weight_inclusion_threshold != 0.0){
+        if (verbose){    
+            message("Adjusted mutational inclusion weight, only using mutations",
+                    " that have a weight higher than ", 
+                    mutational_weight_inclusion_threshold, ".")
+        }
+        # Exlcude mutations and recalculate weights
+        sim_list = sim_list[Weight >= mutational_weight_inclusion_threshold]
+        sim_list_stats = sim_list[, .(Count=.N), by = CL]
+        all_weights = sim_list[, .(All_weights=sum(Weight)), by = CL]
+        data.table::setkey(sim_list_stats, CL)
+        data.table::setkey(all_weights, CL)
+        sim_list_stats = sim_list_stats[all_weights]
+        sim_list_stats = sim_list_stats[, .(CL, Count, round(All_weights, 1))]
         
-        if (verbose)        
-            print( base::paste0( c("Adjusted mutational inclusion weight, 
-                                   only using mutations that are have a weight higher than ", 
-                                   as.character(mutational_weight_inclusion_threshold)), collapse="") )
-        
-        sim_list = sim_list[ base::as.double(sim_list$Weight) >= 
-                                 as.double( mutational_weight_inclusion_threshold) ,  ]
-        sum_vec = rep(1, dim(sim_list)[1])
-        
-        sim_list_stats = stats::aggregate( as.double( sum_vec ), 
-                                           by = list( sim_list$CL), FUN = sum  )
-        
-        all_weights = stats::aggregate( sim_list$Weight, by = list(sim_list$CL), FUN = sum)
-        mapping = match( sim_list_stats$Group.1, all_weights$Group.1 )
-        sim_list_stats = cbind( sim_list_stats, all_weights$x[mapping] )
-        
-        colnames( sim_list_stats ) = c("CL","Count", "All_weights")
-        sim_list_stats$All_weights = round(sim_list_stats$All_weights,1)
-        
-        if (verbose)
-            print( paste0( c("Found ", as.character( dim(sim_list)[1] ), 
-                             " many mutations with mutational weight of at least ", 
-                             mutational_weight_inclusion_threshold), collapse="")  )
+        if (verbose){
+          message("Found ", nrow(sim_list), " many mutations with mutational ",
+                  "weight of at least ", mutational_weight_inclusion_threshold, ".")
+        }
+        res_list = list("sim_list" = sim_list, "sim_list_stats" = sim_list_stats)
+        return(res_list)
     }
-    res_list = list( "sim_list" = sim_list, "sim_list_stats" = sim_list_stats)
-    
-    return( res_list )
 }

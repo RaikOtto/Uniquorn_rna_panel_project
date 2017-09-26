@@ -22,23 +22,21 @@
 #' @return Three file path instances and the fingerprint
 init_and_load_identification = function( verbose, ref_gen, vcf_file, output_file, n_threads ){
 
-    if ( verbose )  
-        print( paste0("Assuming reference genome ", ref_gen) )
+    if (verbose)  
+        message("Assuming reference genome ", ref_gen, ".")
     
     ### pre processing
     
     if (verbose)
-        print( paste0("Reading VCF file: ", vcf_file ) )
+        message("Reading VCF file: ", vcf_file, ".")
     
-    vcf_fingerprint = parse_vcf_file( vcf_file, n_threads )
-    vcf_file_name = utils::tail( as.character( unlist( stringr::str_split( vcf_file, "/" ) ) ), 1 )
+    vcf_fingerprint = parse_vcf_file(vcf_file)
+    vcf_file_name = utils::tail(as.character(unlist(base::strsplit(vcf_file, "/"))), 1)
     
-    if ( output_file == ""  ){
+    if (output_file == ""){
+        output_file = base::paste(vcf_file, "uniquorn_ident.tab", sep = "_")
         
-        output_file = base::paste( vcf_file, "uniquorn_ident.tab", sep ="_")
-        
-    }else if ( base::dir.exists( output_file ) ){
-        
+    } else if (base::dir.exists(output_file)){
         output_file = base::paste(
             output_file,
             base::paste( 
@@ -49,10 +47,10 @@ init_and_load_identification = function( verbose, ref_gen, vcf_file, output_file
             sep = "/"
         ) 
     }
-    output_file_xls = stringr::str_replace( output_file, ".tab$", ".xls" ) 
+    output_file_xls = base::gsub(".tab$", ".xls", output_file) 
     
-    if ( verbose )
-        print( "Finished reading the VCF file, loading database" )
+    if (verbose)
+        message("Finished reading the VCF file, loading database.")
 
     res_list = list( 
         "output_file"     = output_file,
@@ -61,5 +59,5 @@ init_and_load_identification = function( verbose, ref_gen, vcf_file, output_file
         "vcf_file_name"   = vcf_file_name
     )
     
-    return( res_list )
+    return(res_list)
 }

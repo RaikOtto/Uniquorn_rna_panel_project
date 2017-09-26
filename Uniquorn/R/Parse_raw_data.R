@@ -26,68 +26,54 @@ initiate_canonical_databases = function(
     ref_gen = "GRCH37"
     ){
 
-    print( c( "Reference genome: ", ref_gen )  )
+    message("Reference genome: ", ref_gen)
 
-    ### pre-processing
-    
-    sim_list = initiate_db_and_load_data( ref_gen = ref_gen, request_table = "sim_list", load_default_db = TRUE )
-    
-    sim_list = sim_list[, which( colnames(sim_list) != "Ref_Gen"  ) ]
-    sim_list = sim_list[, which( colnames(sim_list) != "Weight"  ) ]
+    # pre-processing
+    sim_list = initiate_db_and_load_data(request_table = "sim_list",
+                                         subset = c("FINGERPRINT", "CL"),
+                                         ref_gen = ref_gen, load_default_db = TRUE)
 
+    # Parse CoSMIC file
     if (file.exists(cosmic_file)){
+        message("Found CoSMIC: ", file.exists(cosmic_file))
       
-        print( c( "Found CoSMIC: ", file.exists(cosmic_file) )  )
-      
-        if ( grepl( ".gz$", stringr::str_to_lower( cosmic_file ) ) ){
-
-            gunzip( cosmic_file, overwrite = TRUE )
+        if (grepl(".gz$", cosmic_file, ignore.case = TRUE)){
+            gunzip(cosmic_file, overwrite = TRUE)
+            cosmic_file = gsub(".gz$", "", cosmic_file, ignore.case = TRUE)
         }
-        cosmic_file = stringr::str_replace( cosmic_file, ".gz$|.GZ$", "" )
-      
-        sim_list = parse_cosmic_genotype_data( cosmic_file, sim_list )
+        sim_list = parse_cosmic_genotype_data(cosmic_file, sim_list)
     }
-    
-    t_t_index = grep( 
-        sim_list$CL,
-        pattern = "T-T_COSMIC"
-    )
-    sim_list$CL[ t_t_index ] = "TT2_COSMIC"
+    t_t_index = grep(sim_list$CL, pattern = "T-T_COSMIC")
+    sim_list$CL[t_t_index] = "TT2_COSMIC"
   
+    # Parse CCLE file
     if (file.exists(ccle_file)){
-      
-      print( c( "Found CCLE: ", file.exists( ccle_file ) )  )
-      sim_list = parse_ccle_genotype_data( ccle_file, sim_list )
+      message("Found CCLE: ", file.exists(ccle_file))
+      sim_list = parse_ccle_genotype_data(ccle_file, sim_list)
     }
     
-    if ( (! file.exists(cosmic_file) ) & (! file.exists(ccle_file)) ){ 
-      
+    if ((!file.exists(cosmic_file)) & (!file.exists(ccle_file))){ 
         warning("Did neither find CCLE & CoSMIC CLP file! Aborting.")
-        
     } else {
-    
-        print("Finished parsing, aggregating over parsed Cancer Cell Line data")
-    
+        message("Finished parsing, aggregating over parsed Cancer Cell Line data")
         res_vec = re_calculate_cl_weights( 
             sim_list = sim_list, 
             ref_gen = ref_gen 
         )
       
-        print("Finished aggregating, saving to database")
-        
+        message("Finished aggregating, saving to database")
         write_data_to_db( 
-            content_table = as.data.frame( res_vec[1] ), 
+            content_table = as.data.frame(res_vec[1]), 
             "sim_list",       
             ref_gen = ref_gen,
             overwrite = TRUE 
         )
         write_data_to_db( 
-            content_table = as.data.frame( res_vec[2] ), 
+            content_table = as.data.frame(res_vec[2]), 
             "sim_list_stats", 
             ref_gen = ref_gen, 
-             overwrite = TRUE 
+            overwrite = TRUE 
         )
-        
-        print ("Initialization of Uniquorn DB finished")
+        message("Initialization of Uniquorn DB finished")
     }
 }
