@@ -15,7 +15,7 @@
 #' @param n_threads an integer specifying the number of threads to be used.
 #' @param test_mode Is this a test? Just for internal use
 #' @return Message wheather the adding was successful
-#' @import DBI BiocParallel
+#' @import DBI BiocParallel doParallel
 #' @usage 
 #' add_custom_vcf_to_database(vcf_input_files, ref_gen = "GRCH37", library = "CUSTOM",
 #'                            n_threads = 1, test_mode = FALSE)
@@ -76,9 +76,11 @@ add_custom_vcf_to_database = function(
     if (n_threads > 1){
 
       # Register parallel backend and compute fingerprints in parallel
-      registerDoParallel(n_threads)
-      all_fingerprints = foreach::foreach(vcf_input_file = vcf_input_files,
-                        .combine = rbind) %dopar% {
+      doParallel::registerDoParallel(n_threads)
+      all_fingerprints = foreach::foreach(
+          vcf_input_file = vcf_input_files,
+          .combine = rbind
+      ) %dopar% {
                
         #Create CL identifier from input file name and library
         cl_id = gsub("^.*/", "", vcf_input_file)
@@ -94,7 +96,7 @@ add_custom_vcf_to_database = function(
           cl_id = cl_id
         )
       }
-      stopImplicitCluster()
+      doParallel::stopImplicitCluster()
       #Add new fingerprints to existing CL list
       sim_list = rbind(sim_list, all_fingerprints)
     
