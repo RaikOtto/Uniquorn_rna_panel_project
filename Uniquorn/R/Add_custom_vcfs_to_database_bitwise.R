@@ -28,61 +28,61 @@
 #'                            test_mode = TRUE)
 #' @export
 add_custom_vcf_to_database_Bitwise = function(
-  vcf_input_files,
-  ref_gen = "GRCH37",
-  library = "CUSTOM",
-  n_threads = 1,
-  test_mode = FALSE)
-  {
-    library = toupper(library)
-    if (library == "CUSTOM"){
-        message("No library name entered, proceeding with 'CUSTOM' as library")
-    }
-    
-    #Get CLs for ref. genome and all unique panels currently contained
-    base::message("Reference genome: ", ref_gen)
-    
-    # Check for existance of supplied vcf files
-    check_file = function(vcf_input_file){
-      if (!file.exists(vcf_input_file)){
-        message(paste0("Skipping file, because could not find: ",
-                       vcf_input_file))
-        return(FALSE)
-      } else{
-        message(paste0("Found following file, parsing: ", vcf_input_file))
-        return(TRUE)
+    vcf_input_files,
+    ref_gen = "GRCH37",
+    library = "CUSTOM",
+    n_threads = 1,
+    test_mode = FALSE)
+    {
+      library = toupper(library)
+      if ((library == "CUSTOM") | (library == "")){
+          message("Proceeding with 'CUSTOM' as library name")
       }
-    }
-    index_vcf = lapply(vcf_input_files, function(x) check_file(x))
-    vcf_input_files = vcf_input_files[unlist(index_vcf)]
-    
-    add_ccl_variants_to_db_bitwise(
-        vcf_input_files = vcf_input_files,
-        ref_gen = ref_gen,
-        library = library,
-        n_threads = n_threads,
-        test_mode = test_mode
-    )
-    
-    #Recalculate weights for parsed CLs
-    message("Aggregating over parsed Cancer Cell Line data")
-    res_vec = re_calculate_cl_weights( 
-        sim_list = sim_list, 
-        ref_gen = ref_gen
-    )
-    message("Finished aggregating, saving to database")
-    
-    if (!test_mode){
-      write_data_to_db(content_table = as.data.frame(res_vec[1]),
-                       "sim_list",
-                       ref_gen = "GRCH37", 
-                       overwrite = TRUE,
-                       test_mode = test_mode)
-      write_data_to_db(content_table = as.data.frame(res_vec[2]),
-                       "sim_list_stats",
-                       ref_gen = "GRCH37",
-                       overwrite = TRUE, 
-                       test_mode = test_mode)
-    }
-    message("Finished adding cancer cell lines")
+      
+      #Get CLs for ref. genome and all unique panels currently contained
+      base::message("Reference genome: ", ref_gen)
+      
+      # Check for existance of supplied vcf files
+      check_file = function(vcf_input_file){
+        if (!file.exists(vcf_input_file)){
+          message(paste0("Skipping file, because could not find: ",
+                         vcf_input_file))
+          return(FALSE)
+        } else{
+          message(paste0("Found following file, parsing: ", vcf_input_file))
+          return(TRUE)
+        }
+      }
+      index_vcf = lapply(vcf_input_files, function(x) check_file(x))
+      vcf_input_files = vcf_input_files[unlist(index_vcf)]
+      
+      add_ccl_variants_to_db_bitwise(
+          vcf_input_files = vcf_input_files,
+          ref_gen = ref_gen,
+          library = library,
+          n_threads = n_threads,
+          test_mode = test_mode
+      )
+      
+      #Recalculate weights for parsed CLs
+      message("Aggregating over parsed Cancer Cell Line data")
+      res_vec = re_calculate_cl_weights( 
+          sim_list = sim_list, 
+          ref_gen = ref_gen
+      )
+      message("Finished aggregating, saving to database")
+      
+      if (!test_mode){
+        write_data_to_db(content_table = as.data.frame(res_vec[1]),
+                         "sim_list",
+                         ref_gen = "GRCH37", 
+                         overwrite = TRUE,
+                         test_mode = test_mode)
+        write_data_to_db(content_table = as.data.frame(res_vec[2]),
+                         "sim_list_stats",
+                         ref_gen = "GRCH37",
+                         overwrite = TRUE, 
+                         test_mode = test_mode)
+      }
+      message("Finished adding cancer cell lines")
 }
