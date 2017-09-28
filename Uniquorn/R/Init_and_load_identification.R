@@ -9,9 +9,6 @@
 #' @param ref_gen Reference genome version. All training sets are 
 #' associated with a reference genome version. Default: GRCH37
 #' @param vcf_file Path to vcf_file
-#' @param output_file Path to output report file
-#' @param n_threads Specifies number of threads to be used
-#' @import BiocParallel
 #' @usage 
 #' init_and_load_identification( 
 #' verbose,
@@ -20,38 +17,32 @@
 #' output_file,
 #' n_threads)
 #' @return Three file path instances and the fingerprint
-init_and_load_identification = function( verbose, ref_gen, vcf_file, output_file, n_threads ){
-
-    if (verbose)  
-        message("Assuming reference genome ", ref_gen, ".")
-    
-    ### pre processing
-    
-    if (verbose)
-        message("Reading VCF file: ", vcf_file, ".")
+init_and_load_identification = function(
+    verbose,
+    ref_gen,
+    vcf_file,
+    output_dir
+){
     
     vcf_fingerprint = parse_vcf_file(vcf_file)
-    vcf_file_name = utils::tail(as.character(unlist(base::strsplit(vcf_file, "/"))), 1)
+    vcf_file_name = tail(as.character(unlist(strsplit(vcf_file, "/"))), 1)
     
-    if (output_file == ""){
+    if (output_dir == ""){
         output_file = base::paste(vcf_file, "uniquorn_ident.tab", sep = "_")
         
-    } else if (base::dir.exists(output_file)){
+    } else if (base::dir.exists(output_dir)){
         output_file = base::paste(
-            output_file,
+            output_dir,
             base::paste( 
                 vcf_file_name,
                 "uniquorn_ident.tab",
-                sep ="_"
+                sep = "_"
             ),
             sep = "/"
         ) 
     }
     output_file_xls = base::gsub(".tab$", ".xls", output_file) 
     
-    if (verbose)
-        message("Finished reading the VCF file, loading database.")
-
     res_list = list( 
         "output_file"     = output_file,
         "output_file_xls" = output_file_xls,

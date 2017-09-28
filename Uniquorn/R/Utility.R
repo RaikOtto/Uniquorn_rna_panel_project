@@ -48,11 +48,11 @@ initiate_db_and_load_data = function(ref_gen, request_table, subset, load_defaul
 #' @return the sim_list and sim_list_stats variable
 #' @usage 
 #' write_data_to_db( 
-#' content_table, 
-#' table_name,
-#' ref_gen,
-#' overwrite,
-#' test_mode )
+#'    content_table, 
+#'    table_name,
+#'    ref_gen,
+#'    overwrite,
+#'    test_mode )
 #' @import DBI RSQLite
 write_data_to_db = function( 
     content_table, 
@@ -76,6 +76,21 @@ write_data_to_db = function(
     
     DBI::dbDisconnect(con)
 
+}
+
+#' check_files
+#' 
+#' Intern utility function, checks for existance of user specified vcf files.
+#' 
+#' @param vcf_input_file a character string giving the path to the VCF file.
+#' @return logical; indicating whether the specified file could be located on
+#' the system.
+check_files = function(vcf_input_file){
+    if (!file.exists(vcf_input_file)){
+        return(FALSE)
+    } else{
+        return(TRUE)
+    }
 }
 
 #' Re-calculate sim_list_weights

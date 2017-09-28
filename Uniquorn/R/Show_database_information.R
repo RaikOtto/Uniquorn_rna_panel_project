@@ -126,7 +126,7 @@ show_contained_mutations_for_cl = function(name_cl, ref_gen = "GRCH37"){
 #' @examples 
 #' show_which_cls_contain_mutation(mutation_name = "10_103354427_103354427",
 #'                                 ref_gen = "GRCH37")
-#' @import DBI
+#' @import DBI 
 #' @return R table which contains all cancer cell line samples which contain the specified mutation with respect to the specified reference genome version.
 #' @export
 show_which_cls_contain_mutation = function(mutation_name, ref_gen = "GRCH37"){
