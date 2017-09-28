@@ -19,7 +19,7 @@
 #' @usage 
 #' add_custom_vcf_to_database(vcf_input_files, ref_gen = "GRCH37", library = "CUSTOM",
 #'                            n_threads = 1, test_mode = FALSE)
-#' @examples 
+#' @examples
 #' HT29_vcf_file = system.file("extdata/HT29.vcf.gz", package = "Uniquorn");
 #' add_custom_vcf_to_database(vcf_input_files = HT29_vcf_file,
 #'                            library = "CUSTOM",
@@ -68,11 +68,13 @@ add_custom_vcf_to_database = function(
     
     # Add vcf files in parallel
     if (n_threads > 1){
-        
+
         # Register parallel backend and compute fingerprints in parallel
         doParallel::registerDoParallel(n_threads)
-        all_fingerprints = foreach::foreach(vcf_input_file = vcf_input_files,
-                        .combine = rbind) %dopar% {
+        all_fingerprints = foreach::foreach(
+            vcf_input_file = vcf_input_files,
+            .combine = rbind
+        ) %dopar% {
                
             #Create CL identifier from input file name and library
             cl_id = gsub("^.*/", "", vcf_input_file)
@@ -84,14 +86,14 @@ add_custom_vcf_to_database = function(
             #Create new CL mutational fingerprint from input vcf
             vcf_fingerprint = add_single_file(
                 vcf_file_path = vcf_input_file,
-            sim_list_stats = sim_list_stats,
-            cl_id = cl_id
+                sim_list_stats = sim_list_stats,
+                cl_id = cl_id
             )
         }
-        stopImplicitCluster()
+        doParallel::stopImplicitCluster()
         #Add new fingerprints to existing CL list
         sim_list = rbind(sim_list, all_fingerprints)
-    
+        
     } else {
       # Add vcf files sequentially
         for (vcf_input_file in vcf_input_files){
