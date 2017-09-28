@@ -37,13 +37,13 @@ initiate_canonical_databases = function(
             cosmic_file = gsub(".gz$", "", cosmic_file, ignore.case = TRUE)
         }
       
-        parse_cosmic_genotype_data( cosmic_file )
+        parse_cosmic_genotype_data( cosmic_file, ref_gen = ref_gen )
     }
 
     # Parse CCLE file
     if (file.exists(ccle_file)){
       message("Found CCLE: ", file.exists(ccle_file))
-      parse_ccle_genotype_data(ccle_file)
+      parse_ccle_genotype_data(ccle_file, ref_gen = ref_gen)
     }
     
     if ((!file.exists(cosmic_file)) & (!file.exists(ccle_file))){ 
