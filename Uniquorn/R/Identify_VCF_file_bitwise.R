@@ -1,6 +1,6 @@
-#' identify_VCF_file
+#' identify_VCF_files
 #' 
-#' Identifies a cancer cell lines contained in a vcf file based 
+#' Identifies cancer cell lines contained in a vcf file based 
 #' on the pattern (start & length) of all contained mutations/ variations.
 #' 
 #' \code{identify_vcf_file} parses the vcf file and predicts 
@@ -33,7 +33,7 @@
 #' default 10.0
 #' @import DBI WriteXLS RSQLite stats BiocParallel
 #' @usage 
-#' identify_vcf_file( 
+#' identify_vcf_files( 
 #' vcf_file,
 #' output_file = "",
 #' ref_gen = "GRCH37",
@@ -51,11 +51,11 @@
 #' @examples 
 #' HT29_vcf_file = system.file("extdata/HT29.vcf.gz", package="Uniquorn");
 #' 
-#' identification = identify_vcf_file(HT29_vcf_file)
+#' identification = identify_vcf_files(HT29_vcf_file)
 #' @return R table with a statistic of the identification result
 #' @export
-identify_vcf_file = function(
-    vcf_file,
+identify_vcf_files = function(
+    vcf_files,
     output_file = "",
     ref_gen = "GRCH37",
     minimum_matching_mutations = 0,
@@ -74,63 +74,36 @@ identify_vcf_file = function(
     if (n_threads > 1)
         BiocParallel::register(BiocParallel::MulticoreParam( n_threads ))
     
-    path_names = init_and_load_identification( 
-        verbose = verbose, 
-        vcf_file = vcf_file, 
-        ref_gen = ref_gen,
-        output_file = output_file,
-        n_threads = n_threads
-    )
+    vcf_fingerprint = parse_vcf_file(vcf_input_file)
+    #meta_file
     
-    vcf_file_name   = path_names$vcf_file_name
-    output_file     = path_names$output_file
-    output_file_xls = path_names$output_file_xls
-    vcf_fingerprint = path_names$vcf_fingerprint
+    library_path =  paste( c( package_path,"/Libraries_Ref_gen_",ref_gen,"_Uniquorn_DB.RData"), sep ="", collapse= "")
+    try( expr = "libraries = readRDS(library_path)")
+    
+    if (!exists("libraries")){
+        stop("No database found")
+    }
+    
+    for( library in libraries ){
 
-    for ( chr in c(1:22,"X","Y")){
-        match_query_ccl_to_database_bitwise(
-            vcf_fingerprint,
-            ref_gen = ref_gen,
-            chr = chr
-        )
-    }
-    
-    if(!(!any(sim_list_stats[, CL %like% "_COSMIC"]) && !any(sim_list_stats[, CL %like% "_CCLE"]))){
-      if(verbose){
-        warning("CCLE & CoSMIC CLP cancer cell line fingerprint NOT ",
-                "found, defaulting to 60 CellMiner cancer cell lines! ",
-                "It is strongly advised to add ~1900 CCLE & CoSMIC CLs ", 
-                "see readme.")
-      }
-    }
-    
-    if (verbose){
-        message("Found ", base::length(unique(sim_list$CL)), 
-                " many CLs for reference genome ", ref_gen, ".")
-        message("Finished reading database, identifying CL")
-    }
-    
-    filtered_res = filter_for_weights( 
-        sim_list = sim_list,
-        sim_list_stats = sim_list_stats,
-        ref_gen = ref_gen,
-        mutational_weight_inclusion_threshold = mutational_weight_inclusion_threshold,
-        verbose = verbose
-    )
-    contained_cls_original = sim_list_stats$CL
-    
-    sim_list = filtered_res$sim_list
-    sim_list_stats = filtered_res$sim_list_stats
-    
-    dif = length(contained_cls_original) - length(sim_list_stats$CL)
-    dif_cls = contained_cls_original[
-        which(!(contained_cls_original %in% sim_list_stats$CL))
-    ]
-    
-    if (( dif != 0) & verbose){
-        warning(dif," CLs have no mutations for the chosen weight ",
-                "and cannot be identified: ", paste0(c(dif_cls), collapse = ", "),
-                 " . Probably they are too closely simlar to other training CLs", ".")
+            if (n_threads > 1){
+                doParallel::registerDoParallel(n_threads)
+                foreach::foreach(
+                    vcf_input_file = vcf_input_files
+                ) %dopar% {
+                    match_query_ccl_to_database_bitwise(vcf_file, ref_gen = ref_gen, library = library, chrom = chrom)
+                }
+                doParallel::stopImplicitCluster()
+            } else {
+                for (vcf_input_file in vcf_input_files){
+                    match_query_ccl_to_database_bitwise(
+                        vcf_fingerprint,
+                        ref_gen = ref_gen,
+                        test_mode = test_mode,
+                        library = library
+                    )
+                }
+            }
     }
     
     ### important mapping function which establishes the similarity

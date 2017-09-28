@@ -1,4 +1,4 @@
-#' add_ccl_variants_to_monet_db
+#' add_ccl_variants_to_db
 #
 #' This function adds the variants of parsed custom CCLs to a monet DB instance
 #'  
@@ -24,7 +24,7 @@
 #'                            ref_gen = "GRCH37",
 #'                            n_threads = 1,
 #'                            test_mode = TRUE)
-add_ccl_variants_to_db_bitwise = function(
+add_ccl_variants_to_db = function(
     vcf_input_files,
     ref_gen = "GRCH37",
     library = "CUSTOM",
@@ -32,22 +32,35 @@ add_ccl_variants_to_db_bitwise = function(
     test_mode = FALSE)
 {
     
-    vcf_fingerprint = parse_vcf_file(vcf_input_file)
-    
-    for ( chrom in c(1:22,"X","Y")){
-        if (n_threads > 1){
-            doParallel::registerDoParallel(n_threads)
-            foreach::foreach(
-                vcf_input_file = vcf_input_files
-            ) %dopar% {
-                write_vcf_file_bitwise(vcf_fingerprint, ref_gen = ref_gen, test_mode = test_mode, library = library, chrom = chrom)
-            }
-            doParallel::stopImplicitCluster()
-        } else {
-          
-            for (vcf_input_file in vcf_input_files){
-                write_vcf_file_bitwise(vcf_fingerprint, ref_gen = ref_gen, test_mode = test_mode, library = library, chrom = chr)
-            }
+    if (n_threads > 1){
+      
+        doParallel::registerDoParallel(n_threads)
+      
+        foreach::foreach(
+            vcf_input_file = vcf_input_files
+        ) %dopar% {
+            g_query = parse_vcf_file(vcf_input_file)
+            parse_vcf_query_into_db(
+                vcf_fingerprint,
+                ref_gen = ref_gen,
+                test_mode = test_mode,
+                library = library
+            )
+        }
+        
+        doParallel::stopImplicitCluster()
+        
+    } else {
+      
+        for (vcf_input_file in vcf_input_files){
+            
+            g_query = parse_vcf_file(vcf_input_file)
+            parse_vcf_query_into_db(
+                vcf_fingerprint,
+                ref_gen = ref_gen,
+                test_mode = test_mode,
+                library = library
+            )
         }
     }
 }
@@ -79,61 +92,68 @@ add_ccl_variants_to_db_bitwise = function(
 #'                            cl_id = "Test_id"
 #'                            n_threads = 1,
 #'                            test_mode = TRUE)
-write_vcf_file_bitwise = function(
-  vcf_fingerprint,
-  ref_gen = "GRCH37",
-  library,
-  chrom,
-  test_mode = FALSE)
+parse_vcf_query_into_db = function(
+    g_query,
+    ref_gen = "GRCH37",
+    library,
+    test_mode = FALSE)
 {
-  
+    
     cl_id = gsub("^.*/", "", vcf_input_file)
     cl_id = gsub(".vcf", "", cl_id, fixed = TRUE)
     cl_id = gsub(".hg19", "", cl_id, fixed = TRUE)
     cl_id = paste0(cl_id, "_", library)
     cl_id = toupper(cl_id)
     cl_id = stringr::str_replace_all(cl_id, pattern = "\\.", "_")
-  
-    length_frame = data.frame(
-        "chr1"=247197891,"chr2"=242713278,"chr3"=199439629,"chr4"=191246650,"chr5"=180727832,
-        "chr6"=170735623,"chr7"=158630410,"chr8"=146252219,"chr9"=140191642,"chr10"=135347681,
-        "chr11"=134361903,"chr12"=132289533,"chr13"=114110907,"chr14"=106354309,"chr15"=100334282,
-        "chr16"=88771793,"chr17"=78646005,"chr18"=76106388,"chr19"=63802660,"chr20"=62429769,
-        "chr21"=46935585, "chr22"=49396972,"chrX"=154908521,"chrY"=57767721)
+    mcols( g_query )$Member_CCLs = rep(cl_id,length(g_query@seqnames ))
+    message(paste(c("Sample: ",cl_id,", Library: ",library),collapse = "", sep =""))
     
-    library(dplyr)
     package_path = system.file("", package = "Uniquorn")
-    database_path =  paste( c( package_path,"/","Uniquorn.RSQLite"), sep ="", collapse= "")
-    con = DBI::dbConnect(RSQLite::SQLite(), path = database_path)
+    rdata_path = paste( c( package_path,"/",library,"_",ref_gen,"_Uniquorn_DB.RData"), sep ="", collapse= "")
+    library_path =  paste( c( package_path,"/Libraries_Ref_gen_",ref_gen,"_Uniquorn_DB.RData"), sep ="", collapse= "")
     
-    message(paste(c("Sample: ",cl_id,", Chr: ",chr),collapse = "", sep =""))
-    table_name = paste( library, chrom,sep = "_" )
+    # save new vcf
     
-    vars_chr = vcf_fingerprint[ grep(vcf_fingerprint, pattern = paste(c( "^",chrom,"_"),collapse = "",sep ="")) ]
-    starts = as.integer(sapply(vars_chr, FUN = function(vec){return(as.character(unlist(str_split(vec,pattern = "_")))[2])}))
-    ends = as.integer(sapply(vars_chr, FUN = function(vec){return(as.character(unlist(str_split(vec,pattern = "_")))[3])}))
-    starts_tmp = starts
-    starts = starts[ (!is.na(starts_tmp)) | (!is.na(ends)) ]
-    ends = ends[(!is.na(starts_tmp)) | (!is.na(ends)) ]
-
-    chrom_length = length_frame[[paste("chr",chrom, sep ="")]]
-    mut_vec = as.raw( rep(0, chrom_length) )
+    try( expr = "g_mat = readRDS(rdata_path)")
     
-    mut_vec[ c(starts,ends) ] = as.raw(1)
-
-    try( 
-      expr = paste( c("mut_data = tbl(con, ",table_name,")"), sep = "", collapse = ""),
-      silent=T
-    )
-    
-    if (! exists("mut_data")){ 
-      mut_mat = data.frame( matrix(as.raw(), ncol= ))
+    if (! exists("g_mat")){
+      
+        g_mat = g_query
+        colnames(mcols(g_mat)) = "Member_CCLs"
+      
     } else {
       
+        g_mat_new = union(g_mat,g_query)
+        mcols(g_mat_new)$Member_CCLs = rep("",nrow(mcols(g_mat_new)))
+        
+        fo_query = findOverlaps(
+            query = g_query,
+            subject = g_mat_new,
+            select = "arbitrary"
+        )
+        fo_g_mat = findOverlaps(
+            query = g_mat,
+            subject = g_mat_new,
+            select = "arbitrary"
+        )
+        mcols( g_mat_new )$Member_CCLs[fo_query] = elementMetadata(g_query)$Member_CCLs
+        mcols( g_mat_new )$Member_CCLs[fo_g_mat]   =
+            paste( mcols( g_mat_new )$Member_CCLs[fo_g_mat], elementMetadata(g_mat)$Member_CCLs, sep = ",")
+        mcols( g_mat_new )$Member_CCLs = str_replace( mcols( g_mat_new )$Member_CCLs, pattern = "^,","" )
+        g_mat = g_mat_new
+        
     }
-    mut_mat$cl_id = mut_vec
-
-    copy_to(con, mut_data, name = table_name)
     
-    file.remove(database_path_wait)
+    if (! test_mode)
+        saveRDS(g_mat,rdata_path)
+    
+    # synchronize libraries
+    
+    try( expr = "libraries = readRDS(library_path)")
+    if (!exists("libraries")){
+        libraries = c(library)
+    } else {
+        libraries = unique(c(libraries, library))
+    }
+    saveRDS(libraries,library_path)
 }

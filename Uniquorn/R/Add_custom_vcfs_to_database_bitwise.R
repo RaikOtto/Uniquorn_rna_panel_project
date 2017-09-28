@@ -27,7 +27,7 @@
 #'                            n_threads = 1,
 #'                            test_mode = TRUE)
 #' @export
-add_custom_vcf_to_database_Bitwise = function(
+add_custom_vcf_to_database = function(
     vcf_input_files,
     ref_gen = "GRCH37",
     library = "CUSTOM",
@@ -56,7 +56,7 @@ add_custom_vcf_to_database_Bitwise = function(
       index_vcf = lapply(vcf_input_files, function(x) check_file(x))
       vcf_input_files = vcf_input_files[unlist(index_vcf)]
       
-      add_ccl_variants_to_db_bitwise(
+      add_ccl_variants_to_db(
           vcf_input_files = vcf_input_files,
           ref_gen = ref_gen,
           library = library,

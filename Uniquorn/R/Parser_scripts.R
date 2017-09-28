@@ -72,15 +72,16 @@ parse_ccle_genotype_data = function(ccle_file, sim_list){
 #' Intern utility function. Filters the parsed VCF file for all informations
 #' except for the start and length of variations/mutations.
 #' 
-#' @param vcf_file_path character string giving the path to the vcf file
+#' @param vcf_file character string giving the path to the vcf file
 #'  on the operating system.
 #' @usage 
-#' parse_vcf_file(vcf_file_path)
+#' parse_vcf_file(vcf_file)
+#' @import GRanges
 #' @return Loci-based DNA-mutational fingerprint of the cancer cell line
 #'  as found in the input VCF file.
-parse_vcf_file = function(vcf_file_path){
+parse_vcf_file = function(vcf_file){
         
-      vcf_handle = data.table::fread(paste0("grep -v ^# ", vcf_file_path),
+      vcf_handle = data.table::fread(paste0("grep -v ^# ", vcf_file),
                                      sep = "\t", select = c(1,2,4,5),
                                      fill = TRUE)
       
@@ -89,14 +90,26 @@ parse_vcf_file = function(vcf_file_path){
                               by = .(V1, V2, V4)]
       
       # process variants
-      chr = vcf_handle[, gsub("chr", "", V1, ignore.case = TRUE)]
+      chroms = vcf_handle[, gsub("chr", "", V1, ignore.case = TRUE)]
       start_var = vcf_handle[, V2]
       length_ref = vcf_handle[, nchar(V4)]
       length_var = vcf_handle[, nchar(V5)]
       length_max = pmax(length_ref, length_var)
       end_var = start_var + (length_max - 1)
       
+      chroms_pure = grep(chroms, pattern = "_", invert = T)
+      chroms      = chroms[ chroms_pure ]
+      start_var   = start_var[chroms_pure]
+      end_var     = end_var[chroms_pure]
+      chroms      = paste("chr",chroms, sep ="")
+      
       # build fingerprint and return
-      fingerprint = paste(chr, start_var, end_var, sep = "_")
-      return(unique(fingerprint))
+      g_query = GRanges(
+          seqnames = chroms,
+          IRanges(
+              start = start_var,
+              end = end_var
+          )
+      )
+      return(g_query)
 }
