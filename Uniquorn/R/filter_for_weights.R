@@ -13,11 +13,12 @@
 #' included
 #' @usage 
 #' filter_for_weights( 
-#' mutational_weight_inclusion_threshold,
-#' ref_gen,
-#' verbose,
-#' sim_list,
-#' sim_list_stats)
+#'     mutational_weight_inclusion_threshold,
+#'     ref_gen,
+#'     verbose,
+#'     sim_list,
+#'     sim_list_stats)
+#' @import data.table
 #' @return Filtered reference sets
 filter_for_weights = function( 
     mutational_weight_inclusion_threshold,

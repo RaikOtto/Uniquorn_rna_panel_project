@@ -11,7 +11,7 @@ add_missing_cls = function(
     for (cl in dif_cls){
 
         res_table = data.frame(
-             "CL" = c( as.character(res_table$CL), 
+             "CL" = c(as.character(res_table$CL), 
                as.character(cl)),
         "CL_source" = c( as.character( res_table$CL_source),
             utils::tail(unlist(str_split(cl,"_")),1
@@ -30,5 +30,5 @@ add_missing_cls = function(
                            as.character( "FALSE" ))
         )
     }
- return( res_table )
+ return(res_table)
 }

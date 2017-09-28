@@ -8,10 +8,9 @@
 #' @param sim_list_stats table containing all cancer cell lines currently
 #' contained in the database.
 #' @param cl_id character string giving the cancer cell line identifier.
-#' @param n_threads integer specifying the number of threads to be used.
-#' @import BiocParallel
+#' @import data.table
 #' @usage 
-#' add_single_file(vcf_file_path, sim_list_stats, cl_id, n_threads)
+#' add_single_file(vcf_file_path, sim_list_stats, cl_id)
 #' @return Loci-based DNA-mutational fingerprint of the cancer cell line
 #'  associated with the respective identifier.
 

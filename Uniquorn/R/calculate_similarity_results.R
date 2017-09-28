@@ -10,7 +10,7 @@
 #' default 3.0
 #' @param vcf_fingerprint The start and end positions of variants in the query
 #' @param panels The reference libraries
-#' @param list_of_cls List of cancer cell lines
+#' @import data.table
 #' @return Results table
 calculate_similarity_results = function(
     sim_list,
@@ -21,131 +21,62 @@ calculate_similarity_results = function(
     q_value,
     confidence_score,
     vcf_fingerprint,
-    panels,
-    list_of_cls
+    panels
 ){
     
-    nr_cls = length(list_of_cls) # amount cls
-    
-    candidate_hits_abs_all = rep(0, nr_cls)
-    names(candidate_hits_abs_all) = list_of_cls
-    
-    candidate_hits_abs      = rep(0.0, nr_cls)
-    candidate_hits_abs_all  = rep(0.0, nr_cls)
-    candidate_hits_rel      = rep(0.0, nr_cls)
-    
-    cl_weight               = rep(0.0, nr_cls)
-    cl_weight_rel           = rep(0.0, nr_cls)
-    all_weighted            = rep(0.0, nr_cls)
-    
-    res_cl_weighted         = rep(0.0, nr_cls)
-    res_res_cl_weighted     = rep(0.0, nr_cls)
-    stats_all_weight        = rep(0.0, nr_cls)
-    
-    cl_absolute_mutation_hits = rep(0.0, nr_cls)
-    
     if (length(found_mut_mapping) != 0){
-        
-        # Extract CLs with found mutations and reorder
-        #candidate_hits_abs = sim_list[, .(CL = CL[found_mut_mapping])][, .(Count=.N), by = CL]
-        #candidate_hits_abs_alls = candidate_hits_abs[order(match(CL, list_of_cls, nomatch = 0))]
-        
-        #candidate_hits_abs_all = candidate_hits_abss[]
-        #sim_list_stats = sim_list_stats[all_weights]
-        ### scores
-        candidate_hits_abs = stats::aggregate( 
-            rep(1, length(found_mut_mapping)),
-            by = list(sim_list$CL[found_mut_mapping]), 
-            FUN = sum
-        )
-        
-        candidate_hits_abs_all[ 
-            which(
-                list_of_cls %in% candidate_hits_abs$Group.1
-            )
-        ] = as.integer( 
-            candidate_hits_abs$x[
-                match( 
-                    list_of_cls, 
-                    candidate_hits_abs$Group.1, 
-                    nomatch = 0
-                )
-            ] 
-        )
-        
-        cl_match_stats    = match(
-            list_of_cls,
-            sim_list_stats$CL,
-            nomatch = 0
-        ) # mapping
-        candidate_hits_rel = round( 
-            candidate_hits_abs_all /
-            sim_list_stats$Count[
-                cl_match_stats
-            ] * 100,
-            1
-        ) 
-        
-        cl_absolute_mutation_hits = sim_list_stats$Count[ cl_match_stats ]
+        # Extract CLs with found mutations and compute abs and rel mutation hit
+        candidate_hits_abs = sim_list[, .(CL = CL[found_mut_mapping])][, .(Count=.N), by = CL]
+        candidate_hits_abs_all = merge(sim_list_stats[,1], candidate_hits_abs,
+                                       by = "CL", all = TRUE)$Count
+        candidate_hits_abs_all[is.na(candidate_hits_abs_all)] = 0
+        candidate_hits_rel = round(candidate_hits_abs_all / 
+                                   sim_list_stats$Count * 100, 1)
+        cl_absolute_mutation_hits = sim_list_stats$Count
     }
     
     # p and q-value calculation 
-    
     p_values = calculate_p_and_q_values(
         candidate_hits_abs_all,
         cl_absolute_mutation_hits,
         sim_list,
         sim_list_stats,
         minimum_matching_mutations,
-        list_of_cls,
         p_value,
         q_value,
         vcf_fingerprint,
         panels = panels
     )
-    q_values       = stats::p.adjust( p_values, "BH")
-    conf_score_vec = round( -log( q_values ), 2 )
-    conf_score_vec[ is.infinite(conf_score_vec)] = 100
-
-    # treshold
+    q_values       = stats::p.adjust(p_values, "BH")
+    conf_score_vec = round(-log(q_values), 2)
+    conf_score_vec[is.infinite(conf_score_vec)] = 100
     
     # threshold non weighted
+    passed_threshold_vec_p_value = rep(FALSE, length(p_values))
+    passed_threshold_vec_p_value[p_values <= p_value] = TRUE
+    passed_threshold_vec_q_value = rep(FALSE, length(q_values))
+    passed_threshold_vec_q_value[q_values <= q_value] = TRUE
     
-    passed_threshold_vec_p_value = rep(FALSE,length(p_values))
-    passed_threshold_vec_p_value[ p_values <= p_value] = TRUE
-    passed_threshold_vec_q_value = rep(FALSE,length(q_values))
-    passed_threshold_vec_q_value[ q_values <= q_value] = TRUE
-    
-    output_cl_names = stringr::str_replace(
-        list_of_cls,
-        pattern = "_CCLE|_COSMIC|_CELLMINER|_CUSTOM|_EGA",
-        replacement = ""
-    )
-    
-    panel_vec = rep("", length( output_cl_names ))
-    panel_vec[ stringr::str_detect( list_of_cls, "_CCLE" ) ] = "CCLE"
-    panel_vec[ stringr::str_detect( list_of_cls, "_COSMIC" ) ] = "COSMIC"
-    panel_vec[ stringr::str_detect( list_of_cls, "_CELLMINER" ) ] = "CELLMINER"
-    panel_vec[ stringr::str_detect( list_of_cls, "_EGA" ) ] = "EGA"
-    panel_vec[ stringr::str_detect( list_of_cls, "_CUSTOM" ) ] = "CUSTOM"
+    output_cl_names = gsub(paste(panels, collapse  = "|"), "", sim_list_stats$CL)
+    panel_vec = sim_list_stats[, gsub("^.*_", "" , unique(CL))]
     
     passed_threshold_vec_p_value[ 
-        as.integer( candidate_hits_abs_all     )  < 
-        as.integer( minimum_matching_mutations ) 
+        as.integer(candidate_hits_abs_all)  < 
+        as.integer(minimum_matching_mutations) 
     ] = FALSE
     
     passed_threshold_vec_q_value[ 
-        as.integer( candidate_hits_abs_all     )  < 
-        as.integer( minimum_matching_mutations ) 
+        as.integer(candidate_hits_abs_all)  < 
+        as.integer(minimum_matching_mutations) 
     ] = FALSE
     
     passed_threshold_vec_con_score =
-        as.double( conf_score_vec   ) >=
-        as.double( confidence_score )
+        as.double(conf_score_vec) >=
+        as.double(confidence_score)
     
     passed_threshold_vec_con_score[
-        as.integer( candidate_hits_abs_all     )  < 
-        as.integer( minimum_matching_mutations ) 
+        as.integer(candidate_hits_abs_all)  < 
+        as.integer(minimum_matching_mutations) 
     ] = FALSE
     
     res_table = data.frame(
