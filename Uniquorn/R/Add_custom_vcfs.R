@@ -152,10 +152,11 @@ parse_vcf_query_into_db = function(
     
     # synchronize libraries
     library_path =  paste( c( package_path,"/Libraries_Ref_gen_",ref_gen,"_Uniquorn_DB.RData"), sep ="", collapse= "")
-    try( expr = "library_names = readRDS(library_path)")
-    if (!exists("library_names")){
+    
+    if (!file.exists(library_path)){
         library_names = c(library_name)
     } else {
+        library_names = readRDS(library_path)
         library_names = unique(c(library_names, library_name))
     }
     saveRDS(library_names,library_path)
