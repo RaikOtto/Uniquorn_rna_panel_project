@@ -77,7 +77,7 @@ parse_ccle_genotype_data = function(ccle_file, ref_gen = "GRCH37"){
         )
     )
     g_query = unique(g_query)
-    mcols(g_query)$MemberCCLs = new_cls$x
+    mcols(g_query)$Member_CCLs = new_cls$x
     
     if (file.exists(library_path)){
         library_names = readRDS(library_path)
@@ -87,6 +87,7 @@ parse_ccle_genotype_data = function(ccle_file, ref_gen = "GRCH37"){
         saveRDS("CCLE",library_path)
     }
     saveRDS(g_query, rdata_path)
+    d=readRDS(rdata_path)
     print("Finished parsing CCLE")
 }
 
