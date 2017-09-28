@@ -2,12 +2,12 @@
 #' 
 #' Parses cosmic genotype data
 #' 
-#' @param sim_list Variable containing mutations & cell line
 #' @param cosmic_file Path to cosmic clp file in hard disk
 #' @return The R Table sim_list which contains the CoSMIC CLP fingerprints 
-parse_cosmic_genotype_data = function(cosmic_file, sim_list){
+parse_cosmic_genotype_data = function(cosmic_file){
 
     # Only read in columns specified with subset
+    library_name = "COSMIC"
     subset = c(5, 24)
     
     if (!grepl("CosmicCLP_MutantExport", cosmic_file)){ # MutantExport
@@ -40,11 +40,11 @@ parse_cosmic_genotype_data = function(cosmic_file, sim_list){
 #' 
 #' Parses ccle genotype data
 #' 
-#' @param sim_list Variable containing mutations and cell line
 #' @param ccle_file Path to CCLE file on hard disk
 #' @return The R Table sim_list which contains the CCLE fingerprints
-parse_ccle_genotype_data = function(ccle_file, sim_list){
+parse_ccle_genotype_data = function(ccle_file){
   
+    library_name = "CCLE"
     # Only read in columns specified with subset
     subset = c(5, 6, 7, 16)
     ccle_genotype_tab = data.table::fread(ccle_file, select = subset,

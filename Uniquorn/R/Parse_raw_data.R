@@ -28,11 +28,6 @@ initiate_canonical_databases = function(
 
     message("Reference genome: ", ref_gen)
 
-    # pre-processing
-    sim_list = initiate_db_and_load_data(request_table = "sim_list",
-                                         subset = c("FINGERPRINT", "CL"),
-                                         ref_gen = ref_gen, load_default_db = TRUE)
-
     # Parse CoSMIC file
     if (file.exists(cosmic_file)){
         message("Found CoSMIC: ", file.exists(cosmic_file))
@@ -41,39 +36,23 @@ initiate_canonical_databases = function(
             gunzip(cosmic_file, overwrite = TRUE)
             cosmic_file = gsub(".gz$", "", cosmic_file, ignore.case = TRUE)
         }
-        sim_list = parse_cosmic_genotype_data(cosmic_file, sim_list)
+      
+        parse_cosmic_genotype_data( cosmic_file )
     }
-    t_t_index = grep(sim_list$CL, pattern = "T-T_COSMIC")
-    sim_list$CL[t_t_index] = "TT2_COSMIC"
-  
+
     # Parse CCLE file
     if (file.exists(ccle_file)){
       message("Found CCLE: ", file.exists(ccle_file))
-      sim_list = parse_ccle_genotype_data(ccle_file, sim_list)
+      parse_ccle_genotype_data(ccle_file)
     }
     
     if ((!file.exists(cosmic_file)) & (!file.exists(ccle_file))){ 
         warning("Did neither find CCLE & CoSMIC CLP file! Aborting.")
     } else {
         message("Finished parsing, aggregating over parsed Cancer Cell Line data")
-        res_vec = re_calculate_cl_weights( 
-            sim_list = sim_list, 
-            ref_gen = ref_gen 
-        )
-      
+        
         message("Finished aggregating, saving to database")
-        write_data_to_db( 
-            content_table = as.data.frame(res_vec[1]), 
-            "sim_list",       
-            ref_gen = ref_gen,
-            overwrite = TRUE 
-        )
-        write_data_to_db( 
-            content_table = as.data.frame(res_vec[2]), 
-            "sim_list_stats", 
-            ref_gen = ref_gen, 
-            overwrite = TRUE 
-        )
+        
         message("Initialization of Uniquorn DB finished")
     }
 }
