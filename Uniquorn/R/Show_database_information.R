@@ -16,43 +16,32 @@
 #' 
 #' ##Show just cancer cell lines contained in library CELLMINER
 #' show_contained_cls(ref_gen = "GRCH37", library = "CELLMINER")
-#' @import DBI RSQLite
+#' @import GenomicRanges stringr
 #' @export
-show_contained_cls = function(ref_gen = "GRCH37", library = NULL){
+show_contained_cls = function(
+    ref_gen = "GRCH37"
+){
     
-    #Helper function to print contained panels
-    print_panels = function(panel, sim_list_stats){
-      message(panel, ": ", sum(sim_list_stats[, CL %like% panel]))
-    }
-
-    #Get all CLs for selected reference genome
-    message(paste0("Reference genome: ", ref_gen))
-    sim_list_stats = initiate_db_and_load_data(ref_gen = ref_gen, subset = "CL", request_table = "sim_list_stats")
-    message(paste0("Found ", nrow(sim_list_stats), 
-                   " many cancer cell lines fingerprints for reference genome ", ref_gen ))
-
-    #Extract contained panel identifiers
-    panels = sim_list_stats[, unique(gsub("^.*_", "" , unique(CL)))]
-    if (!"CUSTOM" %in% panels){
-      panels = c(panels, "CUSTOM")
-    }
+    package_path = system.file("", package = "Uniquorn")
+    library_path =  paste( c( package_path,"/Libraries_Ref_gen_",ref_gen,"_Uniquorn_DB.RData"), sep ="", collapse= "")
+  
+    if ( ! file.exists( library_path ))
+        stop("No libraries found! Aborting.")
     
-    #Check if output for specific library is desired and proceed accordingly
-    if (is.null(library)){
-      invisible(lapply(panels, FUN = print_panels, sim_list_stats))
-      return(sim_list_stats)
-    } else{
-      if(any(panels %in% library)){
-        index_panel = which(panels %in% library)
-        invisible(lapply(panels[index_panel], FUN = print_panels, sim_list_stats))
-        index_lib = which(gsub("^.*_", "", sim_list_stats$CL) %in% library)
-        return(sim_list_stats[index_lib,])
-       } else{
-           warning(paste0("Specified library not present in Uniquorn database", "\n",
-                          "Contained librarys: ", paste(panels, collapse = ", ")))
-          return(sim_list_stats)
-        }
+    library_names = readRDS(library_path)
+    
+    ccls_all <<- c()
+    
+    for (library_name in library_names){
+        
+        rdata_path = paste( c( package_path,"/",library_name,"_",ref_gen,"_Uniquorn_DB.RData"), sep ="", collapse= "")
+        g_library = readRDS(rdata_path)
+        ccls = mcols(g_library)$Member_CCLs
+        ccls = unique(as.character(unlist(str_split(ccls,pattern = ","))))
+        ccls_all <<- c(ccls_all, ccls)
+        print(paste(c(library_name,": ",as.character(length(ccls))), sep = "", collapse = ""))
     }
+    return(ccls_all)
 }
 
 #' All Mutations For Reference Genome

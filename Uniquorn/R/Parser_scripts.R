@@ -76,7 +76,7 @@ parse_ccle_genotype_data = function(ccle_file, sim_list){
 #'  on the operating system.
 #' @usage 
 #' parse_vcf_file(vcf_file)
-#' @import GRanges
+#' @import GenomicRanges IRanges
 #' @return Loci-based DNA-mutational fingerprint of the cancer cell line
 #'  as found in the input VCF file.identify_vcf_files
 parse_vcf_file = function(vcf_file){
@@ -104,12 +104,20 @@ parse_vcf_file = function(vcf_file){
       chroms      = paste("chr",chroms, sep ="")
       
       # build fingerprint and return
-      g_query = GRanges(
+      g_query = GenomicRanges::GRanges(
           seqnames = chroms,
           IRanges(
               start = start_var,
               end = end_var
           )
       )
+      
+      cl_id = gsub("^.*/", "", vcf_file)
+      cl_id = gsub(".vcf", "", cl_id, fixed = TRUE)
+      cl_id = gsub(".hg19", "", cl_id, fixed = TRUE)
+      cl_id = toupper(cl_id)
+      cl_id = stringr::str_replace_all(cl_id, pattern = "\\.", "_")
+      mcols( g_query )$Member_CCLs = rep(cl_id,length(g_query@seqnames ))
+      
       return(g_query)
 }

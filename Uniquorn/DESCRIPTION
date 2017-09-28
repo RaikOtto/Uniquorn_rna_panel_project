@@ -12,15 +12,15 @@ Description: This packages enables users to identify cancer cell lines. Cancer c
     technology. RNA-seq data is very likely to work as well but hasn't been rigiously tested yet. Panel-seq
     will require manual adjustment of thresholds
 Imports:
-    DBI,
     stringr,
-    RSQLite,
     R.utils,
     WriteXLS,
     stats,
     data.table,
     doParallel,
-    foreach
+    foreach,
+    GenomicRanges,
+    IRanges
 Depends: 
     R (>= 3.3)
 License: Artistic-2.0

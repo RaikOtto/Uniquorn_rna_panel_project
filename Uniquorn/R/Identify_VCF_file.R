@@ -1,6 +1,6 @@
-#' identify_VCF_files
+#' identify_VCF_file
 #' 
-#' Identifies cancer cell lines contained in a vcf file based 
+#' Identifies a cancer cell lines contained in a vcf file based 
 #' on the pattern (start & length) of all contained mutations/ variations.
 #' 
 #' \code{identify_vcf_file} parses the vcf file and predicts 
@@ -31,7 +31,7 @@
 #' @param n_threads Number of threads to be used
 #' @param confidence_score Threshold above which a positive prediction occurs
 #' default 10.0
-#' @import DBI WriteXLS RSQLite stats BiocParallel
+#' @import WriteXLS stats
 #' @usage 
 #' identify_vcf_files( 
 #' vcf_file,
@@ -54,8 +54,8 @@
 #' identification = identify_vcf_files(HT29_vcf_file)
 #' @return R table with a statistic of the identification result
 #' @export
-identify_vcf_files = function(
-    vcf_files,
+identify_vcf_file = function(
+    vcf_file,
     output_file = "",
     ref_gen = "GRCH37",
     minimum_matching_mutations = 0,
@@ -71,12 +71,8 @@ identify_vcf_files = function(
     n_threads = 1
     ){
   
-    if (n_threads > 1)
-        BiocParallel::register(BiocParallel::MulticoreParam( n_threads ))
-    
-    vcf_fingerprint = parse_vcf_file(vcf_input_file)
-    #meta_file
-    
+    g_query = parse_vcf_file(vcf_input_file)
+
     library_path =  paste( c( package_path,"/Libraries_Ref_gen_",ref_gen,"_Uniquorn_DB.RData"), sep ="", collapse= "")
     try( expr = "libraries = readRDS(library_path)")
     
@@ -86,24 +82,12 @@ identify_vcf_files = function(
     
     for( library in libraries ){
 
-            if (n_threads > 1){
-                doParallel::registerDoParallel(n_threads)
-                foreach::foreach(
-                    vcf_input_file = vcf_input_files
-                ) %dopar% {
-                    match_query_ccl_to_database_bitwise(vcf_file, ref_gen = ref_gen, library = library, chrom = chrom)
-                }
-                doParallel::stopImplicitCluster()
-            } else {
-                for (vcf_input_file in vcf_input_files){
-                    match_query_ccl_to_database_bitwise(
-                        vcf_fingerprint,
-                        ref_gen = ref_gen,
-                        test_mode = test_mode,
-                        library = library
-                    )
-                }
-            }
+        match_query_ccl_to_database_bitwise(
+            g_query,
+            ref_gen = ref_gen,
+            test_mode = test_mode,
+            library = library
+        )
     }
     
     ### important mapping function which establishes the similarity

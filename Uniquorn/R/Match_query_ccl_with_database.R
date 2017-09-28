@@ -1,39 +1,24 @@
-match_query_ccl_to_database_bitwise = function(
-    vcf_fingerprint,
+match_query_ccl_to_database = function(
+    g_query,
     ref_gen = "GRCH37",
-    library,
-    chrom
+    library
 ){
   
-    package_path    = system.file("", package = "Uniquorn")
-    message(paste(c("Sample: ",cl_id,", Chr: ",chrom),collapse = "", sep =""))
+    package_path = system.file("", package = "Uniquorn")
+    rdata_path = paste( c( package_path,"/",library,"_",ref_gen,"_Uniquorn_DB.RData"), sep ="", collapse= "")
     
-    try( expr = "mut_mat = readRDS(rdata_path)")
+    message(paste(c("Sample: ",cl_id,", Library: ",library),collapse = "", sep =""))
     
-    if (! exists("mut_mat")){
+    try( expr = "g_mat = readRDS(rdata_path)")
+    
+    if (! exists("gut_mat"))
+      stop(paste("Cannot find database:", rdata_path, sep =" "))
       
-      mut_mat = as.logical(mut_mat)
-      #mut_vec = mut_vec[empty_vec_chrom]
-      mut_mat = mut_vec
-      
-    } else {
-      
-      #empty_vec_chrom = empty_vec_chrom | mut_vec
-      mut_mat = cbind(mut_vec)
-    }
-    mut_mat = as.bit(mut_mat)
-    
-    vars_chr = vcf_fingerprint[ grep(vcf_fingerprint, pattern = paste(c( "^",chrom,"_"),collapse = "",sep ="")) ]
-    starts = as.integer(sapply(vars_chr, FUN = function(vec){return(as.character(unlist(str_split(vec,pattern = "_")))[2])}))
-    ends = as.integer(sapply(vars_chr, FUN = function(vec){return(as.character(unlist(str_split(vec,pattern = "_")))[3])}))
-    starts_tmp = starts
-    starts = starts[ (!is.na(starts_tmp)) | (!is.na(ends)) ]
-    ends = ends[(!is.na(starts_tmp)) | (!is.na(ends)) ]
-    
-    if (max(starts) > chrom_length)
-      message(paste(c("Warning, max var position greater than chromosome length: 2**28")))
-    
-    mut_vec = rep(FALSE, chrom_length)
-    mut_vec[ c(starts,ends) ] = TRUE
+    fo_query = findOverlaps(
+        query = g_query,
+        subject = g_mat,
+        select = "arbitrary"
+    )
+    mcols(g_mat)$Member_CCLs[fo_query]
     
 }
