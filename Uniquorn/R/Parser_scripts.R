@@ -21,19 +21,43 @@ parse_cosmic_genotype_data = function(cosmic_file, ref_gen = "GRCH37"){
     colnames(cosmic_genotype_tab) = c("sample", "position")
     
     # Extract and process coordinates and CL IDs
+    print("Parsing Cosmic Coordinates, that might take some time")
     coords = cosmic_genotype_tab[, gsub(":|-", "_", position)]
+    seq_name = as.character(sapply( coords, FUN = function(vec){return(as.character(unlist(str_split(vec,"_")))[1])}))
+    starts = as.character(sapply( coords, FUN = function(vec){return(as.character(unlist(str_split(vec,"_")))[2])}))
+    ends = as.character(sapply( coords, FUN = function(vec){return(as.character(unlist(str_split(vec,"_")))[3])}))
+    
     cls = cosmic_genotype_tab[, gsub("/|(|])| ", "", sample, ignore.case = TRUE)]
     cls[cls == "KM-H2"] = "KMH2"
     cls[cls == "KMH-2"] = "KMH2ALTERNATIVE"
     cls = paste(cls, "COSMIC", sep = "_")
     
-    # Build and arrange new sim list with fingerprint and CL ID
-    new_sim_list = unique(data.table(Fingerprint = coords, CL = cls, stringsAsFactors = FALSE))
-    new_sim_list = new_sim_list[, .(Fingerprint), by = CL]
-    new_sim_list = setcolorder(new_sim_list, c("Fingerprint", "CL"))
-
-    sim_list = rbind(sim_list, new_sim_list)
-    return(sim_list)
+    c_matches = match(coords, unique(coords), nomatch = 0)
+    
+    print("Aggregating Cosmic CCL names")
+    new_cls = aggregate( cls, by = list(c_matches), FUN= paste, sep = "", collapse= ",")
+    
+    # Extract and process coordinates and CL IDs
+    g_query = GenomicRanges::GRanges(
+      seqnames = paste( "chr", ccle_genotype_tab$Chromosome, sep ="" ),
+      IRanges(
+        start = ccle_genotype_tab$Start_position,
+        end = ccle_genotype_tab$End_position
+      )
+    )
+    g_query = unique(g_query)
+    mcols(g_query)$Member_CCLs = new_cls$x
+    
+    if (file.exists(library_path)){
+      library_names = readRDS(library_path)
+      library_names = unique(c(library_names, "COSMIC"))
+      saveRDS(library_names,library_path)
+    } else {
+      saveRDS("COSMIC",library_path)
+    }
+    saveRDS(g_query, rdata_path)
+    d=readRDS(rdata_path)
+    print("Finished parsing Cosmic")
 }
 
 #' parse_ccle_genotype_data
@@ -65,7 +89,7 @@ parse_ccle_genotype_data = function(ccle_file, ref_gen = "GRCH37"){
     c_matches = match(coords,unique(coords), nomatch = 0)
     new_cls <<- c()
     
-    print("Aggregating CCLE CCL names, this might take minute")
+    print("Aggregating CCLE CCL names")
     new_cls = aggregate( cls, by = list(c_matches), FUN= paste, sep = "", collapse= ",")
     
     # Extract and process coordinates and CL IDs
