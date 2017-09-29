@@ -39,10 +39,10 @@ parse_cosmic_genotype_data = function(cosmic_file, ref_gen = "GRCH37"){
     
     # Extract and process coordinates and CL IDs
     g_query = GenomicRanges::GRanges(
-      seqnames = paste( "chr", ccle_genotype_tab$Chromosome, sep ="" ),
+      seqnames = seq_name,
       IRanges(
-        start = ccle_genotype_tab$Start_position,
-        end = ccle_genotype_tab$End_position
+        start = starts,
+        end = ends
       )
     )
     g_query = unique(g_query)
