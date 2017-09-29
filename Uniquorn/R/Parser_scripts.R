@@ -42,24 +42,59 @@ parse_cosmic_genotype_data = function(cosmic_file, ref_gen = "GRCH37"){
     new_cls = aggregate( cls, by = list(c_matches), FUN= paste, sep = "", collapse= ",")
     
     # Extract and process coordinates and CL IDs
-    g_query = GenomicRanges::GRanges(
-      seqnames = seq_name,
-      IRanges(
-        start = as.integer( starts ),
-        end = as.integer( ends )
-      )
+    g_mat = GenomicRanges::GRanges(
+        seqnames = seq_name,
+        IRanges(
+            start = as.integer( starts ),
+            end = as.integer( ends )
+        )
     )
-    g_query = unique(g_query)
-    mcols(g_query)$Member_CCLs = new_cls$x
+    g_mat = unique(g_mat)
+    mcols(g_mat)$Member_CCLs = new_cls$x
+    mcols(g_mat)$Member_CCLs = str_replace_all(mcols(g_mat)$Member_CCLs, 
+        pattern = paste( "_",library_name,sep =""), "")
     
-    if (file.exists(library_path)){
-      library_names = readRDS(library_path)
-      library_names = unique(c(library_names, "COSMIC"))
-      saveRDS(library_names,library_path)
-    } else {
-      saveRDS("COSMIC",library_path)
+    print("Normalizing CCL names")
+    n = sapply( mcols(g_mat)$Member_CCLs, FUN = function(vec){
+        return(
+            paste(
+                unique(
+                    as.character(unlist(str_split(mcols(g_mat)$Member_CCLs,
+                    pattern  =",")))
+                ), collapse = ","
+            )
+        )
+    } )
+    
+    write_mutation_grange_objects(
+        g_mat = g_mat,
+        library_name = library_name,
+        ref_gen = ref_gen, 
+        mutational_weight_inclusion_threshold = 0
+    )
+    
+    for(mwit in c(.25,.5,1.0)){
+      
+        hit_index = which( str_count(
+            mcols(g_mat)$Member_CCLs, pattern = ","
+        ) <= as.integer( round(1/mwit) ) )
+        mwit_g_mat = g_mat[hit_index]
+        write_mutation_grange_objects(
+            mutational_weight_inclusion_threshold = mwit,
+            g_mat = mwit_g_mat,
+            library_name = library_name,
+            ref_gen = ref_gen
+        )
     }
-    saveRDS(g_query, rdata_path)
+    
+    ccl_list_all = as.character(unlist(str_split(
+        mcols(g_mat)$Member_CCLs,
+        pattern = ",") ))
+    ccl_list_unique = unique(ccl_list_all)
+    
+    
+    ccl_list = sort(ccl_list, decreasing = F)
+    write_ccl_list(ccl_list = ccl_list,ref_gen = ref_gen,library_name = library_name)
     print("Finished parsing Cosmic")
 }
 
@@ -94,44 +129,44 @@ parse_ccle_genotype_data = function(ccle_file, ref_gen = "GRCH37"){
     new_cls = aggregate( cls, by = list(c_matches), FUN= paste, sep = "", collapse= ",")
     
     # Extract and process coordinates and CL IDs
-    g_query = GenomicRanges::GRanges(
+    g_mat = GenomicRanges::GRanges(
         seqnames = paste( "chr", ccle_genotype_tab$Chromosome, sep ="" ),
         IRanges(
             start = ccle_genotype_tab$Start_position,
             end = ccle_genotype_tab$End_position
         )
     )
-    g_query = unique(g_query)
-    mcols(g_query)$Member_CCLs = new_cls$x
+    g_mat = unique(g_mat)
+    mcols(g_mat)$Member_CCLs = new_cls$x
     
-    if (file.exists(library_path)){
-        library_names = readRDS(library_path)
-        library_names = unique(c(library_names, "CCLE"))
-        saveRDS(library_names,library_path)
-    } else {
-        saveRDS("CCLE",library_path)
+    write_mutation_grange_objects(
+        g_mat = g_mat,
+        library_name = library_name,
+        ref_gen = ref_gen, 
+        mutational_weight_inclusion_threshold = 0
+    )
+    
+    for(mwit in c(.25,.5,1.0)){
+      
+        hit_index = which( str_count(
+            mcols(g_mat)$Member_CCLs, pattern = ","
+        ) == as.integer( round(1/mwit) ) )
+        mwit_g_mat = g_mat[hit_index]
+        write_mutation_grange_objects(
+            mutational_weight_inclusion_threshold = mwit,
+            g_mat = mwit_g_mat,
+            library_name = library_name,
+            ref_gen = ref_gen
+        )
     }
-    saveRDS(g_query, rdata_path)
+    
+    ccl_list = unique(as.character(unlist(str_split(
+        mcols(g_mat)$Member_CCLs,
+        pattern = ",") )))
+    ccl_list = sort(ccl_list, decreasing = F)
+    write_ccl_list(ccl_list = ccl_list,ref_gen = ref_gen,library_name = library_name)
+    
     print("Finished parsing CCLE")
-}
-
-#' subset_dbs_into_mutational_weights
-#' 
-#' Splits a new db into the mutational weights and creates new subfolders
-#' 
-#' @param db_g_range GenomicRanges file
-#' @param library_name Name of the new library
-#' 
-#' @return The R Table sim_list which contains the CoSMIC CLP fingerprints 
-subset_dbs_into_mutational_weights = function(
-    db_g_range,
-    library_name,
-    ref_gen,
-    mutational_weight_inclusion_threshold = c(1,.5,.25)
-){
-  
-  
-  
 }
 
 #' Filter Parsed VCF Files

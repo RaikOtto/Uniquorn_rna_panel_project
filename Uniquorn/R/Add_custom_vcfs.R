@@ -33,6 +33,8 @@ add_new_ccls_to_ccl_library = function(
     test_mode = FALSE)
 {
     
+    #ccl_list = read_ccl_list(ref_gen = ref_gen, library_name = library_name)
+  
     if (n_threads > 1){
       
         doParallel::registerDoParallel(n_threads)
@@ -56,6 +58,7 @@ add_new_ccls_to_ccl_library = function(
         for (vcf_input_file in vcf_input_files){
             
             g_query = parse_vcf_file(vcf_input_file)
+            
             parse_vcf_query_into_db(
                 g_query,
                 ref_gen = ref_gen,
@@ -64,6 +67,7 @@ add_new_ccls_to_ccl_library = function(
             )
         }
     }
+    print("Finished")
 }
 
 #' write_vcf_file_to_monet_db
@@ -172,6 +176,4 @@ parse_vcf_query_into_db = function(
         pattern = ",") )))
     ccl_list = sort(ccl_list, decreasing = F)
     write_ccl_list(ccl_list = ccl_list,ref_gen = ref_gen,library_name = library_name)
-    
-    print("Finished")
 }
