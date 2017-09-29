@@ -10,7 +10,6 @@ parse_cosmic_genotype_data = function(cosmic_file, ref_gen = "GRCH37"){
     library_name = "COSMIC"
     package_path = system.file("", package = "Uniquorn")
     rdata_path = paste( c( package_path,"/",library_name,"_",ref_gen,"_Uniquorn_DB.RData"), sep ="", collapse= "")
-    library_path =  paste( c( package_path,"/Libraries_Ref_gen_",ref_gen,"_Uniquorn_DB.RData"), sep ="", collapse= "")
     
     subset = c(5, 24)
     
@@ -28,6 +27,7 @@ parse_cosmic_genotype_data = function(cosmic_file, ref_gen = "GRCH37"){
     print("Parsing Cosmic Coordinates, that might take some time")
     coords = cosmic_genotype_tab[, gsub(":|-", "_", position)]
     seq_name = as.character(sapply( coords, FUN = function(vec){return(as.character(unlist(str_split(vec,"_")))[1])}))
+    seq_name = 
     starts = as.character(sapply( coords, FUN = function(vec){return(as.character(unlist(str_split(vec,"_")))[2])}))
     ends = as.character(sapply( coords, FUN = function(vec){return(as.character(unlist(str_split(vec,"_")))[3])}))
     
@@ -55,16 +55,16 @@ parse_cosmic_genotype_data = function(cosmic_file, ref_gen = "GRCH37"){
         pattern = paste( "_",library_name,sep =""), "")
     
     print("Normalizing CCL names")
-    n = sapply( mcols(g_mat)$Member_CCLs, FUN = function(vec){
-        return(
-            paste(
-                unique(
-                    as.character(unlist(str_split(mcols(g_mat)$Member_CCLs,
-                    pattern  =",")))
-                ), collapse = ","
-            )
-        )
-    } )
+    #n = sapply( mcols(g_mat)$Member_CCLs, FUN = function(vec){
+    #    return(
+    #        paste(
+    #            unique(
+    #                as.character(unlist(str_split(mcols(g_mat)$Member_CCLs,
+    #                pattern  =",")))
+    #            ), collapse = ","
+    #        )
+    #    )
+    #} )
     
     write_mutation_grange_objects(
         g_mat = g_mat,
@@ -73,28 +73,39 @@ parse_cosmic_genotype_data = function(cosmic_file, ref_gen = "GRCH37"){
         mutational_weight_inclusion_threshold = 0
     )
     
+    ccl_stats <<- data.frame(
+      "CCL" = names(table(as.character(
+        unlist(str_split(new_cls$x, pattern = ","))))),
+      "Mut_count_0" = as.character(table(as.character(unlist(
+        str_split(new_cls$x, pattern = ",")))))
+    )
+    
     for(mwit in c(.25,.5,1.0)){
       
-        hit_index = which( str_count(
-            mcols(g_mat)$Member_CCLs, pattern = ","
-        ) <= as.integer( round(1/mwit) ) )
-        mwit_g_mat = g_mat[hit_index]
-        write_mutation_grange_objects(
-            mutational_weight_inclusion_threshold = mwit,
-            g_mat = mwit_g_mat,
-            library_name = library_name,
-            ref_gen = ref_gen
-        )
+      hit_index = which( str_count(
+        mcols(g_mat)$Member_CCLs, pattern = ","
+      ) <= as.integer( round(1/mwit) ) )
+      
+      mwit_g_mat = g_mat[hit_index]
+      
+      write_mutation_grange_objects(
+        mutational_weight_inclusion_threshold = mwit,
+        g_mat = mwit_g_mat,
+        library_name = library_name,
+        ref_gen = ref_gen
+      )
+      
+      mut_t = table(as.character(unlist(str_split( 
+        mcols(mwit_g_mat)$Member_CCLs,pattern = "," ))))
+      
+      ccl_count = rep("0", nrow(ccl_stats))
+      ccl_match = match( ccl_stats$CCL, names(mut_t), nomatch = 0 )
+      ccl_count[ccl_match] = mut_t[ccl_match != 0]
+      ccl_stats = cbind(ccl_stats, ccl_count)
     }
+    colnames(ccl_stats) = c("CCL","W0","W25","W05","W1")
     
-    ccl_list_all = as.character(unlist(str_split(
-        mcols(g_mat)$Member_CCLs,
-        pattern = ",") ))
-    ccl_list_unique = unique(ccl_list_all)
-    
-    
-    ccl_list = sort(ccl_list, decreasing = F)
-    write_ccl_list(ccl_list = ccl_list,ref_gen = ref_gen,library_name = library_name)
+    write_ccl_list(ccl_list = ccl_stats,ref_gen = ref_gen,library_name = library_name)
     print("Finished parsing Cosmic")
 }
 
@@ -107,7 +118,6 @@ parse_cosmic_genotype_data = function(cosmic_file, ref_gen = "GRCH37"){
 parse_ccle_genotype_data = function(ccle_file, ref_gen = "GRCH37"){
   
     library_name = "CCLE"
-    rdata_path = paste( c( package_path,"/",library_name,"_",ref_gen,"_Uniquorn_DB.RData"), sep ="", collapse= "")
     
     # Only read in columns specified with subset
     subset = c(5, 6, 7, 16)
@@ -119,9 +129,13 @@ parse_ccle_genotype_data = function(ccle_file, ref_gen = "GRCH37"){
     )
     
     cls = ccle_genotype_tab[, gsub("\\_.*", "", Tumor_Sample_Barcode)]
-    cls = paste(cls, "CCLE", sep = "_")
+    cls = str_replace(cls, paste( "_",library_name, sep = "" ), "")
     
-    coords    = paste(ccle_genotype_tab$Chromosome,ccle_genotype_tab$Start_position,ccle_genotype_tab$End_position,sep="_")
+    coords    = paste(
+        str_replace( ccle_genotype_tab$Chromosome, pattern = "^chr", "" ),
+        ccle_genotype_tab$Start_position,
+        ccle_genotype_tab$End_position,
+    sep="_")
     c_matches = match(coords,unique(coords), nomatch = 0)
     new_cls <<- c()
     
@@ -130,7 +144,7 @@ parse_ccle_genotype_data = function(ccle_file, ref_gen = "GRCH37"){
     
     # Extract and process coordinates and CL IDs
     g_mat = GenomicRanges::GRanges(
-        seqnames = paste( "chr", ccle_genotype_tab$Chromosome, sep ="" ),
+        seqnames = str_replace( ccle_genotype_tab$Chromosome, pattern = "^chr", "" ),
         IRanges(
             start = ccle_genotype_tab$Start_position,
             end = ccle_genotype_tab$End_position
@@ -146,25 +160,39 @@ parse_ccle_genotype_data = function(ccle_file, ref_gen = "GRCH37"){
         mutational_weight_inclusion_threshold = 0
     )
     
+    ccl_stats <<- data.frame(
+        "CCL" = names(table(as.character(
+            unlist(str_split(new_cls$x, pattern = ","))))),
+        "Mut_count_0" = as.character(table(as.character(unlist(
+            str_split(new_cls$x, pattern = ",")))))
+    )
+    
     for(mwit in c(.25,.5,1.0)){
       
         hit_index = which( str_count(
             mcols(g_mat)$Member_CCLs, pattern = ","
-        ) == as.integer( round(1/mwit) ) )
+        ) <= as.integer( round(1/mwit) ) )
+        
         mwit_g_mat = g_mat[hit_index]
+        
         write_mutation_grange_objects(
             mutational_weight_inclusion_threshold = mwit,
             g_mat = mwit_g_mat,
             library_name = library_name,
             ref_gen = ref_gen
         )
+        
+        mut_t = table(as.character(unlist(str_split( 
+            mcols(mwit_g_mat)$Member_CCLs,pattern = "," ))))
+        
+        ccl_count = rep("0", nrow(ccl_stats))
+        ccl_match = match( ccl_stats$CCL, names(mut_t), nomatch = 0 )
+        ccl_count[ccl_match] = mut_t[ccl_match != 0]
+        ccl_stats = cbind(ccl_stats, ccl_count)
     }
-    
-    ccl_list = unique(as.character(unlist(str_split(
-        mcols(g_mat)$Member_CCLs,
-        pattern = ",") )))
-    ccl_list = sort(ccl_list, decreasing = F)
-    write_ccl_list(ccl_list = ccl_list,ref_gen = ref_gen,library_name = library_name)
+    colnames(ccl_stats) = c("CCL","W0","W25","W05","W1")
+ 
+    write_ccl_list(ccl_list = ccl_stats,ref_gen = ref_gen,library_name = library_name)
     
     print("Finished parsing CCLE")
 }
@@ -201,9 +229,9 @@ parse_vcf_file = function(vcf_file){
       
       chroms_pure = grep(chroms, pattern = "_", invert = T)
       chroms      = chroms[ chroms_pure ]
+      chroms      = str_replace(chroms,pattern = "^chr","")
       start_var   = start_var[chroms_pure]
       end_var     = end_var[chroms_pure]
-      chroms      = paste("chr",chroms, sep ="")
       
       # build fingerprint and return
       g_query = GenomicRanges::GRanges(

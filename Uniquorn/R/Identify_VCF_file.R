@@ -73,22 +73,22 @@ identify_vcf_file = function(
   
     g_query = parse_vcf_file(vcf_input_file)
     
-    library_path = make_library_path(ref_gen = ref_gen, library_name = library_name)
-    library_names = read_library_names(library_path)
-    library_names = 
+    library_names = read_library_names(ref_gen = ref_gen)
     
     hit_lists <<- c()
     
     for( library_name in library_names ){
 
-        hit_list = match_query_ccl_to_database_bitwise(
+        hit_list = match_query_ccl_to_database(
             g_query,
             ref_gen = ref_gen,
-            test_mode = test_mode,
             library_name = library_name,
             mutational_weight_inclusion_threshold = mutational_weight_inclusion_threshold
         )
-        hit_lists <<- c( hit_lists, hit_list )
+        
+        print(paste(c(library_name,": ",names(hit_list)[1]," ",hit_list[1])), sep ="",collapse= "")
+        
+       # hit_lists <<- c( hit_lists, hit_list )
     }
     
     
