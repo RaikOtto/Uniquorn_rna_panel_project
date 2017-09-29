@@ -8,6 +8,10 @@ parse_cosmic_genotype_data = function(cosmic_file, ref_gen = "GRCH37"){
 
     # Only read in columns specified with subset
     library_name = "COSMIC"
+    package_path = system.file("", package = "Uniquorn")
+    rdata_path = paste( c( package_path,"/",library_name,"_",ref_gen,"_Uniquorn_DB.RData"), sep ="", collapse= "")
+    library_path =  paste( c( package_path,"/Libraries_Ref_gen_",ref_gen,"_Uniquorn_DB.RData"), sep ="", collapse= "")
+    
     subset = c(5, 24)
     
     if (!grepl("CosmicCLP_MutantExport", cosmic_file)){ # MutantExport
@@ -41,8 +45,8 @@ parse_cosmic_genotype_data = function(cosmic_file, ref_gen = "GRCH37"){
     g_query = GenomicRanges::GRanges(
       seqnames = seq_name,
       IRanges(
-        start = starts,
-        end = ends
+        start = as.integer( starts ),
+        end = as.integer( ends )
       )
     )
     g_query = unique(g_query)
@@ -56,7 +60,6 @@ parse_cosmic_genotype_data = function(cosmic_file, ref_gen = "GRCH37"){
       saveRDS("COSMIC",library_path)
     }
     saveRDS(g_query, rdata_path)
-    d=readRDS(rdata_path)
     print("Finished parsing Cosmic")
 }
 
@@ -111,7 +114,6 @@ parse_ccle_genotype_data = function(ccle_file, ref_gen = "GRCH37"){
         saveRDS("CCLE",library_path)
     }
     saveRDS(g_query, rdata_path)
-    d=readRDS(rdata_path)
     print("Finished parsing CCLE")
 }
 

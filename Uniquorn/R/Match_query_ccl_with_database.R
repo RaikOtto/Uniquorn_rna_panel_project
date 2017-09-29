@@ -1,24 +1,29 @@
 match_query_ccl_to_database = function(
     g_query,
     ref_gen = "GRCH37",
-    library
+    library_name,
+    mutational_weight_inclusion_threshold
 ){
   
     package_path = system.file("", package = "Uniquorn")
-    rdata_path = paste( c( package_path,"/",library,"_",ref_gen,"_Uniquorn_DB.RData"), sep ="", collapse= "")
+    rdata_path = paste( c( package_path,"/",library_name,"_",ref_gen,"_Uniquorn_DB.RData"), sep ="", collapse= "")
     
-    message(paste(c("Sample: ",cl_id,", Library: ",library),collapse = "", sep =""))
+    # IMPLEMENT IMPORT OF CLLs FOR LIBRARY HERE
     
-    try( expr = "g_mat = readRDS(rdata_path)")
+    if (! file.exists(rdata_path))
+        stop(paste("DB not found: ",rdata_path))
     
-    if (! exists("gut_mat"))
-      stop(paste("Cannot find database:", rdata_path, sep =" "))
-      
+    g_mat = readRDS(rdata_path)
+
     fo_query = findOverlaps(
         query = g_query,
         subject = g_mat,
-        select = "arbitrary"
+        select = "arbitrary",
+        type = "equal"
     )
-    mcols(g_mat)$Member_CCLs[fo_query]
+    match = subsetByOverlaps(g_mat, g_query)
+    hit_ccls = as.character(unlist(str_split(mcols(match)$Member_CCLs, pattern = "," )))
     
+    table(hit_ccls)
+    return(hit_ccls)
 }
