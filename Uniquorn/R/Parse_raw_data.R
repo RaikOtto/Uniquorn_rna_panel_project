@@ -52,7 +52,7 @@ initiate_canonical_databases = function(
         message("Finished parsing, aggregating over parsed Cancer Cell Line data")
         
         message("Finished aggregating, saving to database")
-        
+
         message("Initialization of Uniquorn DB finished")
     }
 }

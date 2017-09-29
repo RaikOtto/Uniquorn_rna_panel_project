@@ -73,15 +73,9 @@ identify_vcf_file = function(
   
     g_query = parse_vcf_file(vcf_input_file)
     
-    package_path = system.file("", package = "Uniquorn")
-    library_path =  paste( c( package_path,"/Libraries_Ref_gen_",ref_gen,"_Uniquorn_DB.RData"), sep ="", collapse= "")
-    
-    if (! file.exists( library_path )){
-        stop("No database found")
-    }
-    
-    library_names = readRDS(library_path)
-    library_names = "CELLMINER"#library_names[library_names != "COSMIC"]
+    library_path = make_library_path(ref_gen = ref_gen, library_name = library_name)
+    library_names = read_library_names(library_path)
+    library_names = 
     
     hit_lists <<- c()
     

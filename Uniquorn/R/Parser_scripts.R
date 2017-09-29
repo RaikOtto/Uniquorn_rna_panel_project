@@ -72,9 +72,7 @@ parse_cosmic_genotype_data = function(cosmic_file, ref_gen = "GRCH37"){
 parse_ccle_genotype_data = function(ccle_file, ref_gen = "GRCH37"){
   
     library_name = "CCLE"
-    package_path = system.file("", package = "Uniquorn")
     rdata_path = paste( c( package_path,"/",library_name,"_",ref_gen,"_Uniquorn_DB.RData"), sep ="", collapse= "")
-    library_path =  paste( c( package_path,"/Libraries_Ref_gen_",ref_gen,"_Uniquorn_DB.RData"), sep ="", collapse= "")
     
     # Only read in columns specified with subset
     subset = c(5, 6, 7, 16)
@@ -115,6 +113,25 @@ parse_ccle_genotype_data = function(ccle_file, ref_gen = "GRCH37"){
     }
     saveRDS(g_query, rdata_path)
     print("Finished parsing CCLE")
+}
+
+#' subset_dbs_into_mutational_weights
+#' 
+#' Splits a new db into the mutational weights and creates new subfolders
+#' 
+#' @param db_g_range GenomicRanges file
+#' @param library_name Name of the new library
+#' 
+#' @return The R Table sim_list which contains the CoSMIC CLP fingerprints 
+subset_dbs_into_mutational_weights = function(
+    db_g_range,
+    library_name,
+    ref_gen,
+    mutational_weight_inclusion_threshold = c(1,.5,.25)
+){
+  
+  
+  
 }
 
 #' Filter Parsed VCF Files

@@ -97,29 +97,17 @@ parse_vcf_query_into_db = function(
     g_query,
     ref_gen = "GRCH37",
     library_name,
-    test_mode = FALSE)
-{
+    test_mode = FALSE
+){
     
     cl_id = mcols( g_query )$Member_CCLs[1]
     message(paste(c("Sample: ",cl_id,", Library: ",library_name),collapse = "", sep =""))
     
-    package_path = system.file("", package = "Uniquorn")
-    rdata_path = paste( c( package_path,"/",library_name,"_",ref_gen,"_Uniquorn_DB.RData"), sep ="", collapse= "")
-    library_path =  paste( c( package_path,"/Libraries_Ref_gen_",ref_gen,"_Uniquorn_DB.RData"), sep ="", collapse= "")
-    
-    # save new vcf
-    
-    if (!file.exists(rdata_path)){
-        g_mat = GenomicRanges::GRanges(
-          seqnames = NULL,
-          IRanges(
-            start = NULL,
-            end = NULL
-          )
-        )
-    } else {
-        g_mat = readRDS(rdata_path)
-    }
+    g_mat = read_mutation_grange_objects(
+        library_name = library_name,
+        ref_gen = ref_gen,
+        mutational_weight_inclusion_threshold = 0
+    )
     
     g_mat_new = unique(c( GenomicRanges::GRanges(g_mat), GenomicRanges::GRanges(g_query)))
     mcols(g_mat_new)$Member_CCLs = rep("",nrow(mcols(g_mat_new)))
@@ -151,7 +139,7 @@ parse_vcf_query_into_db = function(
         saveRDS(g_mat,rdata_path)
     
     # synchronize libraries
-    library_path =  paste( c( package_path,"/Libraries_Ref_gen_",ref_gen,"_Uniquorn_DB.RData"), sep ="", collapse= "")
+    library_path = make_library_path(ref_gen = ref_gen, library_name = library_name)
     
     if (!file.exists(library_path)){
         library_names = c(library_name)
@@ -159,5 +147,31 @@ parse_vcf_query_into_db = function(
         library_names = readRDS(library_path)
         library_names = unique(c(library_names, library_name))
     }
-    saveRDS(library_names,library_path)
+    write_mutation_grange_objects(
+        g_mat = g_mat,
+        library_name = library_name,
+        ref_gen = ref_gen, 
+        mutational_weight_inclusion_threshold = 0
+    )
+    
+    for(mwit in c(.25,.5,1.0)){
+        hit_index = which( str_count(
+            mcols(g_mat)$Member_CCLs, pattern = ","
+        ) == as.integer( round(1/mwit) ) )
+        mwit_g_mat = g_mat[hit_index]
+        write_mutation_grange_objects(
+            mutational_weight_inclusion_threshold = mwit,
+            g_mat = mwit_g_mat,
+            library_name = library_name,
+            ref_gen = ref_gen
+        )
+    }
+    
+    ccl_list = unique(as.character(unlist(str_split(
+        mcols(g_mat)$Member_CCLs,
+        pattern = ",") )))
+    ccl_list = sort(ccl_list, decreasing = F)
+    write_ccl_list(ccl_list = ccl_list,ref_gen = ref_gen,library_name = library_name)
+    
+    print("Finished")
 }
