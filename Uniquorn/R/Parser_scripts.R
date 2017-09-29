@@ -9,7 +9,6 @@ parse_cosmic_genotype_data = function(cosmic_file, ref_gen = "GRCH37"){
     # Only read in columns specified with subset
     library_name = "COSMIC"
     package_path = system.file("", package = "Uniquorn")
-    rdata_path = paste( c( package_path,"/",library_name,"_",ref_gen,"_Uniquorn_DB.RData"), sep ="", collapse= "")
     
     subset = c(5, 24)
     
@@ -26,15 +25,16 @@ parse_cosmic_genotype_data = function(cosmic_file, ref_gen = "GRCH37"){
     # Extract and process coordinates and CL IDs
     print("Parsing Cosmic Coordinates, that might take some time")
     coords = cosmic_genotype_tab[, gsub(":|-", "_", position)]
-    seq_name = as.character(sapply( coords, FUN = function(vec){return(as.character(unlist(str_split(vec,"_")))[1])}))
-    seq_name = 
-    starts = as.character(sapply( coords, FUN = function(vec){return(as.character(unlist(str_split(vec,"_")))[2])}))
-    ends = as.character(sapply( coords, FUN = function(vec){return(as.character(unlist(str_split(vec,"_")))[3])}))
+    seq_name = as.character(sapply( coords, FUN = function(vec){
+        return(as.character(unlist(str_split(vec,"_")))[1])}))
+    starts = as.character(sapply( coords, FUN = function(vec){
+        return(as.character(unlist(str_split(vec,"_")))[2])}))
+    ends = as.character(sapply( coords, FUN = function(vec){
+        return(as.character(unlist(str_split(vec,"_")))[3])}))
     
     cls = cosmic_genotype_tab[, gsub("/|(|])| ", "", sample, ignore.case = TRUE)]
     cls[cls == "KM-H2"] = "KMH2"
     cls[cls == "KMH-2"] = "KMH2ALTERNATIVE"
-    cls = paste(cls, "COSMIC", sep = "_")
     
     c_matches = match(coords, unique(coords), nomatch = 0)
     
