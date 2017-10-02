@@ -1,6 +1,6 @@
 read_ccl_list = function(
-  library_name,
-  ref_gen
+    library_name,
+    ref_gen
 ){
   
   package_path = system.file("", package = "Uniquorn")
@@ -80,16 +80,26 @@ read_mutation_grange_objects = function(
         ref_gen,"/",library_name,
         "/W",as.character(mutational_weight_inclusion_threshold),
         "_Uniquorn_DB.RData"),
-        sep ="", collapse= "")
+        sep ="",
+        collapse= ""
+    )
     
     if (! file.exists( rdata_path )){
-        message(paste(c("Database not found: ", rdata_path),collapse = "",sep =""))
+        message(paste(c("Database not found: ", rdata_path,", creating new database."),collapse = "",sep =""))
         g_mat = GenomicRanges::GRanges(
             seqnames = NULL,
             IRanges(
                 start = NULL,
                 end = NULL
             )
+        )
+        dir.create(
+          paste( 
+            c(package_path,"/Libraries/"),
+            collapse = "",
+            sep =""
+          ),
+          showWarnings = F
         )
         dir.create(
             paste( 

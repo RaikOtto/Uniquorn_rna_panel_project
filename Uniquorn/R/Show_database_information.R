@@ -23,23 +23,25 @@ show_contained_cls = function(
 ){
     
     package_path = system.file("", package = "Uniquorn")
-    library_path =  paste( c( package_path,"/Libraries_Ref_gen_",ref_gen,"_Uniquorn_DB.RData"), sep ="", collapse= "")
+    library_path =  paste( c( package_path,"/Libraries/",ref_gen), sep ="", collapse= "")
   
-    if ( ! file.exists( library_path ))
+    if ( ! dir.exists( library_path ))
         stop("No libraries found! Aborting.")
     
-    library_names = readRDS(library_path)
+    libraries = list.dirs(library_path,full.names = F)
+    libraries = libraries[ libraries != ""]
     
     ccls_all <<- c()
     
-    for (library_name in library_names){
+    for (library_name in libraries){
         
-        rdata_path = paste( c( package_path,"/",library_name,"_",ref_gen,"_Uniquorn_DB.RData"), sep ="", collapse= "")
+        rdata_path = paste( c( library_path,"/",library_name,"/CCL_List_Uniquorn_DB.RData"), sep ="", collapse= "")
         g_library = readRDS(rdata_path)
-        ccls = mcols(g_library)$Member_CCLs
-        ccls = unique(as.character(unlist(str_split(ccls,pattern = ","))))
-        ccls_all <<- c(ccls_all, ccls)
-        print(paste(c(library_name,": ",as.character(length(ccls))), sep = "", collapse = ""))
+        print(paste(
+            c(library_name," amount CCLs: ", as.character(nrow(g_library))),
+            sep = "", collapse = "")
+        )
+        ccls_all <<- c(ccls_all,g_library )
     }
     return(ccls_all)
 }
