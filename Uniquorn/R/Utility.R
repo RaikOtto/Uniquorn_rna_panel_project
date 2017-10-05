@@ -1,42 +1,9 @@
-read_ccl_list = function(
-    library_name,
-    ref_gen
-){
-  
-  package_path = system.file("", package = "Uniquorn")
-  
-  CCL_List_data_path =  paste( c(
-    package_path,"/Libraries/",
-    ref_gen,"/",library_name,
-    "/CCL_List_Uniquorn_DB.RData"),
-    sep ="", collapse= ""
-  )
-  
-  return(readRDS(CCL_List_data_path))
-}
-
-write_ccl_list = function(
-  ccl_list,
-  library_name,
-  ref_gen
-){
-  
-    package_path = system.file("", package = "Uniquorn")
-    
-    CCL_List_data_path =  paste( c(
-      package_path,"/Libraries/",
-      ref_gen,"/",library_name,
-      "/CCL_List_Uniquorn_DB.RData"),
-      sep ="", collapse= ""
-    )
-    saveRDS(ccl_list,CCL_List_data_path)
-}
-
 write_mutation_grange_objects = function(
     g_mat,
     library_name,
     mutational_weight_inclusion_threshold,
-    ref_gen
+    ref_gen,
+    type = ""
 ){
   
     package_path = system.file("", package = "Uniquorn")
@@ -48,6 +15,12 @@ write_mutation_grange_objects = function(
         "_Uniquorn_DB.RData"),
         sep ="", collapse= ""
     )
+    
+    if ( type != ""){
+        rdata_path = str_replace(rdata_path, pattern = "_Uniquorn_DB.RData",
+            paste( c( ".",type,"_Uniquorn_DB.RData"), sep = "",collapse = "" )
+        )
+    }
   
     dir.create(
         paste( 

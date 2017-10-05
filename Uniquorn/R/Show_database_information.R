@@ -4,29 +4,29 @@
 #' for a chosen reference genome and optional library.
 #' 
 #' @param ref_gen a character vector specifying the reference genome version. All training sets are associated with a reference genome version. Default is \code{"GRCH37"}.
-#' @param library an optional character vector. Only cancer cell lines contained in specified library will be returned. \cr
-#'  If omitted, all fingerprints for the reference genome will be returned.
+#' @param verbose Should DB informations be printed
 #' @return R table which contains the identifiers of all cancer cell line samples
 #'  which match the specified parameters (reference genome and library).
 #' @usage 
 #' show_contained_cls(ref_gen, library = NULL)
 #' @examples
 #' ##Show all contained cancer cell lines for reference GRCH37
-#' show_contained_cls(ref_gen = "GRCH37")
+#' show_contained_cls(ref_gen = "GRCH37", verbose = TRUE)
 #' 
 #' ##Show just cancer cell lines contained in library CELLMINER
 #' show_contained_cls(ref_gen = "GRCH37", library = "CELLMINER")
 #' @import GenomicRanges stringr
 #' @export
 show_contained_cls = function(
-    ref_gen = "GRCH37"
+    ref_gen = "GRCH37",
+    verbose = TRUE
 ){
     
     package_path = system.file("", package = "Uniquorn")
     library_path =  paste( c( package_path,"/Libraries/",ref_gen), sep ="", collapse= "")
   
     if ( ! dir.exists( library_path ))
-        stop("No libraries found! Aborting.")
+        stop("No libraries found!")
     
     libraries = list.dirs(library_path,full.names = F)
     libraries = libraries[ libraries != ""]
@@ -35,12 +35,14 @@ show_contained_cls = function(
     
     for (library_name in libraries){
         
-        rdata_path = paste( c( library_path,"/",library_name,"/CCL_List_Uniquorn_DB.RData"), sep ="", collapse= "")
-        g_library = readRDS(rdata_path)
-        print(paste(
-            c(library_name," amount CCLs: ", as.character(nrow(g_library))),
-            sep = "", collapse = "")
-        )
+        stats_path = paste( c( library_path,"/",library_name,"/CCL_List_Uniquorn_DB.RData"), sep ="", collapse= "")
+        g_library = readRDS(stats_path)
+        
+        if (verbose)
+            print(paste(
+                c(library_name," amount CCLs: ", as.character(nrow(g_library))),
+                sep = "", collapse = "")
+            )
         ccls_all <<- c(ccls_all,g_library )
     }
     return(ccls_all)

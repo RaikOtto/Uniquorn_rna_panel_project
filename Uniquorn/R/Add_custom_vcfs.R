@@ -13,7 +13,7 @@
 #' @param n_threads an integer specifying the number of threads to be used.
 #' @param test_mode Is this a test? Just for internal use
 #' @return Message wheather the adding was successful
-#' @import BiocParallel
+#' @import BiocParallel GenomicRanges IRanges
 #' @usage 
 #' add_new_ccls_to_ccl_library(vcf_input_files, ref_gen = "GRCH37", library = "CUSTOM",
 #'                            n_threads = 1, test_mode = FALSE)
@@ -25,7 +25,7 @@
 #'                            n_threads = 1,
 #'                            test_mode = TRUE)
 #' @export
-add_new_ccls_to_ccl_library = function(
+add_custom_vcf_to_database = function(
     vcf_input_files,
     ref_gen = "GRCH37",
     library_name = "CUSTOM",
@@ -43,6 +43,7 @@ add_new_ccls_to_ccl_library = function(
             vcf_input_file = vcf_input_files
         ) %dopar% {
             g_query = parse_vcf_file(vcf_input_file)
+            
             parse_vcf_query_into_db(
                 g_query,
                 ref_gen = ref_gen,
@@ -85,7 +86,7 @@ add_new_ccls_to_ccl_library = function(
 #' @param n_threads an integer specifying the number of threads to be used.
 #' @param test_mode Is this a test? Just for internal use
 #' @return Message wheather the adding was successful
-#' @import GenomicRanges stringr
+#' @import GenomicRanges stringr IRanges
 #' @usage 
 #' write_vcf_file_to_monet_db(vcf_input_files, ref_gen = "GRCH37", library_name = "CUSTOM",
 #'  cl_id, n_threads = 1, test_mode = FALSE)
@@ -105,75 +106,74 @@ parse_vcf_query_into_db = function(
 ){
     
     cl_id = mcols( g_query )$Member_CCLs[1]
+    cl_id_no_library = str_replace( cl_id, pattern = paste("_",library_name,sep = ""),"" )
+    
+    cl_data =  show_contained_cls( verbose = FALSE)
+    if (cl_id_no_library %in% cl_data$CCL){
+        print(
+            paste(c("CCL ", cl_id, " already contained in DB ",library_name,
+                    ". Remove first or change name"),
+            sep="",collapse = "")
+        )
+        return()
+    }
+    
+    
     message(paste(c("Sample: ",cl_id,", Library: ",library_name),collapse = "", sep =""))
     
     g_mat = read_mutation_grange_objects(
-        library_name = library_name,
-        ref_gen = ref_gen,
-        mutational_weight_inclusion_threshold = 0
+      library_name = library_name,
+      ref_gen = ref_gen,
+      mutational_weight_inclusion_threshold = 0
     )
     
-    g_mat_new = unique(c( GenomicRanges::GRanges(g_mat), GenomicRanges::GRanges(g_query)))
-    mcols(g_mat_new)$Member_CCLs = rep("",nrow(mcols(g_mat_new)))
+    if ( "Member_CCLs" %in% names(mcols(g_mat))  ){
+      
+        g_mat_new = unique(c( GenomicRanges::GRanges(g_mat), GenomicRanges::GRanges(g_query)))
+        fo_g_mat = findOverlaps(
+          query = g_mat,
+          subject = g_mat_new,
+          select = "arbitrary",
+          type = "equal"
+        )
         
-    fo_query = findOverlaps(
-        query = g_query,
-        subject = g_mat_new,
-        select = "arbitrary",
-        type = "equal"
-    )
+    } else {
+        
+        g_mat_new = unique(GenomicRanges::GRanges(g_query))
+        fo_g_mat = GenomicRanges::GenomicRangesList()
+    }
+    mcols(g_mat_new)$Member_CCLs = rep("",nrow(mcols(g_mat_new)))
     
-    fo_g_mat = findOverlaps(
-        query = g_mat,
-        subject = g_mat_new,
-        select = "arbitrary",
-        type = "equal"
+    fo_query = findOverlaps(
+      query = g_query,
+      subject = g_mat_new,
+      select = "arbitrary",
+      type = "equal"
     )
     
     mcols( g_mat_new )$Member_CCLs[fo_query] = elementMetadata(g_query)$Member_CCLs
-    mcols( g_mat_new )$Member_CCLs[fo_g_mat]   =
-        paste( 
+    
+    if ( "Member_CCLs" %in% names(mcols(g_mat)) )
+    
+        mcols( g_mat_new )$Member_CCLs[fo_g_mat]   =
+          paste( 
             mcols( g_mat_new )$Member_CCLs[fo_g_mat],
             elementMetadata(g_mat)$Member_CCLs, sep = ","
-        )
-    mcols( g_mat_new )$Member_CCLs = str_replace( mcols( g_mat_new )$Member_CCLs, pattern = "^,","" )
+          )
+    
+    
+    mcols( g_mat_new )$Member_CCLs = stringr::str_replace( 
+      mcols( g_mat_new )$Member_CCLs,
+      pattern = "^,",""
+    )
     g_mat = g_mat_new
-        
-    if (! test_mode)
-        saveRDS(g_mat,rdata_path)
     
-    # synchronize libraries
-    library_path = make_library_path(ref_gen = ref_gen, library_name = library_name)
-    
-    if (!file.exists(library_path)){
-        library_names = c(library_name)
-    } else {
-        library_names = readRDS(library_path)
-        library_names = unique(c(library_names, library_name))
-    }
-    write_mutation_grange_objects(
+    write_w0_and_split_w0_into_lower_weights(
         g_mat = g_mat,
-        library_name = library_name,
-        ref_gen = ref_gen, 
-        mutational_weight_inclusion_threshold = 0
+        ref_gen = ref_gen,
+        library_name = library_name
     )
     
-    for(mwit in c(.25,.5,1.0)){
-        hit_index = which( str_count(
-            mcols(g_mat)$Member_CCLs, pattern = ","
-        ) == as.integer( round(1/mwit) ) )
-        mwit_g_mat = g_mat[hit_index]
-        write_mutation_grange_objects(
-            mutational_weight_inclusion_threshold = mwit,
-            g_mat = mwit_g_mat,
-            library_name = library_name,
-            ref_gen = ref_gen
-        )
-    }
+    print(paste(c("Finished parsing ",cl_id,", library: ",library_name),sep="",collapse= ""))
+  }
     
-    ccl_list = unique(as.character(unlist(str_split(
-        mcols(g_mat)$Member_CCLs,
-        pattern = ",") )))
-    ccl_list = sort(ccl_list, decreasing = F)
-    write_ccl_list(ccl_list = ccl_list,ref_gen = ref_gen,library_name = library_name)
-}
