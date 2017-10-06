@@ -16,8 +16,6 @@
 #' @param mutational_weight_inclusion_threshold Include only mutations 
 #' with a weight of at least x. Range: 0.0 to 1.0. 1= unique to CL. 
 #' ~0 = found in many CL samples. 
-#' @param only_first_candidate Only the CL identifier with highest 
-#' score is predicted to be present in the sample
 #' @param minimum_matching_mutations The minimum amount of mutations that 
 #' has to match between query and training sample for a positive prediction
 #' @param manual_identifier_bed_file Manually enter a vector of CL 
@@ -29,8 +27,6 @@
 #' @param p_value Required p-value for identification
 #' @param q_value Required q-value for identification
 #' @param n_threads Number of threads to be used
-#' @param confidence_score Threshold above which a positive prediction occurs
-#' default 10.0
 #' @import WriteXLS stats
 #' @usage 
 #' identify_vcf_files( 
@@ -39,14 +35,12 @@
 #' ref_gen = "GRCH37",
 #' minimum_matching_mutations = 0,
 #' mutational_weight_inclusion_threshold = 0.5,
-#' only_first_candidate = FALSE,
 #' write_xls = FALSE,
 #' output_bed_file = FALSE,
 #' manual_identifier_bed_file = "",
 #' verbose = FALSE,
 #' p_value = .05,
 #' q_value = .05,
-#' confidence_score = 10.0,
 #' n_threads = 1)
 #' @examples 
 #' HT29_vcf_file = system.file("extdata/HT29.vcf.gz", package="Uniquorn");
@@ -60,14 +54,12 @@ identify_vcf_file = function(
     ref_gen = "GRCH37",
     minimum_matching_mutations = 0,
     mutational_weight_inclusion_threshold = 0.5,
-    only_first_candidate = FALSE,
     write_xls = FALSE,
     output_bed_file = FALSE,
     manual_identifier_bed_file = "",
     verbose = FALSE,
     p_value = .05,
     q_value = .05,
-    confidence_score = 10.0,
     n_threads = 1
     ){
   
@@ -102,34 +94,37 @@ identify_vcf_file = function(
     
     # statistics
     
-    match_t = add_p_q_values_statistics(match_t)
+    match_t = add_p_q_values_statistics(match_t, p_value, q_value)
     match_t = add_penality_statistics(match_t)
+    match_t$Identification_sig = match_t$Q_value_sig & match_t$Above_Penality
+    match_t = match_t[order(match_t$Q_values,decreasing = F),]
     
-    if (only_first_candidate)
+    ### io stuff
+    
+    if(output_file == ""){
+        output_file = str_replace(vcf_file,pattern = "(\\.vcf)|(\\.VCF)", ".ident.tsv" )
+    }
+    
+    if ( verbose ){
         
-      res_table$Conf_score_sig[ seq(2, length(res_table$Conf_score_sig)) ] = FALSE
-    
-    if ( verbose )
+        print( paste0( "Candidate(s): ", paste0( ( unique( 
+              as.character( match_t$CCL )[ match_t$Identification_sig  ]) ), 
+              collapse = ", " ) )
+        )
+        print( paste0("Storing information in table: ",output_file ) )
+    }
         
-      print( paste0( "Candidate(s): ", paste0( ( unique( 
-            as.character( res_table$CL )[ res_table$Conf_score_sig == TRUE  ]) ), 
-            collapse = "," ) )  )
-    
-    if( verbose )
-        
-      print( paste0("Storing information in table: ",output_file ) )
-    
     utils::write.table( 
-        res_table,
+        match_t,
         output_file,
         sep ="\t",
         row.names = FALSE,
         quote = FALSE
     )
     
-    if (output_bed_file & ( sum( as.logical(res_table$Q_value_sig) ) > 0 ))
+    if (output_bed_file & ( sum( as.logical(match_t$Q_value_sig) ) > 0 ))
          create_bed_file( 
-             sim_list, 
+             match_t, 
              vcf_fingerprint, 
              res_table, 
              output_file, 
@@ -138,8 +133,8 @@ identify_vcf_file = function(
         )
     
     if ( !verbose )
-        res_table = res_table[ ,
-            !( colnames( res_table ) %in% c(
+        match_t = match_t[ ,
+            !( colnames( match_t ) %in% c(
                 "P_values",
                 "Q_values",
                 "P_value_sig",
@@ -152,12 +147,12 @@ identify_vcf_file = function(
     if ( write_xls )
 
         WriteXLS::WriteXLS( 
-            x = res_table,
+            x = match_t,
             path.expand(
                 output_file_xls
             ),
             row.names = FALSE
         )
     
-    return( res_table )
+    return( match_t )
 }

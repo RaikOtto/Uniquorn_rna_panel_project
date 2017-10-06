@@ -1,4 +1,8 @@
-add_p_q_values_statistics = function( match_t ){
+add_p_q_values_statistics = function( 
+    match_t,
+    p_value,
+    q_value
+){
   
     library_names = read_library_names(ref_gen = ref_gen)  
     p_values = rep(1.0, nrow(match_t))
@@ -44,6 +48,8 @@ add_p_q_values_statistics = function( match_t ){
     }
     match_t$P_values = p_values
     match_t$Q_values = p.adjust(p_values, method = "BH")
+    match_t$P_value_sig = match_t$P_values <= p_value
+    match_t$Q_value_sig = match_t$Q_values <= q_value
   
     return(match_t)
 }
@@ -96,6 +102,8 @@ add_penality_statistics = function( match_t  ){
             as.character( penalty_mutations ), " variants to match." ) )
         )
     }
-  
-  return(match_t)
+    match_t$Above_Penality = as.integer(as.character(match_t$Matches)) > 
+        penalty
+    
+    return(match_t)
 }
