@@ -31,19 +31,30 @@ show_contained_cls = function(
     libraries = list.dirs(library_path,full.names = F)
     libraries = libraries[ libraries != ""]
     
-    ccls_all <<- c()
+    ccls_all <<- data.frame(
+        "CCL" = as.character(),
+        "Library" = as.character(),
+        "W0" = as.character(),
+        "W25" = as.character(),
+        "W05" = as.character(),
+        "W1" = as.character()
+    )
     
     for (library_name in libraries){
-        
+       
         stats_path = paste( c( library_path,"/",library_name,"/CCL_List_Uniquorn_DB.RData"), sep ="", collapse= "")
         g_library = readRDS(stats_path)
+        cl_id_no_library = str_replace_all( g_library$CCL, pattern = paste("_",library_name,sep = ""),"" )
+        g_library$CCL = cl_id_no_library
         
         if (verbose)
             print(paste(
                 c(library_name," amount CCLs: ", as.character(nrow(g_library))),
                 sep = "", collapse = "")
-            )
-        ccls_all <<- c(ccls_all,g_library )
+        )
+        g_library$Library = rep(library_name, nrow(g_library))
+        g_library = g_library[c("CCL","Library","W0","W25","W05","W1")]
+        ccls_all <<- rbind(ccls_all, g_library )
     }
     return(ccls_all)
 }
@@ -140,4 +151,18 @@ show_which_cls_contain_mutation = function(mutation_name, ref_gen = "GRCH37"){
                 " for reference genome ", ref_gen, ".")
     }
     return(sim_list)  
+}
+
+
+read_library_names = function(
+    ref_gen
+){
+  
+    package_path = system.file("", package = "Uniquorn")
+    library_path =  paste( c( package_path,"/Libraries/",ref_gen,"/"), sep ="", collapse= "")
+    
+    library_names = list.dirs(library_path, full.names = F)
+    library_names = library_names[library_names!= ""]
+    
+    return(library_names)
 }

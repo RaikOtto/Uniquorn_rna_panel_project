@@ -106,10 +106,10 @@ parse_vcf_query_into_db = function(
 ){
     
     cl_id = mcols( g_query )$Member_CCLs[1]
-    cl_id_no_library = str_replace( cl_id, pattern = paste("_",library_name,sep = ""),"" )
+    cl_id = str_replace_all( cl_id, pattern = paste("_",library_name,sep = ""),"" )
     
     cl_data =  show_contained_cls( verbose = FALSE)
-    if (cl_id_no_library %in% cl_data$CCL){
+    if (cl_id %in% cl_data$CCL[ cl_data$Library == library_name  ] ){
         print(
             paste(c("CCL ", cl_id, " already contained in DB ",library_name,
                     ". Remove first or change name"),
@@ -117,7 +117,6 @@ parse_vcf_query_into_db = function(
         )
         return()
     }
-    
     
     message(paste(c("Sample: ",cl_id,", Library: ",library_name),collapse = "", sep =""))
     

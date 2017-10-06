@@ -94,16 +94,3 @@ read_mutation_grange_objects = function(
     
     return(g_mat)
 }
-
-read_library_names = function(
-    ref_gen
-){
-  
-    package_path = system.file("", package = "Uniquorn")
-    library_path =  paste( c( package_path,"/Libraries/",ref_gen,"/"), sep ="", collapse= "")
-  
-    library_names = list.dirs(library_path, full.names = F)
-    library_names = library_names[library_names!= ""]
-    
-    return(library_names)
-}

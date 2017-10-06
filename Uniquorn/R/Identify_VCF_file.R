@@ -71,11 +71,14 @@ identify_vcf_file = function(
     n_threads = 1
     ){
   
-    g_query = parse_vcf_file(vcf_input_file)
+    g_query = parse_vcf_file(vcf_file)
     
     library_names = read_library_names(ref_gen = ref_gen)
-    
-    hit_lists <<- c()
+    match_t = data.frame(
+        CCL = as.character(),
+        Matches = as.character(),
+        Library = as.character()
+    )
     
     for( library_name in library_names ){
 
@@ -83,95 +86,24 @@ identify_vcf_file = function(
             g_query,
             ref_gen = ref_gen,
             library_name = library_name,
-            mutational_weight_inclusion_threshold = mutational_weight_inclusion_threshold
+            mutational_weight_inclusion_threshold =
+                mutational_weight_inclusion_threshold
         )
+        assign("match_t", rbind(match_t,hit_list),envir = .GlobalEnv)
         
-        print(paste(c(library_name,": ",names(hit_list)[1]," ",hit_list[1])), sep ="",collapse= "")
-        
-       # hit_lists <<- c( hit_lists, hit_list )
+        print(paste(c(
+            library_name,": ",
+            as.character(hit_list$CCL[1]),
+            ", matching variants: ",
+            as.character(hit_list$Matches[1])),
+            sep ="",
+            collapse= ""))
     }
     
+    # statistics
     
-    #######################
-    
-    
-    
-    
-    ### important mapping function which establishes the similarity
-    found_mut_mapping = which(sim_list$Fingerprint %in% vcf_fingerprint)
-    panels = sim_list_stats[, unique(gsub("^.*_", "_" , unique(CL)))]
-
-    res_table = calculate_similarity_results(
-        sim_list = sim_list,
-        sim_list_stats = sim_list_stats,
-        found_mut_mapping = found_mut_mapping,
-        minimum_matching_mutations = minimum_matching_mutations,
-        p_value = p_value,
-        q_value = q_value,
-        confidence_score = confidence_score,
-        vcf_fingerprint,
-        panels = panels,
-        list_of_cls = unique(sim_list_stats$CL)
-    )
-    
-    if(length(dif_cls > 0)){
-        res_table = add_missing_cls(res_table, dif_cls)
-    }
-    
-    ### correction background
-    
-    res_table_statistic = res_table[ 
-        res_table$Found_muts != res_table$Count_mutations
-    , ]
-    # this is done to avoid distortion of the statistic
-    # due to benchmarking the DB with its own fingerprints
-    
-    nr_matching_variants = as.double( res_table_statistic$Found_muts[ 
-        as.double( res_table_statistic$Found_muts ) > 0 
-    ] )
-    
-    if ( length(nr_matching_variants) == 0 ){
-        
-        penalty = 0
-        penalty_mutations = 0
-        
-    } else{ 
-        
-        mean_match = mean( nr_matching_variants )
-        max_match  = max( nr_matching_variants )
-
-        penalty = integrate(
-            f = pbeta,
-            0,
-            1,
-            max_match,
-            max_match/ mean_match,
-            stop.on.error = FALSE
-        )$value
-        
-        penalty_mutations = 
-            ceiling(
-                mean_match + 
-                    ( max_match * penalty ) / 
-                    ( 1 - penalty )
-            )
-    }
-    
-    
-    if ( ( minimum_matching_mutations == 0 ) & ( penalty != 0.0) ){
-        
-        res_table$Conf_score_sig = as.character( 
-            ( as.integer( res_table$Found_muts ) > 
-                  as.integer( penalty_mutations ) ) &
-            as.logical( res_table$Conf_score_sig )
-        )
-        
-        message( paste0( collapse = "", c( 
-            "Correcting the background due to traces of random, scale-freeness amounts of matches, 
-            requiring at least ", 
-            as.character( penalty_mutations ), " variants to match." ) )
-        )
-    }
+    match_t = add_p_q_values_statistics(match_t)
+    match_t = add_penality_statistics(match_t)
     
     if (only_first_candidate)
         
