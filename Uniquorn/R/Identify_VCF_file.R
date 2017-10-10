@@ -39,7 +39,6 @@
 #' output_bed_file = FALSE,
 #' manual_identifier_bed_file = "",
 #' verbose = FALSE,
-#' p_value = .05,
 #' q_value = .05,
 #' n_threads = 1)
 #' @examples 
@@ -58,7 +57,6 @@ identify_vcf_file = function(
     output_bed_file = FALSE,
     manual_identifier_bed_file = "",
     verbose = FALSE,
-    p_value = .05,
     q_value = .05,
     n_threads = 1
     ){
@@ -66,14 +64,14 @@ identify_vcf_file = function(
     g_query = parse_vcf_file(vcf_file)
     
     library_names = read_library_names(ref_gen = ref_gen)
-    match_t = data.frame(
+    match_t <<- data.frame(
         CCL = as.character(),
         Matches = as.character(),
         Library = as.character()
     )
     
     for( library_name in library_names ){
-
+        options(warn=-1)
         hit_list = match_query_ccl_to_database(
             g_query,
             ref_gen = ref_gen,
@@ -81,7 +79,8 @@ identify_vcf_file = function(
             mutational_weight_inclusion_threshold =
                 mutational_weight_inclusion_threshold
         )
-        assign("match_t", rbind(match_t,hit_list),envir = .GlobalEnv)
+        options(warn=0)
+        match_t = rbind(match_t,hit_list
         
         print(paste(c(
             library_name,": ",
@@ -94,7 +93,7 @@ identify_vcf_file = function(
     
     # statistics
     
-    match_t = add_p_q_values_statistics(match_t, p_value, q_value)
+    match_t = add_p_q_values_statistics(match_t, q_value, ref_gen = ref_gen)
     match_t = add_penality_statistics(match_t)
     match_t$Identification_sig = match_t$Q_value_sig & match_t$Above_Penality
     match_t = match_t[order(match_t$Q_values,decreasing = F),]
