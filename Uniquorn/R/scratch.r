@@ -29,14 +29,31 @@ t.test(x = difs[1],mu = mu)
 plot( pnorm(seq(mean(difs)-100,mean(difs)+100,by=.1), mean = mean(difs), sd = sd(difs)) )
 
 x = dnbinom( x= 0:11,size= 100, prob = .5)
-
-
 rr = rnbinom(size = f$estimate[1], mu =  f$estimate[2], n = length(difs_log))
 
 ks.test(rr,difs_log_r)
 plot(cumsum(difs_log_r))
 scale(difs_log_r)
 
+match_t = match_t[match_t$All_variants != 0,]
+
+matches = as.integer(as.character(match_t$Matches))
+all_vars = as.integer(as.character(match_t$All_variants))
+all_vars = all_vars[matches  > 0]
+ccl_names = match_t$CCL[matches > 0]
+matches = matches[matches > 0]
+
+quot = as.vector( round( matches / all_vars, 2 ) * 100 )
+names(quot ) = ccl_names
+summary(quot)
+hist(quot)
+
+sort( quot, decreasing = T ) 
+quot_s = sort(quot, decreasing = T)
+
+difs <<- c()
+for (i in 1:(length(quot_s)-1))
+    difs = c(difs, quot_s[i] - quot_s[i + 1] )
 
 
 }

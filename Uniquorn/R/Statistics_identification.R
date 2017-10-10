@@ -1,7 +1,8 @@
 add_p_q_values_statistics = function( 
     match_t,
     q_value,
-    ref_gen
+    ref_gen,
+    minimum_matching_mutations
 ){
   
     library_names = read_library_names(ref_gen = ref_gen)  
@@ -48,13 +49,12 @@ add_p_q_values_statistics = function(
     }
     match_t$P_values = p_values
     match_t$Q_values = p.adjust(p_values, method = "BH")
-    match_t$P_value_sig = match_t$P_values <= p_value
     match_t$Q_value_sig = match_t$Q_values <= q_value
   
     return(match_t)
 }
 
-add_penality_statistics = function( match_t  ){
+add_penality_statistics = function( match_t, minimum_matching_mutations  ){
 
     matching_variants = as.integer(match_t$Matches)
     minimum_matching_mutations = min(matching_variants)
@@ -89,12 +89,6 @@ add_penality_statistics = function( match_t  ){
     
     
     if ( ( minimum_matching_mutations == 0 ) & ( penalty != 0.0) ){
-      
-        match_t$Conf_score_sig = as.character( 
-          ( as.integer( match_t$Matches ) > 
-              as.integer( penalty_mutations ) ) &
-            as.logical( match_t$Conf_score_sig )
-        )
       
         message( paste0( collapse = "", c( 
             "Correcting the background due to traces of random, scale-freeness amounts of matches, 

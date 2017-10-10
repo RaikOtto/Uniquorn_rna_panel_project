@@ -24,7 +24,6 @@
 #' @param output_bed_file If BED files for IGV visualization should be 
 #' created for the Cancer Cell lines that pass the threshold
 #' @param verbose Print additional information
-#' @param p_value Required p-value for identification
 #' @param q_value Required q-value for identification
 #' @param n_threads Number of threads to be used
 #' @import WriteXLS stats
@@ -38,7 +37,7 @@
 #' write_xls = FALSE,
 #' output_bed_file = FALSE,
 #' manual_identifier_bed_file = "",
-#' verbose = FALSE,
+#' verbose = TRUE,
 #' q_value = .05,
 #' n_threads = 1)
 #' @examples 
@@ -56,7 +55,7 @@ identify_vcf_file = function(
     write_xls = FALSE,
     output_bed_file = FALSE,
     manual_identifier_bed_file = "",
-    verbose = FALSE,
+    verbose = TRUE,
     q_value = .05,
     n_threads = 1
     ){
@@ -71,6 +70,7 @@ identify_vcf_file = function(
     )
     
     for( library_name in library_names ){
+        
         options(warn=-1)
         hit_list = match_query_ccl_to_database(
             g_query,
@@ -80,7 +80,8 @@ identify_vcf_file = function(
                 mutational_weight_inclusion_threshold
         )
         options(warn=0)
-        match_t = rbind(match_t,hit_list
+        #assign("match_t", rbind(match_t,hit_list),envir = parent.frame())
+        match_t = rbind(match_t,hit_list)
         
         print(paste(c(
             library_name,": ",
@@ -93,8 +94,12 @@ identify_vcf_file = function(
     
     # statistics
     
-    match_t = add_p_q_values_statistics(match_t, q_value, ref_gen = ref_gen)
-    match_t = add_penality_statistics(match_t)
+    match_t = add_p_q_values_statistics(
+        match_t,
+        q_value,
+        ref_gen = ref_gen,
+        minimum_matching_mutations = minimum_matching_mutations)
+    match_t = add_penality_statistics(match_t,minimum_matching_mutations)
     match_t$Identification_sig = match_t$Q_value_sig & match_t$Above_Penality
     match_t = match_t[order(match_t$Q_values,decreasing = F),]
     
@@ -136,7 +141,6 @@ identify_vcf_file = function(
             !( colnames( match_t ) %in% c(
                 "P_values",
                 "Q_values",
-                "P_value_sig",
                 "Q_value_sig"
                 )
             )
