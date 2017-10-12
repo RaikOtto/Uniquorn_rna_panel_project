@@ -1,20 +1,22 @@
 add_p_q_values_statistics = function( 
+    g_query,
     match_t,
     q_value,
     ref_gen,
     minimum_matching_mutations
 ){
   
-    library_names = read_library_names(ref_gen = ref_gen)  
+    library_names = read_library_names(ref_gen = ref_gen)
     p_values = rep(1.0, nrow(match_t))
+    balls_in_query = length(g_query$Member_CCLs)
   
     for (library_name in library_names){
-    
+        
         index_library = which( match_t$Library == library_name  )
         white_balls_possible = as.integer(as.character(match_t$All_variants))[index_library]
         
         if( length(white_balls_possible) == 0){
-          stop("There is only one CL in the customt set. 
+            stop("There is only one CL in the custom set. 
                   A confidence scoere calculation is only 
                   possible with more than one sample!")
         }
@@ -25,9 +27,11 @@ add_p_q_values_statistics = function(
         
         background_cls_traces = sum(white_balls_found >= mean(white_balls_found))
         
-        x = seq(0,1, length = 100)
-        penalty = max((stats::pbeta(x, 1, background_cls_traces) - x))
-        likelihood = white_balls_possible / sum(white_balls_possible)
+        #x = seq(0,1, length = 100)
+        #likelihood = ( 1 / balls_in_query ) ** (sum(white_balls_found) / balls_in_query )
+        #likelihood = ( balls_in_query / white_balls_possible ) ** (white_balls_found / sum(white_balls_found))
+        likelihood = ( sum(white_balls_found) / (sum(white_balls_found) + white_balls_found ) ) ** 
+            (white_balls_found / sum(white_balls_found))
         
         q = white_balls_found - 1
         q[q < 0]   = 0

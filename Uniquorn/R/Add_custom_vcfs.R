@@ -121,9 +121,9 @@ parse_vcf_query_into_db = function(
     message(paste(c("Sample: ",cl_id,", Library: ",library_name),collapse = "", sep =""))
     
     g_mat = read_mutation_grange_objects(
-      library_name = library_name,
-      ref_gen = ref_gen,
-      mutational_weight_inclusion_threshold = 0
+        library_name = library_name,
+        ref_gen = ref_gen,
+        mutational_weight_inclusion_threshold = 0
     )
     
     if ( "Member_CCLs" %in% names(mcols(g_mat))  ){

@@ -4,7 +4,7 @@ run_relaxed_merging = function(
 ){
     library("stringr")
 
-    gold_std_path     = "~/Dropbox/PhD/Uniquorn_project/Pub/Goldstandard.tab"
+    gold_std_path     = "~/Uniquorn_rna_panel_project/Misc/Goldstandard.tsv"
     
     input_data        = read.table(input_path_identification, sep ="\t", header =T   )
     gold_std_t        = read.table( 

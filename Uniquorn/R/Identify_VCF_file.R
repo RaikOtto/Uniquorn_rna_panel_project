@@ -95,10 +95,12 @@ identify_vcf_file = function(
     # statistics
     
     match_t = add_p_q_values_statistics(
+        g_query,
         match_t,
         q_value,
         ref_gen = ref_gen,
-        minimum_matching_mutations = minimum_matching_mutations)
+        minimum_matching_mutations = minimum_matching_mutations
+    )
     match_t = add_penality_statistics(match_t,minimum_matching_mutations)
     match_t$Identification_sig = match_t$Q_value_sig & match_t$Above_Penality
     match_t = match_t[order(match_t$Q_values,decreasing = F),]

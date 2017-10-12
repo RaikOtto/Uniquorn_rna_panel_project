@@ -36,7 +36,6 @@ plot(cumsum(difs_log_r))
 scale(difs_log_r)
 
 match_t = match_t[match_t$All_variants != 0,]
-
 matches = as.integer(as.character(match_t$Matches))
 all_vars = as.integer(as.character(match_t$All_variants))
 all_vars = all_vars[matches  > 0]
@@ -45,15 +44,43 @@ matches = matches[matches > 0]
 
 quot = as.vector( round( matches / all_vars, 2 ) * 100 )
 names(quot ) = ccl_names
-summary(quot)
-hist(quot)
 
-sort( quot, decreasing = T ) 
 quot_s = sort(quot, decreasing = T)
+quot_s
+
+hist((log2(quot_s)))
 
 difs <<- c()
 for (i in 1:(length(quot_s)-1))
     difs = c(difs, quot_s[i] - quot_s[i + 1] )
+
+hist(log2(difs+1))
+ds = log2(difs+1)
+mean(ds)
+var(ds)
+plot(dnorm( seq(0,1,by=.1), mean = mean(ds), sd = sd(ds)) )
+
+mean_match = mean( matching_variants )
+max_matche  = max( matching_variants )
+
+len_q = length(g_query$Member_CCLs)
+
+match_t_pos = match_t[ ! is.na(match_t$All_variants) ,]
+len_r = as.integer(as.character(match_t_pos$All_variants))
+
+pen <<- c()
+
+for (i in 1:length(match_t_pos$CCL)){
+    print(i)  
+    pen = c(pen,integrate(
+      f = pbeta,
+      0,
+      1,
+      len_q,
+      len_r[i],
+      stop.on.error = FALSE
+    )$value)
+}
 
 
 }

@@ -71,8 +71,8 @@ write_w0_and_split_w0_into_lower_weights = function( g_mat, library_name, ref_ge
         member_keep_index    = which( member_count < 10 )
         member_exclude_index = which( member_count >= 10 )
         
-        g_mat_exclude = g_mat[member_exclude_index]
-        g_mat         = g_mat[member_keep_index]
+        g_mat_exclude <<- g_mat[member_exclude_index]
+        g_mat         <<- g_mat[member_keep_index]
     
         write_mutation_grange_objects(
             mutational_weight_inclusion_threshold = 0,
@@ -125,6 +125,12 @@ write_w0_and_split_w0_into_lower_weights = function( g_mat, library_name, ref_ge
     colnames(ccl_stats) = c("CCL","W0","W25","W05","W1")
     
     package_path = system.file("", package = "Uniquorn")
+    
+    input_ccls = unique(as.character(unlist(str_split( g_mat$Member_CCLs, pattern = "," ) ) ))
+    output_ccls = unique(as.character(unlist(str_split( ccl_stats$CCL, pattern = "," ) ) ))
+    missing_ccls = sum((input_ccls %in%  output_ccls) == FALSE)
+    
+    if( missing_ccls != 0) stop("Loading of CCLs has not worked!")
     
     CCL_stats_data_path =  paste( c(
         package_path,"/Libraries/",

@@ -38,7 +38,7 @@ match_query_ccl_to_database = function(
     
     ### add stats info
     
-    cl_data =  show_contained_cls( verbose = FALSE)
+    cl_data <<-  show_contained_cls( verbose = FALSE)
     cl_data = cl_data[cl_data$Library == library_name,]
     
     switch(as.character(mutational_weight_inclusion_threshold),
@@ -51,7 +51,43 @@ match_query_ccl_to_database = function(
     )
     
     all_muts = as.character(cl_data[[weight_name]])
-    ccl_match = match(matching_variants_t$CCL, cl_data$CCL, nomatch = 0)
+    ccl_match = match( as.character(matching_variants_t$CCL), as.character(cl_data$CCL), nomatch = 0)
+    
+    missing_libraries = unique(as.character(matching_variants_t$Library[ccl_match == 0] ) )
+    
+    if(length(missing_libraries) > 0){
+    
+        for (mis_lib_name in  missing_libraries){
+            
+            print( paste("Updating database for library: ", mis_lib_name, sep ="")  )
+            mis_mat = read_mutation_grange_objects(
+                ref_gen = ref_gen,
+                library_name = mis_lib_name,
+                mutational_weight_inclusion_threshold = mutational_weight_inclusion_threshold
+            )
+            write_w0_and_split_w0_into_lower_weights(
+                g_mat = mis_mat,
+                library_name = mis_lib_name,
+                ref_gen = ref_gen
+            )
+        }
+         
+        cl_data <<-  show_contained_cls( verbose = FALSE)
+        cl_data = cl_data[cl_data$Library == library_name,]
+        
+        switch(as.character(mutational_weight_inclusion_threshold),
+               "0" = { weight_name = "W0"  },
+               "0.25" = { weight_name = "W25"  },
+               "0.5" = { weight_name = "W05"  },
+               "1" = { weight_name = "W1"  },
+               stop(paste( "Could not recocgnize mutational weight ", 
+                           mutational_weight_inclusion_threshold))
+        )
+        
+        all_muts <<- as.character(cl_data[[weight_name]])
+        ccl_match <<- match( as.character(matching_variants_t$CCL), as.character(cl_data$CCL), nomatch = 0)
+    }
+    
     matching_variants_t$All_variants = all_muts[ccl_match]
     
     return(matching_variants_t)
