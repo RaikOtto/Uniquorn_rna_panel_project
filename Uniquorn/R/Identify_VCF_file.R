@@ -56,7 +56,7 @@ identify_vcf_file = function(
     output_bed_file = FALSE,
     manual_identifier_bed_file = "",
     verbose = TRUE,
-    q_value = .05,
+    p_value = .05,
     n_threads = 1
     ){
   
@@ -97,13 +97,15 @@ identify_vcf_file = function(
     match_t = add_p_q_values_statistics(
         g_query,
         match_t,
-        q_value,
+        p_value,
         ref_gen = ref_gen,
         minimum_matching_mutations = minimum_matching_mutations
     )
     match_t = add_penality_statistics(match_t,minimum_matching_mutations)
-    match_t$Identification_sig = match_t$Q_value_sig & match_t$Above_Penality
-    match_t = match_t[order(match_t$Q_values,decreasing = F),]
+    match_t$Identification_sig = match_t$P_value_sig & match_t$Above_Penality
+    match_t = match_t[order(match_t$P_values,decreasing = F),]
+    match_t = match_t[order(match_t$Matches,decreasing = T),]
+    match_t = match_t[order(match_t$Identification_sig,decreasing = T),]
     
     ### io stuff
     

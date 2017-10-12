@@ -10,13 +10,13 @@ inclusion_weight     = .5
 only_first           = FALSE
 exclude_self         = FALSE
 p_value = .05
-q_value = .05
 minimum_matching_mutations = 0
 run_identification   = F
 cellminer_v2         = F
 auc_mode             = FALSE
 ref_gen              = "GRCH37"
 #type_benchmark       = "non_regularized"
+panel = TRUE
 type_benchmark       = "regularized"
 n_threads = 4
 
@@ -47,6 +47,12 @@ run_benchmark = function(
         replacement = paste(c("ident_files_regularized",inclusion_weight,""),sep="",collapse= "/")
     )
     gold_t = read.table( file = "~//Uniquorn_rna_panel_project/Misc/Goldstandard.tsv",sep="\t", header = TRUE)
+    
+    if (panel){
+        ident_result_files_path = str_replace(ident_result_files_path,pattern = "ident_files","panel_ident_files")
+        benchmark_ident_file_path = str_replace(benchmark_ident_file_path,pattern = "Benchmark_results","panel_Benchmark_results")
+        benchmark_res_file_path = str_replace(benchmark_res_file_path,pattern = "Benchmark_results","panel_Benchmark_results")
+    }
 
     b_files =  list.files(ident_result_files_path , pattern = ".ident.tsv", full.names = T )
     
@@ -56,10 +62,7 @@ run_benchmark = function(
   
     for (b_file in b_files)
         parse_identification_data(b_file)
-    
-      # output
-      
-    
+
     #sapply( b_files, FUN = parse_identification_data)
   
     res_table = res_table[ order( as.double( as.character(res_table$Found_muts_abs) ), decreasing = T),  ]
@@ -144,7 +147,6 @@ parse_identification_data = function( b_file ){
       "Source_training"          = c( as.character( res_table$Source_training), as.character( b_table$Library ) ),
       "Found_muts_abs"           = c( as.character( res_table$Found_muts_abs), as.character( b_table$Matches ) ),
       "P_value"                  = c( as.character( res_table$P_value), as.character( b_table$P_values ) ),
-      "Q_value"                  = c( as.character( res_table$Q_value), as.character( b_table$Q_values ) ),
       "Passed_threshold"         = c( as.character( res_table$Passed_threshold), as.character( b_table$Identification_sig ) ),
       "Same_identity"            = c( as.character( res_table$Same_identity ) , as.character( same_identity ) ),
       "Same_identity_found"      = c( as.character( res_table$Same_identity_found ) , as.character( same_identity_found ) ),
@@ -272,13 +274,26 @@ run_identification = function(
     
     ### !!! ###
     
-    raw_files_path = "~/Uniquorn_data/benchmark_vcf_files/raw_files/"
+    raw_files_path = "~/Uniquorn_data/benchmark_vcf_files/panel_raw_files/"
     i_files = list.files( raw_files_path, pattern = ".vcf$", full.names = T )
+    
+    build_path_variables( 
+      inclusion_weight = inclusion_weight,
+      only_first = only_first,
+      exclude_self = exclude_self,
+      run_identification = run_identification,
+      cellminer = F,
+      type_benchmark = type_benchmark
+    )
+    
+    ### PANEL ### !!
+    out_path_ident = paste(c("~/Uniquorn_data/benchmark_vcf_files/panel_ident_files_",type_benchmark,
+        "/",inclusion_weight,"/"),sep="",collapse= "")
     
     if (n_threads > 1){
       
         doParallel::registerDoParallel(n_threads)
-        load_all()
+        
         foreach::foreach(
             i_file = i_files
         ) %dopar% {

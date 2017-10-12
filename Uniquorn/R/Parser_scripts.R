@@ -12,23 +12,13 @@
 #'  as found in the input VCF file.identify_vcf_files
 parse_vcf_file = function(vcf_file){
   
-    vcf_handle = data.table::fread(
-        paste0("grep -v ^# ", vcf_file),
-        sep = "\t", select = c(1,2,4,5),
-        fill = TRUE
-    )
-    
-    # split variants with many alt seq in separate rows
-    vcf_handle = vcf_handle[, list(V5 = unlist(strsplit(V5, ","))),
-                            by = .(V1, V2, V4)]
+    g_query = VariantAnnotation::readVcf(vcf_file)
     
     # process variants
-    chroms = vcf_handle[, gsub("chr", "", V1, ignore.case = TRUE)]
-    start_var = vcf_handle[, V2]
-    length_ref = vcf_handle[, nchar(V4)]
-    length_var = vcf_handle[, nchar(V5)]
-    length_max = pmax(length_ref, length_var)
-    end_var = start_var + (length_max - 1)
+    chroms = as.character(unlist(str_replace(
+      as.character(unlist(g_query@rowRanges@seqnames )),pattern = "chr|CHR","")))
+    start_var = as.integer( as.character(unlist(g_query@rowRanges@ranges@start)) )
+    end_var = start_var + as.integer(as.character(unlist(g_query@rowRanges@ranges@width))) -1
     
     chroms_pure = grep(chroms, pattern = "_", invert = T)
     chroms      = chroms[ chroms_pure ]

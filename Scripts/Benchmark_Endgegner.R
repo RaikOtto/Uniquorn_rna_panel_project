@@ -9,6 +9,7 @@ cellminer_v2          = F
 distinct_mode         = TRUE
 identical_mode        = FALSE
 distuinguished_panels = T
+panel = T
 cellminer             = F
 
 #type_benchmark        = 'non_regularized'
@@ -36,9 +37,16 @@ run_benchmark_endgegner = function(
     )
     gold_t = read.table( file = "~//Uniquorn_rna_panel_project//Misc//Goldstandard.tsv",sep="\t", header = TRUE)
 
+    
+    if (panel){
+        ident_result_files_path = str_replace(ident_result_files_path,pattern = "ident_files","panel_ident_files")
+        benchmark_ident_file_path = str_replace(benchmark_ident_file_path,pattern = "Benchmark_results","panel_Benchmark_results")
+        benchmark_res_file_path = str_replace(benchmark_res_file_path,pattern = "Benchmark_results","panel_Benchmark_results")
+    }
     ## prep phase
   
     build_tables()
+    
     res_table = read.table( benchmark_res_file_path,   sep ="\t", header = T)
   
     to_be_found_cls = c( gold_t$Name_identical, gold_t$Merged )
@@ -47,7 +55,7 @@ run_benchmark_endgegner = function(
   
     to_be_found_cls = to_be_found_cls[ to_be_found_cls != "" ]
   
-    found = b_table$CL[ b_table$Passed_threshold ]
+    found = b_table$CCL[ b_table$Identification_sig ]
     found = paste( found, b_table$CL_source[ b_table$Passed_threshold ], sep ="_" )
   
     true_pos_ident  = to_be_found_cls[ which( to_be_found_cls %in% found )  ]
@@ -119,7 +127,7 @@ run_small_statistics = function(
         cellminer = F,
         type_benchmark = type_benchmark
     )
-
+    
     print( c("Inclusion weight", inclusion_weight ) )
   
     if (type_benchmark == "regularized"){
@@ -154,6 +162,15 @@ run_small_statistics = function(
       "_Benchmark_identification_result_aggregated.tab"
     )
     
+    if (panel){
+        ident_result_files_path = str_replace(ident_result_files_path,pattern = "ident_files","panel_ident_files")
+        benchmark_ident_file_path = str_replace(benchmark_ident_file_path,pattern = "Benchmark_results","panel_Benchmark_results")
+        benchmark_res_file_path = str_replace(benchmark_res_file_path,pattern = "Benchmark_results","panel_Benchmark_results")
+        output_table_path = str_replace(output_table_path,pattern = "Benchmark_results","panel_Benchmark_results")
+        input_path_identification = str_replace(input_path_identification,pattern = "Benchmark_results","panel_Benchmark_results")
+        
+    }
+    
     run_relaxed_merging( 
         input_path_identification,
         output_table_path 
@@ -182,7 +199,7 @@ run_small_statistics = function(
     print(c("FP",nr_false_positive))
   
 }
-run_small_statistics( 
+run_small_statistics(
     inclusion_weight = inclusion_weight,
     only_first = only_first,
     exclude_self = exclude_self,

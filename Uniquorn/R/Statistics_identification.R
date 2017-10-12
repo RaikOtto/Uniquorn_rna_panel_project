@@ -1,7 +1,7 @@
 add_p_q_values_statistics = function( 
     g_query,
     match_t,
-    q_value,
+    p_value,
     ref_gen,
     minimum_matching_mutations
 ){
@@ -30,16 +30,18 @@ add_p_q_values_statistics = function(
         #x = seq(0,1, length = 100)
         #likelihood = ( 1 / balls_in_query ) ** (sum(white_balls_found) / balls_in_query )
         #likelihood = ( balls_in_query / white_balls_possible ) ** (white_balls_found / sum(white_balls_found))
-        likelihood = ( sum(white_balls_found) / (sum(white_balls_found) + white_balls_found ) ) ** 
-            (white_balls_found / sum(white_balls_found))
+        likelihood_found = ( sum(white_balls_found) / (sum(white_balls_found) + white_balls_found ) )
+        likelihood_found = likelihood_found ** (white_balls_possible / balls_in_query)
+        likelihood_found = likelihood_found ** (white_balls_found / sum(white_balls_found))
         
         q = white_balls_found - 1
         q[q < 0]   = 0
         
-        p_values_panel = as.double(stats::pbinom( 
+        p_values_panel = as.double(stats::pbinom(
             q = q,
             size = sum(white_balls_found),
-            p = likelihood,
+            #size = balls_in_query,
+            p = likelihood_found,
             lower.tail = FALSE 
         ))
         
@@ -52,8 +54,7 @@ add_p_q_values_statistics = function(
       
     }
     match_t$P_values = p_values
-    match_t$Q_values = p.adjust(p_values, method = "BH")
-    match_t$Q_value_sig = match_t$Q_values <= q_value
+    match_t$P_value_sig = match_t$P_values <= p_value
   
     return(match_t)
 }
