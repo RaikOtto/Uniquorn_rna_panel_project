@@ -10,9 +10,14 @@
 #' @import GenomicRanges IRanges
 #' @return Loci-based DNA-mutational fingerprint of the cancer cell line
 #'  as found in the input VCF file.identify_vcf_files
-parse_vcf_file = function(vcf_file){
-  
-    g_query = VariantAnnotation::readVcf(vcf_file)
+parse_vcf_file = function(
+    vcf_file,
+    ref_gen
+){
+    switch(ref_gen){
+        "GRCH37" = {ref_gen = "hg19"}
+    }
+    g_query = VariantAnnotation::readVcf(vcf_file, genome = ref_gen)
     
     # process variants
     chroms = as.character(unlist(str_replace(

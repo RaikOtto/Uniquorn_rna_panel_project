@@ -42,7 +42,10 @@ add_custom_vcf_to_database = function(
         foreach::foreach(
             vcf_input_file = vcf_input_files
         ) %dopar% {
-            g_query = parse_vcf_file(vcf_input_file)
+            g_query = parse_vcf_file(
+                vcf_input_file,
+                ref_gen = ref_gen
+            )
             
             parse_vcf_query_into_db(
                 g_query,
@@ -130,10 +133,10 @@ parse_vcf_query_into_db = function(
       
         g_mat_new = unique(c( GenomicRanges::GRanges(g_mat), GenomicRanges::GRanges(g_query)))
         fo_g_mat = findOverlaps(
-          query = g_mat,
-          subject = g_mat_new,
-          select = "arbitrary",
-          type = "equal"
+            query = g_mat,
+            subject = g_mat_new,
+            select = "arbitrary",
+            type = "equal"
         )
         
     } else {
@@ -144,10 +147,10 @@ parse_vcf_query_into_db = function(
     mcols(g_mat_new)$Member_CCLs = rep("",nrow(mcols(g_mat_new)))
     
     fo_query = findOverlaps(
-      query = g_query,
-      subject = g_mat_new,
-      select = "arbitrary",
-      type = "equal"
+        query = g_query,
+        subject = g_mat_new,
+        select = "arbitrary",
+        type = "equal"
     )
     
     mcols( g_mat_new )$Member_CCLs[fo_query] = elementMetadata(g_query)$Member_CCLs
@@ -166,6 +169,14 @@ parse_vcf_query_into_db = function(
       pattern = "^,",""
     )
     g_mat = g_mat_new
+    
+    member_ccls = sapply( as.character(g_mat$Member_CCLs), function(vec){
+        ccl_ids = as.character(unlist(str_split(vec,pattern = ",")))
+        ccl_ids = unique(ccl_ids)
+        ccl_ids = paste(ccl_ids, collapse = ",", sep ="")
+        return(ccl_ids)
+    })
+    g_mat$Member_CCLs = as.character(member_ccls)
     
     write_w0_and_split_w0_into_lower_weights(
         g_mat = g_mat,
