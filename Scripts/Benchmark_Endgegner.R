@@ -9,9 +9,7 @@ cellminer_v2          = F
 distinct_mode         = TRUE
 identical_mode        = FALSE
 distuinguished_panels = T
-panel = T
-cellminer             = F
-
+panel_mode = F
 #type_benchmark        = 'non_regularized'
 type_benchmark        = 'regularized'
 
@@ -112,7 +110,7 @@ run_small_statistics = function(
   only_first = only_first, 
   exclude_self = exclude_self,
   run_identification = run_identification, 
-  cellminer = cellminer, 
+  panel_mode,
   distuinguished_panels = distuinguished_panels,
   type_benchmark = type_benchmark
 ){
@@ -162,7 +160,7 @@ run_small_statistics = function(
       "_Benchmark_identification_result_aggregated.tab"
     )
     
-    if (panel){
+    if (panel_mode){
         ident_result_files_path = str_replace(ident_result_files_path,pattern = "ident_files","panel_ident_files")
         benchmark_ident_file_path = str_replace(benchmark_ident_file_path,pattern = "Benchmark_results","panel_Benchmark_results")
         benchmark_res_file_path = str_replace(benchmark_res_file_path,pattern = "Benchmark_results","panel_Benchmark_results")
@@ -204,6 +202,6 @@ run_small_statistics(
     only_first = only_first,
     exclude_self = exclude_self,
     run_identification = run_identification,
-    cellminer = F,
+    panel_mode = panel_mode,
     type_benchmark = type_benchmark
 )
