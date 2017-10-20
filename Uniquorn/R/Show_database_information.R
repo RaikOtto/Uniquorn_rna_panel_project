@@ -56,6 +56,7 @@ show_contained_cls = function(
         g_library = g_library[c("CCL","Library","W0","W25","W05","W1")]
         ccls_all <<- rbind(ccls_all, g_library )
     }
+    ccls_all = ccls_all[order(ccls_all$CCL, decreasing = F),]
     return(ccls_all)
 }
 
@@ -70,19 +71,47 @@ show_contained_cls = function(
 #' @examples 
 #' show_contained_mutations(ref_gen = "GRCH37")
 #' @return R Table which contains all mutations associated with a specified reference genome.
+#' @import stringr GenomicRanges
 #' @export
-show_contained_mutations = function(ref_gen = "GRCH37"){
+show_contained_mutations = function(
+    CCL_name,
+    mutational_weight_inclusion_threshold,
+    ref_gen = "GRCH37",
+    library_name
+){
   
     message("Reference genome: ", ref_gen)
     
-    sim_list = initiate_db_and_load_data(request_table = "sim_list",
-                                             subset = c("FINGERPRINT", "CL"),
-                                             ref_gen = ref_gen)
+    package_path = system.file("", package = "Uniquorn")
+    library_path =  paste( c( package_path,"/Libraries/",ref_gen), sep ="", collapse= "")
     
-    message("Found ", nrow(sim_list), " many cancer cell lines associated",
-            " mutations for reference genome ", ref_gen, ".")
+    if ( ! dir.exists( library_path ))
+        stop("No libraries found!")
+    
+    libraries = list.dirs(library_path,full.names = F)
+    libraries = libraries[ libraries != ""]
+    
+    g_mat = read_mutation_grange_objects(
+        library_name = library_name,
+        ref_gen = ref_gen,
+        mutational_weight_inclusion_threshold = mutational_weight_inclusion_threshold
+    )
+    
+    ccl_index = str_detect( g_mat$Member_CCLs, pattern = CCL_name )
+    
+    if (sum(ccl_index) == 0)
+        stop(paste(
+        c("No CCL with the name ",CCL_name," has been found in library ",library_name,
+            " in reference genome ", ref_gen),
+        collapse="", sep =""))
+    
+    message(
+      paste( c("Found ", sum(ccl_index), " many variants associated with CCL ",
+            CCL_name," in library ",library_name," for reference genome",ref_gen,"."),
+            collapse = "", sep ="")
+    )
   
-    return(sim_list)  
+    return(g_mat[ccl_index,])  
 }
 
 #' Mutations In Cancer Cell Line

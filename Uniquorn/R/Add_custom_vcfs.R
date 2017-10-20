@@ -42,7 +42,10 @@ add_custom_vcf_to_database = function(
         foreach::foreach(
             vcf_input_file = vcf_input_files
         ) %dopar% {
-            g_query = parse_vcf_file(vcf_input_file)
+            g_query = parse_vcf_file(
+                vcf_input_file,
+                ref_gen = ref_gen
+            )
             
             parse_vcf_query_into_db(
                 g_query,
@@ -58,7 +61,10 @@ add_custom_vcf_to_database = function(
       
         for (vcf_input_file in vcf_input_files){
             
-            g_query = parse_vcf_file(vcf_input_file)
+            g_query = parse_vcf_file(
+                vcf_input_file,
+                ref_gen = ref_gen
+            )
             
             parse_vcf_query_into_db(
                 g_query,
@@ -121,19 +127,19 @@ parse_vcf_query_into_db = function(
     message(paste(c("Sample: ",cl_id,", Library: ",library_name),collapse = "", sep =""))
     
     g_mat = read_mutation_grange_objects(
-      library_name = library_name,
-      ref_gen = ref_gen,
-      mutational_weight_inclusion_threshold = 0
+        library_name = library_name,
+        ref_gen = ref_gen,
+        mutational_weight_inclusion_threshold = 0
     )
     
     if ( "Member_CCLs" %in% names(mcols(g_mat))  ){
       
         g_mat_new = unique(c( GenomicRanges::GRanges(g_mat), GenomicRanges::GRanges(g_query)))
         fo_g_mat = findOverlaps(
-          query = g_mat,
-          subject = g_mat_new,
-          select = "arbitrary",
-          type = "equal"
+            query = g_mat,
+            subject = g_mat_new,
+            select = "arbitrary",
+            type = "equal"
         )
         
     } else {
@@ -144,13 +150,21 @@ parse_vcf_query_into_db = function(
     mcols(g_mat_new)$Member_CCLs = rep("",nrow(mcols(g_mat_new)))
     
     fo_query = findOverlaps(
-      query = g_query,
-      subject = g_mat_new,
-      select = "arbitrary",
-      type = "equal"
+        query = g_query,
+        subject = g_mat_new,
+        select = "arbitrary",
+        type = "equal"
     )
     
-    mcols( g_mat_new )$Member_CCLs[fo_query] = elementMetadata(g_query)$Member_CCLs
+    old_members = as.character( 
+        sapply( as.character(elementMetadata(g_query)$Member_CCLs), function(vec){
+                ccl_ids = as.character(unlist(str_split(vec,pattern = ",")))
+                ccl_ids = unique(ccl_ids)
+                ccl_ids = paste(ccl_ids, collapse = ",", sep ="")
+            return(ccl_ids)
+    }))
+      
+    mcols( g_mat_new )$Member_CCLs[fo_query] = old_members
     
     if ( "Member_CCLs" %in% names(mcols(g_mat)) )
     

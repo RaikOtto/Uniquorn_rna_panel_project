@@ -1,9 +1,16 @@
-library("Uniquorn")
+library("devtools")
+setwd("~/Uniquorn_rna_panel_project/Uniquorn/")
+load_all()
 library("stringr")
 
 known_pairs_t = read.table("~/Uniquorn_data//benchmark_vcf_files//known_relationships.tab",sep ="\t", header =T, fill=T,stringsAsFactors = F)
 
-c = show_amount_cls_per_database()
+c = show_contained_cls()
+
+library_names = as.character(unique(c$Library))
+
+for (library_name in library_names)
+    paste(   )
 
 ccle = c[grepl("CCLE",c[,1]),1]
 cosmic = c[grepl("COSMIC",c[,1]),1]
@@ -123,7 +130,7 @@ all_cls[ , 3] = sapply( seq( length( all_cls[,1] ) ), FUN = identify_related_nam
 
 colnames(all_cls) = c("CL","Name_identical","Related")
 
-write.table(x = all_cls,"~/Dropbox/PhD/Uniquorn_project/Pub/Goldstandard.tab",sep="\t",quote =F , row.names=F)
+write.table(x = all_cls,"~//Uniquorn_rna_panel_project/Misc//Goldstandard.tsv",sep="\t",quote =F , row.names=F)
 
 ### two-sided 
 all_cls = as.data.frame(all_cls)
