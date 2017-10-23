@@ -1,10 +1,7 @@
-library("devtools")
-setwd("~/Uniquorn_rna_panel_project/Uniquorn/")
-load_all()
 library("stringr")
-#library("Uniquorn")
+library("Uniquorn")
 
-inclusion_weight      = 1.0
+inclusion_weight      =1.0
 only_first            = FALSE
 exclude_self          = FALSE
 run_identification    = F
@@ -91,31 +88,37 @@ run_small_statistics = function(
   
     expected    = paste( c(as.character( t_rel$Expected[ t_rel$Expected!= ""] )), collapse = ", ",sep = "" )
     nr_expected = length((as.character(unlist(str_split(expected,", ")))))
-    print(c("Expected:",nr_expected) )
+    print(paste(c("Expected:",nr_expected),collapse = "",sep = "") )
     
     true_positives = as.character(unlist(str_split(t_rel$True_positive,", ")))
     true_positives = true_positives[ true_positives != ""  ]
     true_positives = true_positives[ !is.na(true_positives) ]
     nr_true_positives = length(true_positives)
-    print( c("TP:",as.integer(nr_true_positives), round(nr_true_positives / nr_expected * 100,1)))
+    print(paste(c("TP:",as.character(nr_true_positives)),collapse = "",sep = ""))
     
     false_negatives = as.character(unlist(str_split(t_rel$False_negative,", ")))
     false_negatives = false_negatives[ false_negatives!= ""]
     false_negatives = false_negatives[ !is.na(false_negatives) ]
     nr_false_negatives = length( false_negatives )
-    print(c("FN:",as.integer(nr_false_negatives), round(nr_false_negatives / nr_expected * 100,1)))
+    print(paste(c("FN: ",as.character(nr_false_negatives)),collapse = "",sep = ""))
     
     false_positives = t_rel$False_positive[t_rel$False_positive!= ""]
     nr_false_positive = length((as.character(unlist(str_split(false_positives,",")))))
-    print(c("FP",nr_false_positive))
+    print(paste(c("FP: ",nr_false_positive),collapse = "",sep = ""))
     
     nr_true_negatives  = nrow(t_rel)**2 - nrow(t_rel) - nr_false_negatives
     
     TPR = round(nr_true_positives / (nr_true_positives + nr_false_positive),3) * 100
-    print(c("TPR",TPR))
+    print(paste(c("TPR: ",TPR),collapse = "",sep = ""))
     
-    TNR = round(nr_true_negatives  / (nr_true_negatives + nr_false_negatives),3) * 100
-    print(c("TNR",TNR))
+    TNR = round(nr_true_negatives  / (nr_true_negatives + nr_false_negatives),10) * 100
+    print(paste(c("TNR: ",TNR),collapse = "",sep = ""))
+    
+    PPV = round( nr_true_positives / ( nr_true_positives + nr_false_negatives ),3) * 100
+    print(paste(c("PPV: ",PPV),collapse = "",sep = ""))
+    
+    F1 = round( (2* nr_true_positives) / ((2*nr_true_positives) + nr_false_positive + nr_false_negatives) ,3) * 100
+    print(paste(c("F1: ",F1),collapse = "",sep = ""))
 }
 run_small_statistics(
     inclusion_weight = inclusion_weight,

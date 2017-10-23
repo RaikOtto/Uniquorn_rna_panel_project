@@ -33,7 +33,7 @@ run_benchmark = function(
   
     source("~/Uniquorn_rna_panel_project/Scripts/utility.R")
     
-    build_path_variables( 
+    build_path_variables(
         inclusion_weight = inclusion_weight,
         only_first = only_first,
         exclude_self = exclude_self,
