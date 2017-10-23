@@ -9,7 +9,7 @@ cellminer_v2          = F
 distinct_mode         = TRUE
 identical_mode        = FALSE
 distuinguished_panels = T
-panel_mode = F
+panel_mode = T
 #type_benchmark        = 'non_regularized'
 type_benchmark        = 'regularized'
 

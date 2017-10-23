@@ -3,128 +3,109 @@ setwd("~/Uniquorn_rna_panel_project/Uniquorn/")
 load_all()
 library("stringr")
 
-known_pairs_t = read.table("~/Uniquorn_data//benchmark_vcf_files//known_relationships.tab",sep ="\t", header =T, fill=T,stringsAsFactors = F)
+known_pairs_t = read.table("~/Uniquorn_rna_panel_project/Misc/known_relationships.tsv",sep ="\t", header =T, fill=T,stringsAsFactors = F)
 
-c = show_contained_cls()
+contained_ccls = show_contained_cls()
 
-library_names = as.character(unique(c$Library))
+library_names = Uniquorn::read_library_names(ref_gen = ref_gen)
 
 for (library_name in library_names)
-    paste(   )
+    if ( str_detect(pattern = library_name, b_file) )
+        source_file <<- library_name
 
-ccle = c[grepl("CCLE",c[,1]),1]
-cosmic = c[grepl("COSMIC",c[,1]),1]
-cellminer = c[grepl("CELLMINER",c[,1]),1]
+raw_files_path = "~/Uniquorn_data/benchmark_vcf_files/panel_raw_files/"
+i_files = list.files( raw_files_path, pattern = ".vcf$", full.names = T )
 
-# ega
+all_cls = as.character( sapply(i_files, FUN = function(vec){return(
+  tail(as.character(unlist(str_split(vec,"/"))),1))}))
 
-ega_CCLs = list.files("~/Uniquorn_data/EGA_results/ident/", pattern = ".ident")
-ega_CCLs = str_replace(ega_CCLs, pattern = ".hg19.vcf.ident","")
-ega_CCLs = str_to_upper(ega_CCLs)
-ega_CCLs = sapply( ega_CCLs, FUN = paste, "EGA", sep ="_" )
+lib_vec <<- c()
+for (cls_name in all_cls){
+    for (lib_name in library_names){
+        if ( str_detect(cls_name, pattern = lib_name))
+            lib_vec = c(lib_vec, lib_name)
+    }
+}
 
-# gdc
+all_cls = str_replace_all(all_cls, pattern = 
+    paste(c(library_names,"\\.","vcf"), collapse = "|",sep = ""),"")
 
-gdc_CCLs = list.files("~/Uniquorn_data/GDC_results/", pattern = ".ident")
-gdc_CCLs = str_replace(gdc_CCLs, pattern = ".1.hg19.vcf.ident","")
-gdc_CCLs = str_replace(gdc_CCLs, pattern = ".2.hg19.vcf.ident","")
-gdc_CCLs = str_to_upper(gdc_CCLs)
-gdc_CCLs = sapply( gdc_CCLs, FUN = paste, "GDC", sep ="_" )
-
+identifier_plane = str_replace_all(all_cls, pattern = 
+    paste(c("\\_","\\-"), collapse = "|",sep = ""),
+    "")
+identifier_plane = str_to_upper(identifier_plane)
 # all
-
-all_cls = c(ega_CCLs, gdc_CCLs,c[grepl("COSMIC",c[,1]),1], c[grepl("CCLE",c[,1]),1],c[grepl("CELLMINER",c[,1]),1]  )
-all_cls = all_cls[all_cls != ""]
-identifier = str_replace(all_cls,"_COSMIC","")
-identifier = str_replace(identifier,"_CCLE","")
-identifier = str_replace(identifier,"_CELLMINER","")
-identifier = str_replace(identifier,"_CUSTOM","")
-identifier = str_replace(identifier,"-","")
-identifier = str_replace(identifier,"-","")
-identifier = str_replace(identifier,"_","")
 
 known_cls = unique(c(known_pairs_t$Cl1,known_pairs_t$Cl2))
 
-make_name_comparable = function( replace_name ){
+for (i in 1:length(all_cls)){
   
-  identical_names = c("")
-  replace_name = as.character( replace_name )
-  replace_name = str_to_upper( replace_name )
+    ccl_name = all_cls[i]
+    lib_name = lib_vec[i]
   
-  if (replace_name == "TT_CCLE"  ) 
-    replace_name = "TTALT1_CCLE"
+    if (str_detect( ccl_name, pattern = "TT.CCLE" ))
+        identifier_plane[i] = "TTALT1"
   
-  if (replace_name == "TT_COSMIC"  ) 
-    replace_name = "TTALT1_COSMIC"
-  
-  if (replace_name == "T-T_COSMIC"  ) 
-    replace_name = "TTALT2_COSMIC"
-  
-  if (replace_name == "KMH-2_COSMIC"  ) 
-    replace_name = "KMH2ALT1_COSMIC"
-  
-  if (replace_name == "KM-H2_COSMIC"  ) 
-    replace_name = "KMH2ALT2_COSMIC"
-  
-  replace_name = as.character( str_replace_all( string = replace_name, pattern = "(_COSMIC)|(_CCLE)|(_CELLMINER)|(EGA)|(GDC)", "" ) )
-  replace_name = as.character( str_replace_all( string = replace_name, pattern = "([^A-Z0-9])*", "" ) )
-  
-  return( replace_name )
+    if (str_detect( ccl_name, pattern = "TT.COSMIC" ))
+        identifier_plane[i] = "TTALT1"
+    
+    if (str_detect( ccl_name, pattern = "T-T.COSMIC" ))
+        identifier_plane[i] = "TTALT2"
+
+    if (str_detect( ccl_name, pattern = "KMH-2.COSMIC" ))
+        identifier_plane[i] = "KMH2ALT1"
+
+    if (str_detect( ccl_name, pattern = "KM-H2.COSMIC" ))
+        identifier_plane[i] = "KMH2ALT2"
 }
 
-stripped_names = sapply( all_cls, FUN = make_name_comparable )
-names(stripped_names) = all_cls
 # similarity due to identical names
 
-identify_similar_names = function( index_cl ){
+identify_similar_names = function( index_ccl ){
   
-  stripped_name = stripped_names[ index_cl ]
-  original_name = names(stripped_names[ index_cl ])
-  
-  sim_map       = which( as.character( stripped_names ) == stripped_name)
-  similar_cls   = paste0( c( names( stripped_names )[ sim_map ] ), collapse = "," )
+  sim_map       = which( as.character( identifier_plane ) == as.character( identifier_plane[index_ccl]) )
+  ident_ccls    = paste(all_cls[ sim_map ], lib_vec[ sim_map ], sep ="_" )
+  similar_cls   = paste0( c(ident_ccls  ), collapse = "," )
   
   return( similar_cls )
 }
 
 all_cls = cbind( all_cls, sapply( seq( length( all_cls ) ), FUN = identify_similar_names ))
-dim(all_cls)
+
 ### similarity due to reports
 
 known_pairs   = paste( known_pairs_t[,1], known_pairs_t[,2], sep ="_"  )
 known_pairs   = c( known_pairs, paste( known_pairs_t[,2], known_pairs_t[,1], sep ="_"  ) )
 all_cls       = cbind( all_cls, rep("", length(all_cls[,1])) )
 
-identify_related_names = function( index_cl ){
+identify_related_names = function( index_ccl ){
   
-  stripped_name = as.character( stripped_names[ index_cl ] )
-  stripped_name = str_replace( stripped_name, pattern = "CUSTOM$", "" )
-  #original_name = names(stripped_names[ index_cl ])
-  related_cls     = character()
-  ori_related_cls = character()
+    stripped_name = as.character( identifier_plane[index_ccl] )
+
+    related_cls     = character()
+    ori_related_cls = character()
   
-  related_map   = which( grepl( paste0( c( "(^",stripped_name,"_)+"), collapse = "" ), known_pairs ) )
+    related_map   = which( grepl( paste0( c( "(^", stripped_name  ,"_)+"), collapse = "" ), known_pairs ) )
   
-  for (map in related_map){
+    for (map in related_map){
     
-    other_cl = tail(as.character( unlist( str_split(known_pairs[map], "_") ) ), 1)
-    grep_other_cl = paste0( c( "^",other_cl,"$"), collapse = "" )
+        other_cl = tail(as.character( unlist( str_split(known_pairs[map], "_") ) ), 1)
+        ident_ccls = identifier_plane[ identifier_plane == other_cl]
+        ident_libraries = lib_vec[ identifier_plane == other_cl]
     
-    ori_names = names(
-      stripped_names[ grepl(
-        grep_other_cl,
-        stripped_names
-      )]
-    )
-    
-    for (o_name in ori_names){
-      ori_related_cls = c( ori_related_cls, o_name )
+        ori_names = paste(
+            ident_ccls,
+            ident_libraries, sep = "_"
+        )
+        
+        for (o_name in ori_names){
+            ori_related_cls = c( ori_related_cls, o_name )
+        }
     }
-  }
   
-  related_cls = paste0( unique( ori_related_cls ), collapse = "," )
+    related_cls = paste0( unique( ori_related_cls ), collapse = "," )
   
-  return( related_cls )
+    return( related_cls )
 }
 all_cls[ , 3] = sapply( seq( length( all_cls[,1] ) ), FUN = identify_related_names )
 
@@ -161,4 +142,4 @@ all_cls = cbind(all_cls, as.character( unlist( naked_merge ) ) )
 
 colnames(all_cls) = c("CL","Name_identical","Related","Merged","Naked_merged")
 
-write.table(x = all_cls,"~/Dropbox/PhD/Uniquorn_project/Pub/Goldstandard.tsv",sep="\t",quote =F , row.names=F)
+write.table(x = all_cls,"~/Uniquorn_rna_panel_project/Misc//Goldstandard.tsv",sep="\t",quote =F , row.names=F)
