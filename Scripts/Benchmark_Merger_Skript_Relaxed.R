@@ -41,7 +41,7 @@ run_relaxed_merging = function(
     identification_successful = aggregate( 
         as.character(
             unlist(
-                input_data$Identification_successful
+                input_data$True_positive
             )
         ),
         by = list(map_true_ident),

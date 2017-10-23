@@ -70,7 +70,10 @@ identify_similar_names = function( index_ccl ){
   return( similar_cls )
 }
 
-all_cls = cbind( all_cls, sapply( seq( length( all_cls ) ), FUN = identify_similar_names ))
+all_cls = cbind( 
+  paste( all_cls, lib_vec, sep ="_" ),
+  identifier_plane,
+  sapply( seq( length( all_cls ) ), FUN = identify_similar_names ))
 
 ### similarity due to reports
 
@@ -107,9 +110,9 @@ identify_related_names = function( index_ccl ){
   
     return( related_cls )
 }
-all_cls[ , 3] = sapply( seq( length( all_cls[,1] ) ), FUN = identify_related_names )
+all_cls[ , 4] = sapply( seq( length( all_cls[,1] ) ), FUN = identify_related_names )
 
-colnames(all_cls) = c("CL","Name_identical","Related")
+colnames(all_cls) = c("CL","CL_plane","Name_identical","Related")
 
 write.table(x = all_cls,"~//Uniquorn_rna_panel_project/Misc//Goldstandard.tsv",sep="\t",quote =F , row.names=F)
 
@@ -118,10 +121,10 @@ all_cls = as.data.frame(all_cls)
 #all_cls       = cbind( all_cls, rep("", length(all_cls[,1])) )
 
 merged_sim_rel = mapply(
-  c,
-  str_split( all_cls$Name_identical, "," ),
-  str_split( all_cls$Related, "," ),
-  SIMPLIFY=FALSE
+    c,
+    str_split( all_cls$Name_identical, "," ),
+    str_split( all_cls$Related, "," ),
+    SIMPLIFY=FALSE
 )
 
 clean_me = function( a ){ a=as.character(unlist(a)); a = a[a != ""]; return(a) }
@@ -140,6 +143,6 @@ naked_merge    = str_replace( naked_merge, pattern = "CUSTOM", "" )
 all_cls = cbind(all_cls, as.character( unlist( merged_sim_rel ) ) )
 all_cls = cbind(all_cls, as.character( unlist( naked_merge ) ) )
 
-colnames(all_cls) = c("CL","Name_identical","Related","Merged","Naked_merged")
+colnames(all_cls) = c("CL","CL_plane","Name_identical","Related","Merged","Naked_merged")
 
 write.table(x = all_cls,"~/Uniquorn_rna_panel_project/Misc//Goldstandard.tsv",sep="\t",quote =F , row.names=F)

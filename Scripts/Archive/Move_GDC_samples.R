@@ -53,3 +53,33 @@ for( i_file  in cellminer_raw_samples){
     
     write.table(vcf_geno, i_file, sep ="\t",quote = F, row.names = F, col.names = F)
 }
+
+
+#i_files = list.files("~/Uniquorn_data/benchmark_vcf_files/raw_files/",pattern = ".vcf",full.names = T)
+i_files = list.files("~/Uniquorn_data/benchmark_vcf_files/panel_ident_files_regularized/0.5/",pattern = ".ident.tsv",full.names = T,recursive = F)
+
+for(i_file in i_files){
+  
+    if(str_detect(i_file,pattern = "GDC")) 
+        library_name = "GDC"
+    if(str_detect(i_file,pattern = "EGA")) 
+        library_name = "EGA"
+    if(str_detect(i_file,pattern = "COSMIC")) 
+        library_name = "COSMIC"
+    if(str_detect(i_file,pattern = "CCLE")) 
+        library_name = "CCLE"
+    if(str_detect(i_file,pattern = "CELLMINER")) 
+        library_name = "CELLMINER"
+    
+    #i_file_mod = str_replace( i_file, pattern = paste(c(".",library_name,".vcf"),collapse= "",sep =""),"")
+    i_file_mod = str_replace( i_file, pattern = paste(c(".",library_name,".ident.tsv"),collapse= "",sep =""),"")
+    i_file_mod = str_replace_all(i_file_mod, pattern = "\\.", "_")
+    #i_file_mod = paste(i_file_mod, paste(c(".",library_name,".vcf"),collapse= "",sep =""),sep = "")
+    i_file_mod = paste(i_file_mod, paste(c(".",library_name,".ident.tsv"),collapse= "",sep =""),sep = "")
+    i_file_mod = str_replace(i_file_mod,pattern = "/1_0/","/1.0/")
+    i_file_mod = str_replace(i_file_mod,pattern = "/0_5/","/0.5/")
+    i_file_mod = str_replace(i_file_mod,pattern = "/0_25/","/0.25/")
+    i_file_mod = str_replace(i_file_mod,pattern = "/0_0/","/0.0/")
+    file.rename(i_file,i_file_mod)
+}
+
