@@ -1,5 +1,7 @@
 library("stringr")
-library("Uniquorn")
+library("devtools")
+setwd("~/Uniquorn_rna_panel_project/Uniquorn/")
+load_all()
 
 inclusion_weight      = .25
 panel_mode            = FALSE
@@ -7,7 +9,7 @@ panel_mode            = FALSE
 run_small_statistics = function( 
     input_path_comparison = input_path_comparison,
     inclusion_weight = inclusion_weight, 
-    panel_mode,
+    panel_mode
 ){
   
     source("~//Uniquorn_rna_panel_project//Scripts/utility.R")
@@ -21,7 +23,7 @@ run_small_statistics = function(
         type_benchmark = "regularized"
     )
   
-    print( c("Inclusion weight", inclusion_weight ) )
+    print( paste( c("Inclusion weight: ", inclusion_weight ), sep = "", collapse = "" ) )
   
     input_path_comparison = paste(c(
         "~/Uniquorn_data/benchmark_vcf_files/Benchmark_results_regularized/",
@@ -48,6 +50,7 @@ run_small_statistics = function(
     }
   
     t_rel = read.table( input_path_identification, sep ="\t", header = T)
+    print(paste(c("Number cases: ", nrow(t_rel) ), sep ="", collapse=""))
     
     expected    = paste( c(as.character( t_rel$Expected[ t_rel$Expected!= ""] )), collapse = ", ",sep = "" )
     nr_expected = length((as.character(unlist(str_split(expected,", ")))))
