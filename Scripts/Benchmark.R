@@ -7,37 +7,27 @@ setwd("~/Uniquorn_rna_panel_project/Uniquorn/")
 load_all()
 
 inclusion_weight     = .25
-only_first           = FALSE
-exclude_self         = FALSE
 p_value = .05
 minimum_matching_mutations = 0
 run_identification   = F
-panel_mode = T
 auc_mode             = FALSE
 ref_gen              = "GRCH37"
-#type_benchmark       = "non_regularized"
 panel_mode           = FALSE
 type_benchmark       = "regularized"
-n_threads = 4
 
 run_benchmark = function(
     inclusion_weight = inclusion_weight, 
     only_first = only_first,
     exclude_self = exclude_self,
     run_identification = run_identification, 
-    #confidence_score = confidence_score,
     minimum_matching_mutations = minimum_matching_mutations,
     type_benchmark,
     ref_gen
 ){
   
     source("~/Uniquorn_rna_panel_project/Scripts/utility.R")
-    
-<<<<<<< HEAD
-    build_path_variables( 
-=======
+
     build_path_variables(
->>>>>>> 87c0852213301a3539cc56a274b6435c2153a527
         inclusion_weight = inclusion_weight,
         only_first = only_first,
         exclude_self = exclude_self,
@@ -47,7 +37,7 @@ run_benchmark = function(
     )
     out_path_ident = str_replace(
         benchmark_ident_file_path,
-        pattern = "/Benchmark_results_regularized//0.5_Benchmark_identification_result.tab",
+        pattern = "/Benchmark_results_regularized/0.5_Benchmark_identification_result.tab",
         replacement = paste(c("ident_files_regularized",inclusion_weight,""),sep="",collapse= "/")
     )
     gold_t <<- read.table( file = "~//Uniquorn_rna_panel_project/Misc/Goldstandard.tsv",sep="\t", header = TRUE)
