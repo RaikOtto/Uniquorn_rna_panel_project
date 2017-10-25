@@ -14,10 +14,11 @@ parse_vcf_file = function(
     vcf_file,
     ref_gen
 ){
-    switch(ref_gen){
+    switch(ref_gen,
         "GRCH37" = {ref_gen = "hg19"}
-    }
-    g_query = VariantAnnotation::readVcf(vcf_file, genome = ref_gen)
+    )
+    #seq_obj = VariantAnnotation::seqinfo(VariantAnnotation::scanVcfHeader(vcf_file))
+    g_query = VariantAnnotation::readVcf( file = vcf_file)
     
     # process variants
     chroms = as.character(unlist(str_replace(
