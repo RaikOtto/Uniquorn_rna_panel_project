@@ -6,7 +6,7 @@ library("devtools")
 setwd("~/Uniquorn_rna_panel_project/Uniquorn/")
 load_all()
 
-inclusion_weight     = 1.0
+inclusion_weight     = .25
 only_first           = FALSE
 exclude_self         = FALSE
 p_value = .05
@@ -33,7 +33,11 @@ run_benchmark = function(
   
     source("~/Uniquorn_rna_panel_project/Scripts/utility.R")
     
+<<<<<<< HEAD
+    build_path_variables( 
+=======
     build_path_variables(
+>>>>>>> 87c0852213301a3539cc56a274b6435c2153a527
         inclusion_weight = inclusion_weight,
         only_first = only_first,
         exclude_self = exclude_self,
