@@ -2,6 +2,7 @@ library("devtools")
 setwd("~/Uniquorn_rna_panel_project/Uniquorn/")
 load_all()
 library("stringr")
+ref_gen = "GRCH37"
 
 known_pairs_t = read.table("~/Uniquorn_rna_panel_project/Misc/known_relationships.tsv",sep ="\t", header =T, fill=T,stringsAsFactors = F)
 
