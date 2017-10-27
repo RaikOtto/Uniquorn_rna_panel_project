@@ -181,14 +181,6 @@ parse_vcf_query_into_db = function(
     )
     g_mat = g_mat_new
     
-    member_ccls = sapply( as.character(g_mat$Member_CCLs), function(vec){
-        ccl_ids = as.character(unlist(str_split(vec,pattern = ",")))
-        ccl_ids = unique(ccl_ids)
-        ccl_ids = paste(ccl_ids, collapse = ",", sep ="")
-        return(ccl_ids)
-    })
-    g_mat$Member_CCLs = as.character(member_ccls)
-    
     write_w0_and_split_w0_into_lower_weights(
         g_mat = g_mat,
         ref_gen = ref_gen,

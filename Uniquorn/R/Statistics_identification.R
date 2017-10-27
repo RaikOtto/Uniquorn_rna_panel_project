@@ -27,20 +27,12 @@ add_p_q_values_statistics = function(
         
         background_cls_traces = sum(white_balls_found >= mean(white_balls_found))
         
-<<<<<<< HEAD
-        #x = seq(0,1, length = 100)
-        #likelihood = ( 1 / balls_in_query ) ** (sum(white_balls_found) / balls_in_query )
-        #likelihood = ( balls_in_query / white_balls_possible ) ** (white_balls_found / sum(white_balls_found))
-        likelihood_found = ( sum(white_balls_found) / (sum(white_balls_found) + white_balls_found ) )
-        likelihood_found = likelihood_found ** (white_balls_possible / balls_in_query)
-=======
         #likelihood = ( 1 / balls_in_query ) ** (sum(white_balls_found) / balls_in_query )
         #likelihood = ( balls_in_query / white_balls_possible ) ** (white_balls_found / sum(white_balls_found))
         #likelihood_found = ( sum(white_balls_found) / (sum(white_balls_found) + white_balls_found ) )
         #likelihood_found = likelihood_found ** (white_balls_possible / balls_in_query)
         #likelihood_found = likelihood_found ** (white_balls_found / sum(white_balls_found))
         likelihood_found  = white_balls_possible / sum(white_balls_possible)
->>>>>>> 52e010a4c1d3331df1913c4c690c119fc97a08c9
         likelihood_found = likelihood_found ** (white_balls_found / sum(white_balls_found))
         
         q = white_balls_found - 1
@@ -64,10 +56,7 @@ add_p_q_values_statistics = function(
     }
     match_t$P_values = p_values
     match_t$P_value_sig = match_t$P_values <= p_value
-<<<<<<< HEAD
-=======
     #match_t[order(match_t$P_values,decreasing = F),]
->>>>>>> 52e010a4c1d3331df1913c4c690c119fc97a08c9
   
     return(match_t)
 }

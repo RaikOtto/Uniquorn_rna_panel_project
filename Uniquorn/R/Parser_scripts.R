@@ -11,35 +11,6 @@
 #' @return Loci-based DNA-mutational fingerprint of the cancer cell line
 #'  as found in the input VCF file.identify_vcf_files
 parse_vcf_file = function(
-<<<<<<< HEAD
-    vcf_file,
-    ref_gen
-){
-    switch(ref_gen){
-        "GRCH37" = {ref_gen = "hg19"}
-    }
-    g_query = VariantAnnotation::readVcf(vcf_file, genome = ref_gen)
-    
-    # process variants
-    chroms = as.character(unlist(str_replace(
-      as.character(unlist(g_query@rowRanges@seqnames )),pattern = "chr|CHR","")))
-    start_var = as.integer( as.character(unlist(g_query@rowRanges@ranges@start)) )
-    end_var = start_var + as.integer(as.character(unlist(g_query@rowRanges@ranges@width))) -1
-    
-    chroms_pure = grep(chroms, pattern = "_", invert = T)
-    chroms      = chroms[ chroms_pure ]
-    chroms      = str_replace(chroms,pattern = "^chr","")
-    start_var   = start_var[chroms_pure]
-    end_var     = end_var[chroms_pure]
-    
-    # build fingerprint and return
-    g_query = GenomicRanges::GRanges(
-        seqnames = chroms,
-        IRanges(
-            start = start_var,
-            end = end_var
-        )
-=======
   vcf_file,
   ref_gen
 ){
@@ -67,7 +38,6 @@ parse_vcf_file = function(
     IRanges::IRanges(
       start = start_var,
       end = end_var
->>>>>>> 52e010a4c1d3331df1913c4c690c119fc97a08c9
     )
   )
   
@@ -93,18 +63,9 @@ write_w0_and_split_w0_into_lower_weights = function( g_mat, library_name, ref_ge
   
   if ( "Member_CCLs" %in% names(GenomicRanges::mcols(g_mat)) ){
     
-<<<<<<< HEAD
-        member_count = as.integer( str_count(g_mat$Member_CCLs, pattern = ",") )
-        member_keep_index    = which( member_count < 10 )
-        member_exclude_index = which( member_count >= 10 )
-        
-        g_mat_exclude <<- g_mat[member_exclude_index]
-        g_mat         <<- g_mat[member_keep_index]
-=======
     member_count = as.integer( str_count(g_mat$Member_CCLs, pattern = ",") )
     member_keep_index    = which( member_count < 10 )
     member_exclude_index = which( member_count >= 10 )
->>>>>>> 52e010a4c1d3331df1913c4c690c119fc97a08c9
     
     g_mat_exclude <<- g_mat[member_exclude_index]
     g_mat         <<- g_mat[member_keep_index]
@@ -142,25 +103,11 @@ write_w0_and_split_w0_into_lower_weights = function( g_mat, library_name, ref_ge
     
     mwit_g_mat = g_mat[hit_index]
     
-<<<<<<< HEAD
-    input_ccls = unique(as.character(unlist(str_split( g_mat$Member_CCLs, pattern = "," ) ) ))
-    output_ccls = unique(as.character(unlist(str_split( ccl_stats$CCL, pattern = "," ) ) ))
-    missing_ccls = sum((input_ccls %in%  output_ccls) == FALSE)
-    
-    if( missing_ccls != 0) stop("Loading of CCLs has not worked!")
-    
-    CCL_stats_data_path =  paste( c(
-        package_path,"/Libraries/",
-        ref_gen,"/",library_name,
-        "/CCL_List_Uniquorn_DB.RData"),
-        sep ="", collapse= ""
-=======
     write_mutation_grange_objects(
       mutational_weight_inclusion_threshold = mwit,
       g_mat = mwit_g_mat,
       library_name = library_name,
       ref_gen = ref_gen
->>>>>>> 52e010a4c1d3331df1913c4c690c119fc97a08c9
     )
     
     mut_t = table(as.character(unlist(str_split( 
