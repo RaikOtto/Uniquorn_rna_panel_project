@@ -10,11 +10,11 @@ parser$add_argument('-p', "--panel_mode", action="store_true", default = "FALSE"
 parser$add_argument('-nt', "--number_threads", type="integer", default = "1")
 args = parser$parse_args()
 
-args$inclusion_weight = .5
-#inclusion_weight = args$inclusion_weight
-#panel_mode = args$panel_mode
+#args$inclusion_weight = .5
+inclusion_weight = args$inclusion_weight
+panel_mode = args$panel_mode
 #inclusion_weight = 0.25
-panel_mode = FALSE
+#panel_mode = FALSE
 
 run_small_statistics = function( 
   input_path_comparison = input_path_comparison,
@@ -84,11 +84,11 @@ run_small_statistics = function(
   
   nr_true_negatives  = nrow(t_rel)**2 - nrow(t_rel) - nr_false_negatives
   
+  Sensitivity = round(nr_true_positives / (nr_true_positives + nr_false_negatives),3) * 100
+  print(paste(c("Sensitivity: ",Sensitivity),collapse = "",sep = ""))
+  
   TPR = round(nr_true_positives / (nr_true_positives + nr_false_positive),3) * 100
   print(paste(c("TPR: ",TPR),collapse = "",sep = ""))
-  
-  TNR = round(nr_true_negatives  / (nr_true_negatives + nr_false_negatives),10) * 100
-  print(paste(c("TNR: ",TNR),collapse = "",sep = ""))
   
   PPV = round( nr_true_positives / ( nr_true_positives + nr_false_negatives ),3) * 100
   print(paste(c("PPV: ",PPV),collapse = "",sep = ""))
@@ -96,8 +96,8 @@ run_small_statistics = function(
   F1 = round( (2* nr_true_positives) / ((2*nr_true_positives) + nr_false_positive + nr_false_negatives) ,3) * 100
   print(paste(c("F1: ",F1),collapse = "",sep = ""))
 }
-panel_mode = FALSE
-inclusion_weight = 1.0
+#panel_mode = TRUE
+#inclusion_weight = .0
 run_small_statistics(
     inclusion_weight = inclusion_weight,
     panel_mode = panel_mode
