@@ -1,7 +1,7 @@
 library("stringr")
-library("BiocParallel")
-library("doParallel")
-library("foreach")
+#library("BiocParallel")
+#library("doParallel")
+#library("foreach")
 library("devtools")
 library("argparse")
 setwd("~/Uniquorn_rna_panel_project/Uniquorn/")
@@ -16,8 +16,8 @@ args = parser$parse_args()
 inclusion_weight     = args$inclusion_weight
 panel_mode           = args$panel_mode
 
-inclusion_weight      = 0.0
-panel_mode            = FALSE
+#inclusion_weight      = 0.0
+#panel_mode            = FALSE
 
 p_value               = .05
 minimum_matching_mutations = 0
@@ -38,7 +38,7 @@ run_benchmark = function(
       run_identification = FALSE,
       cellminer = FALSE,
       type_benchmark = "regularized"
-    )HFHQC-584H7-0I87I
+    )
     out_path_ident = str_replace(
       benchmark_ident_file_path,
       pattern = "/Benchmark_results_regularized/0.5_Benchmark_identification_result.tab",
