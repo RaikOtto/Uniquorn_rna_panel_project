@@ -61,7 +61,10 @@ add_custom_vcf_to_database = function(
       
         for (vcf_input_file in vcf_input_files){
             
-            g_query = parse_vcf_file(vcf_input_file)
+            g_query = parse_vcf_file(
+                vcf_input_file,
+                ref_gen = ref_gen
+            )
             
             parse_vcf_query_into_db(
                 g_query,
@@ -153,7 +156,15 @@ parse_vcf_query_into_db = function(
         type = "equal"
     )
     
-    mcols( g_mat_new )$Member_CCLs[fo_query] = elementMetadata(g_query)$Member_CCLs
+    old_members = as.character( 
+        sapply( as.character(elementMetadata(g_query)$Member_CCLs), function(vec){
+                ccl_ids = as.character(unlist(str_split(vec,pattern = ",")))
+                ccl_ids = unique(ccl_ids)
+                ccl_ids = paste(ccl_ids, collapse = ",", sep ="")
+            return(ccl_ids)
+    }))
+      
+    mcols( g_mat_new )$Member_CCLs[fo_query] = old_members
     
     if ( "Member_CCLs" %in% names(mcols(g_mat)) )
     

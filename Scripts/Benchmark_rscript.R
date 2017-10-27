@@ -13,12 +13,20 @@ parser$add_argument('-p', "--panel", action="store_true", default = "FALSE")
 parser$add_argument('-nt', "--number_threads", type="integer", default = "1")
 args = parser$parse_args()
 
+<<<<<<< HEAD
+=======
+#args$inclusion_weight = .25
+>>>>>>> 52e010a4c1d3331df1913c4c690c119fc97a08c9
 only_first           = FALSE
 exclude_self         = FALSE
 p_value = .05
 minimum_matching_mutations = 0
 run_identification   = F
+<<<<<<< HEAD
 panel_mode = F
+=======
+panel_mode = TRUE
+>>>>>>> 52e010a4c1d3331df1913c4c690c119fc97a08c9
 auc_mode             = FALSE
 ref_gen              = "GRCH37"
 #type_benchmark       = "non_regularized"
