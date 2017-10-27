@@ -61,10 +61,7 @@ add_custom_vcf_to_database = function(
       
         for (vcf_input_file in vcf_input_files){
             
-            g_query = parse_vcf_file(
-                vcf_input_file,
-                ref_gen = ref_gen
-            )
+            g_query = parse_vcf_file(vcf_input_file)
             
             parse_vcf_query_into_db(
                 g_query,
@@ -156,15 +153,7 @@ parse_vcf_query_into_db = function(
         type = "equal"
     )
     
-    old_members = as.character( 
-        sapply( as.character(elementMetadata(g_query)$Member_CCLs), function(vec){
-                ccl_ids = as.character(unlist(str_split(vec,pattern = ",")))
-                ccl_ids = unique(ccl_ids)
-                ccl_ids = paste(ccl_ids, collapse = ",", sep ="")
-            return(ccl_ids)
-    }))
-      
-    mcols( g_mat_new )$Member_CCLs[fo_query] = old_members
+    mcols( g_mat_new )$Member_CCLs[fo_query] = elementMetadata(g_query)$Member_CCLs
     
     if ( "Member_CCLs" %in% names(mcols(g_mat)) )
     
@@ -180,6 +169,14 @@ parse_vcf_query_into_db = function(
       pattern = "^,",""
     )
     g_mat = g_mat_new
+    
+    member_ccls = sapply( as.character(g_mat$Member_CCLs), function(vec){
+        ccl_ids = as.character(unlist(str_split(vec,pattern = ",")))
+        ccl_ids = unique(ccl_ids)
+        ccl_ids = paste(ccl_ids, collapse = ",", sep ="")
+        return(ccl_ids)
+    })
+    g_mat$Member_CCLs = as.character(member_ccls)
     
     write_w0_and_split_w0_into_lower_weights(
         g_mat = g_mat,

@@ -11,15 +11,15 @@ match_query_ccl_to_database = function(
         mutational_weight_inclusion_threshold = mutational_weight_inclusion_threshold
     )
     
-    #member_ccls = sapply( as.character(g_mat$Member_CCLs), function(vec){
-    #    ccl_ids = as.character(unlist(str_split(vec,pattern = ",")))
-    #    ccl_ids = unique(ccl_ids)
-    #    ccl_ids = paste(ccl_ids, collapse = ",", sep ="")
-    #    return(ccl_ids)
-    #})
+    member_ccls = sapply( as.character(g_mat$Member_CCLs), function(vec){
+        ccl_ids = as.character(unlist(str_split(vec,pattern = ",")))
+        ccl_ids = unique(ccl_ids)
+        ccl_ids = paste(ccl_ids, collapse = ",", sep ="")
+        return(ccl_ids)
+    })
     
-    #g_mat$Member_CCLs = as.character(member_ccls)
-    #saveRDS(g_mat,"~/Uniquorn_rna_panel_project/Uniquorn/inst/Libraries/GRCH37/CELLMINER//W0.5_Uniquorn_DB.RData")
+    g_mat$Member_CCLs = as.character(member_ccls)
+    saveRDS(g_mat,"~/Uniquorn_rna_panel_project/Uniquorn/inst/Libraries/GRCH37/CELLMINER//W0.5_Uniquorn_DB.RData")
     #saveRDS(g_mat,"~/Uniquorn_rna_panel_project/Uniquorn/inst/Libraries/GRCH37/CCLE/W0.5_Uniquorn_DB.RData")
     #saveRDS(g_mat,"~/Uniquorn_rna_panel_project/Uniquorn/inst/Libraries/GRCH37/COSMIC/W0.5_Uniquorn_DB.RData")
     # IMPLEMENT IMPORT OF CLLs FOR LIBRARY HERE

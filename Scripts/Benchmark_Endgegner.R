@@ -1,7 +1,7 @@
 library("stringr")
 library("Uniquorn")
 
-inclusion_weight      = 0.5
+inclusion_weight      =1.0
 only_first            = FALSE
 exclude_self          = FALSE
 run_identification    = F
@@ -9,101 +9,9 @@ cellminer_v2          = F
 distinct_mode         = TRUE
 identical_mode        = FALSE
 distuinguished_panels = T
-panel = T
-cellminer             = F
-
+panel_mode            = FALSE
 #type_benchmark        = 'non_regularized'
 type_benchmark        = 'regularized'
-
-run_benchmark_endgegner = function( 
-  rigid_similarity = FALSE,
-  inclusion_weight = inclusion_weight,
-  only_first = only_first,
-  exclude_self = exclude_self,
-  run_identification = run_identification,
-  cellminer = F,
-  distuinguished_panels = distuinguished_panels,
-  type_benchmark = type_benchmark
-){
-  
-    source("~//Uniquorn_rna_panel_project//Scripts/utility.R")
-    build_path_variables( 
-        inclusion_weight = inclusion_weight,
-        only_first = only_first,
-        exclude_self = exclude_self,
-        run_identification = run_identification,
-        cellminer = F,
-        type_benchmark = type_benchmark
-    )
-    gold_t = read.table( file = "~//Uniquorn_rna_panel_project//Misc//Goldstandard.tsv",sep="\t", header = TRUE)
-
-    
-    if (panel){
-        ident_result_files_path = str_replace(ident_result_files_path,pattern = "ident_files","panel_ident_files")
-        benchmark_ident_file_path = str_replace(benchmark_ident_file_path,pattern = "Benchmark_results","panel_Benchmark_results")
-        benchmark_res_file_path = str_replace(benchmark_res_file_path,pattern = "Benchmark_results","panel_Benchmark_results")
-    }
-    ## prep phase
-  
-    build_tables()
-    
-    res_table = read.table( benchmark_res_file_path,   sep ="\t", header = T)
-  
-    to_be_found_cls = c( gold_t$Name_identical, gold_t$Merged )
-    
-    # identification table
-  
-    to_be_found_cls = to_be_found_cls[ to_be_found_cls != "" ]
-  
-    found = b_table$CCL[ b_table$Identification_sig ]
-    found = paste( found, b_table$CL_source[ b_table$Passed_threshold ], sep ="_" )
-  
-    true_pos_ident  = to_be_found_cls[ which( to_be_found_cls %in% found )  ]
-    false_neg_ident = to_be_found_cls[ which( !(to_be_found_cls %in% found) )  ]
-    false_pos_ident = found[ which( !(found %in% to_be_found_cls) )  ]
-  
-  if( length( to_be_found_cls ) == 0 ){
-    
-    if ( length( false_neg_ident ) == 0 ) 
-      
-      identification_successful = TRUE
-    
-    else
-      
-      identification_successful = FALSE
-    
-    }else if ( length(true_pos_ident) > 0 ){
-      
-      identification_successful = TRUE
-      
-    } else {
-      
-      identification_successful = FALSE
-    }
-  
-  to_be_found_cls = concat_me( to_be_found_cls  )
-  true_pos_ident  = concat_me( true_pos_ident  )
-  false_pos_ident = concat_me( false_pos_ident )
-  false_neg_ident = concat_me( false_neg_ident )
-  found           = concat_me( found  )
-  
-  res_ident_table <<- data.frame( 
-    "Name_query"                = c( as.character( res_ident_table$Name_query ),               as.character( b_name ) ),
-    "Source_query"              = c( as.character( res_ident_table$Source_query  ),            as.character( source_file[1]   ) ),
-    "Expected"                  = c( as.character( res_ident_table$Expected ),                 as.character( to_be_found_cls  ) ),
-    "Found"                     = c( as.character( res_ident_table$Found ),                    as.character( found ) ),
-    "True_positive"             = c( as.character( res_ident_table$True_positive ),            as.character( true_pos_ident  ) ),
-    "False_negative"            = c( as.character( res_ident_table$False_negative ),           as.character( false_neg_ident  ) ),
-    "False_positive"            = c( as.character( res_ident_table$False_positive ),           as.character( false_pos_ident   ) ),
-    "Identification_successful" = c( as.character( res_ident_table$Identification_successful ),as.character( identification_successful ) )
-  )
-  
-  # output
-
-  res_table = res_table[ order( as.double( as.character(res_table$Found_muts_weighted_rel) ), decreasing = T),  ]
-
-  print("Writing xlsx")
-}
 
 run_small_statistics = function( 
   input_path_comparison = input_path_comparison,
@@ -112,7 +20,7 @@ run_small_statistics = function(
   only_first = only_first, 
   exclude_self = exclude_self,
   run_identification = run_identification, 
-  cellminer = cellminer, 
+  panel_mode,
   distuinguished_panels = distuinguished_panels,
   type_benchmark = type_benchmark
 ){
@@ -162,7 +70,7 @@ run_small_statistics = function(
       "_Benchmark_identification_result_aggregated.tab"
     )
     
-    if (panel){
+    if (panel_mode){
         ident_result_files_path = str_replace(ident_result_files_path,pattern = "ident_files","panel_ident_files")
         benchmark_ident_file_path = str_replace(benchmark_ident_file_path,pattern = "Benchmark_results","panel_Benchmark_results")
         benchmark_res_file_path = str_replace(benchmark_res_file_path,pattern = "Benchmark_results","panel_Benchmark_results")
@@ -171,39 +79,52 @@ run_small_statistics = function(
         
     }
     
-    run_relaxed_merging( 
-        input_path_identification,
-        output_table_path 
-    )
+    #run_relaxed_merging( 
+    #    input_path_identification,
+    #    output_table_path 
+    #)
 
-    t_rel = read.table( output_table_path, sep ="\t", header = T)
+    t_rel = read.table( input_path_identification, sep ="\t", header = T)
   
-    expected = t_rel$Expected[t_rel$Expected!= ""]
+    expected    = paste( c(as.character( t_rel$Expected[ t_rel$Expected!= ""] )), collapse = ", ",sep = "" )
     nr_expected = length((as.character(unlist(str_split(expected,", ")))))
-    print(c("Expected:",nr_expected) )
+    print(paste(c("Expected:",nr_expected),collapse = "",sep = "") )
     
     true_positives = as.character(unlist(str_split(t_rel$True_positive,", ")))
     true_positives = true_positives[ true_positives != ""  ]
     true_positives = true_positives[ !is.na(true_positives) ]
     nr_true_positives = length(true_positives)
-    print( c("TP:",as.integer(nr_true_positives), round(nr_true_positives / nr_expected * 100,1)))
+    print(paste(c("TP:",as.character(nr_true_positives)),collapse = "",sep = ""))
     
     false_negatives = as.character(unlist(str_split(t_rel$False_negative,", ")))
     false_negatives = false_negatives[ false_negatives!= ""]
     false_negatives = false_negatives[ !is.na(false_negatives) ]
     nr_false_negatives = length( false_negatives )
-    print(c("FN:",as.integer(nr_false_negatives), round(nr_false_negatives / nr_expected * 100,1)))
+    print(paste(c("FN: ",as.character(nr_false_negatives)),collapse = "",sep = ""))
     
     false_positives = t_rel$False_positive[t_rel$False_positive!= ""]
     nr_false_positive = length((as.character(unlist(str_split(false_positives,",")))))
-    print(c("FP",nr_false_positive))
-  
+    print(paste(c("FP: ",nr_false_positive),collapse = "",sep = ""))
+    
+    nr_true_negatives  = nrow(t_rel)**2 - nrow(t_rel) - nr_false_negatives
+    
+    TPR = round(nr_true_positives / (nr_true_positives + nr_false_positive),3) * 100
+    print(paste(c("TPR: ",TPR),collapse = "",sep = ""))
+    
+    TNR = round(nr_true_negatives  / (nr_true_negatives + nr_false_negatives),10) * 100
+    print(paste(c("TNR: ",TNR),collapse = "",sep = ""))
+    
+    PPV = round( nr_true_positives / ( nr_true_positives + nr_false_negatives ),3) * 100
+    print(paste(c("PPV: ",PPV),collapse = "",sep = ""))
+    
+    F1 = round( (2* nr_true_positives) / ((2*nr_true_positives) + nr_false_positive + nr_false_negatives) ,3) * 100
+    print(paste(c("F1: ",F1),collapse = "",sep = ""))
 }
 run_small_statistics(
     inclusion_weight = inclusion_weight,
     only_first = only_first,
     exclude_self = exclude_self,
     run_identification = run_identification,
-    cellminer = F,
+    panel_mode = panel_mode,
     type_benchmark = type_benchmark
 )

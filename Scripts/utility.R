@@ -98,30 +98,21 @@ parse_string = function( replace_name, source_file, query_name = FALSE ){
 build_tables = function(){
   
   res_table <<- data.frame( 
-    "CL_name_query"             = as.character(),
-    "CL_name_training"          = as.character(),
-    "Source_query"              = as.character(),
-    "Source_training"           = as.character(),
+    "Query_CCL"             = as.character(),
+    "Library_CCL"          = as.character(),
+    "CCL_to_be_found"           = as.character(),
+    "CCL_passed_threshold"      = as.character(),
     "Found_muts_abs"            = as.character(),
-    "P_value"                   = as.character(),
-    "Q_value"                   = as.character(),
-    "Conf_score"                = as.character(),
-    "Passed_threshold"          = as.character(),
-    "Same_identity"             = as.character(),
-    "Same_identity_found"       = as.character(),
-    "Related_identity"          = as.character(),
-    "Related_identity_found"    = as.character()
+    "P_value"                   = as.character()
   )
   
   res_ident_table <<- data.frame( 
-    "Name_query"                = as.character( ),
-    "Source_query"              = as.character( ),
+    "Query"                     = as.character( ),
     "Expected"                  = as.character( ),
     "Found"                     = as.character( ),
     "True_positive"             = as.character( ),
     "False_negative"            = as.character( ),
-    "False_positive"            = as.character( ),
-    "Identification_successful" = as.character( )
+    "False_positive"            = as.character( )
   )
   
   auc_table <<- data.frame(

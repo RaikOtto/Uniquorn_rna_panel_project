@@ -58,9 +58,9 @@ identify_vcf_file = function(
     verbose = TRUE,
     p_value = .05,
     n_threads = 1
-){
+    ){
   
-    g_query = parse_vcf_file(vcf_file,ref_gen = ref_gen)
+    g_query = parse_vcf_file(vcf_file)
     
     library_names = read_library_names(ref_gen = ref_gen)
     match_t <<- data.frame(
