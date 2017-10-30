@@ -1,9 +1,28 @@
-add_p_q_values_statistics = function( 
+#' add_p_q_values_statistics
+#' 
+#' A hypergeometric distribution-assumption allows to calculate the 
+#' p-values for a significant or non-significant overlap in this function
+#' 
+#' \code{add_p_q_values_statistics} Calculates the p-values
+#' 
+#' @param g_query IRanges object that contains the query variants
+#' @param match_t A table that contains the nubmber of matching variants
+#' @param p_value Threshold for the significance p-value
+#' @param ref_gen Reference genome version
+#' @param minimum_matching_mutations Manual lower amount of matching
+#' mutations require for a significant match between a query and a 
+#' reference
+#' @param robust_mode Logical variable to indicate whether the
+#' robust statistical formula should be utilized or not
+#' @import stringr
+#' @return R table with a statistic 
+add_p_q_values_statistics = function(
     g_query,
     match_t,
     p_value,
     ref_gen,
-    minimum_matching_mutations
+    minimum_matching_mutations,
+    robust_mode
 ){
   
     library_names = read_library_names(ref_gen = ref_gen)
@@ -13,7 +32,8 @@ add_p_q_values_statistics = function(
     for (library_name in library_names){
         
         index_library = which( match_t$Library == library_name  )
-        white_balls_possible = as.integer(as.character(match_t$All_variants))[index_library]
+        white_balls_possible = as.integer(as.character(
+            match_t$All_variants))[index_library]
         
         if( length(white_balls_possible) == 0){
             stop("There is only one CL in the custom set. 
@@ -27,13 +47,13 @@ add_p_q_values_statistics = function(
         
         background_cls_traces = sum(white_balls_found >= mean(white_balls_found))
         
-        #likelihood = ( 1 / balls_in_query ) ** (sum(white_balls_found) / balls_in_query )
-        #likelihood = ( balls_in_query / white_balls_possible ) ** (white_balls_found / sum(white_balls_found))
-        #likelihood_found = ( sum(white_balls_found) / (sum(white_balls_found) + white_balls_found ) )
-        #likelihood_found = likelihood_found ** (white_balls_possible / balls_in_query)
-        #likelihood_found = likelihood_found ** (white_balls_found / sum(white_balls_found))
-        likelihood_found  = white_balls_possible / sum(white_balls_possible)
-        likelihood_found = likelihood_found ** (white_balls_found / sum(white_balls_found))
+        if ( robust_mode ) {
+            message("Using robust identification mode")
+            likelihood_found = ( white_balls_possible / sum(white_balls_possible) ) **
+                (white_balls_found / sum(white_balls_found))
+        } else {
+            likelihood_found = white_balls_possible / sum(white_balls_possible)
+        }
         
         q = white_balls_found - 1
         q[q < 0]   = 0

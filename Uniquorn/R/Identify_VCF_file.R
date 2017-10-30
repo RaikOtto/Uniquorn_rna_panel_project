@@ -18,6 +18,9 @@
 #' ~0 = found in many CL samples. 
 #' @param minimum_matching_mutations The minimum amount of mutations that 
 #' has to match between query and training sample for a positive prediction
+#' @param robust_mode Improves specificity at the cost of sensitivity when
+#' reference and query CCL are based on heterogeneous technologies, in 
+#' particular with respect to the amount of variants available.
 #' @param manual_identifier_bed_file Manually enter a vector of CL 
 #' name(s) whose bed files should be created, independently from 
 #' them passing the detection threshold
@@ -36,6 +39,7 @@
 #' mutational_weight_inclusion_threshold = 0.5,
 #' write_xls = FALSE,
 #' output_bed_file = FALSE,
+#' robust_mode = FALSE,
 #' manual_identifier_bed_file = "",
 #' verbose = TRUE,
 #' q_value = .05,
@@ -54,6 +58,7 @@ identify_vcf_file = function(
     mutational_weight_inclusion_threshold = 0.5,
     write_xls = FALSE,
     output_bed_file = FALSE,
+    robust_mode = FALSE,
     manual_identifier_bed_file = "",
     verbose = TRUE,
     p_value = .05,
@@ -99,13 +104,12 @@ identify_vcf_file = function(
         match_t,
         p_value,
         ref_gen = ref_gen,
-        minimum_matching_mutations = minimum_matching_mutations
+        minimum_matching_mutations = minimum_matching_mutations,
+        robust_mode
     )
     match_t = add_penality_statistics(match_t,minimum_matching_mutations)
     match_t$Identification_sig = match_t$P_value_sig & match_t$Above_Penality
-    match_t = match_t[order(match_t$P_values,decreasing = F),]
-    match_t = match_t[order(match_t$Matches,decreasing = T),]
-    match_t = match_t[order(match_t$Identification_sig,decreasing = T),]
+    match_t = match_t[order(as.double(match_t$P_values),decreasing = F),]
     
     ### io stuff
     

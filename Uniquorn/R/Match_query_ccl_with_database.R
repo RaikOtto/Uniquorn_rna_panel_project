@@ -11,24 +11,11 @@ match_query_ccl_to_database = function(
     mutational_weight_inclusion_threshold = mutational_weight_inclusion_threshold
   )
   
-  #member_ccls = sapply( as.character(g_mat$Member_CCLs), function(vec){
-  #    ccl_ids = as.character(unlist(str_split(vec,pattern = ",")))
-  #    ccl_ids = unique(ccl_ids)
-  #    ccl_ids = paste(ccl_ids, collapse = ",", sep ="")
-  #    return(ccl_ids)
-  #})
-  
-  #g_mat$Member_CCLs = as.character(member_ccls)
-  #saveRDS(g_mat,"~/Uniquorn_rna_panel_project/Uniquorn/inst/Libraries/GRCH37/CELLMINER//W0.5_Uniquorn_DB.RData")
-  #saveRDS(g_mat,"~/Uniquorn_rna_panel_project/Uniquorn/inst/Libraries/GRCH37/CCLE/W0.5_Uniquorn_DB.RData")
-  #saveRDS(g_mat,"~/Uniquorn_rna_panel_project/Uniquorn/inst/Libraries/GRCH37/COSMIC/W0.5_Uniquorn_DB.RData")
-  # IMPLEMENT IMPORT OF CLLs FOR LIBRARY HERE
-  
   fo_query = GenomicRanges::findOverlaps(
-    query = g_query,
-    subject = g_mat,
-    select = "arbitrary",
-    type = "equal"
+      query = g_query,
+      subject = g_mat,
+      select = "arbitrary",
+      type = "equal"
   )
   match = IRanges::subsetByOverlaps(g_mat, g_query)
   cl_ids = as.character(unlist(str_split(GenomicRanges::mcols(match)$Member_CCLs, pattern = "," )))
@@ -43,9 +30,9 @@ match_query_ccl_to_database = function(
   matching_variants = c(matching_variants, missing_ccls)
   
   matching_variants_t = data.frame(
-    CCL = names(matching_variants),
-    Matches = as.character(matching_variants),
-    Library = rep(library_name, length(matching_variants))
+      CCL = names(matching_variants),
+      Matches = as.character(matching_variants),
+      Library = rep(library_name, length(matching_variants))
   )
   
   ### add stats info
@@ -59,7 +46,7 @@ match_query_ccl_to_database = function(
          "0.5" = { weight_name = "W05"  },
          "1" = { weight_name = "W1"  },
          stop(paste( "Could not recocgnize mutational weight ", 
-                     mutational_weight_inclusion_threshold))
+             mutational_weight_inclusion_threshold))
   )
   
   all_muts = as.character(cl_data[[weight_name]])
@@ -73,14 +60,14 @@ match_query_ccl_to_database = function(
       
       print( paste("Updating database for library: ", mis_lib_name, sep ="")  )
       mis_mat = read_mutation_grange_objects(
-        ref_gen = ref_gen,
-        library_name = mis_lib_name,
-        mutational_weight_inclusion_threshold = mutational_weight_inclusion_threshold
+          ref_gen = ref_gen,
+          library_name = mis_lib_name,
+          mutational_weight_inclusion_threshold = mutational_weight_inclusion_threshold
       )
       write_w0_and_split_w0_into_lower_weights(
-        g_mat = mis_mat,
-        library_name = mis_lib_name,
-        ref_gen = ref_gen
+          g_mat = mis_mat,
+          library_name = mis_lib_name,
+          ref_gen = ref_gen
       )
     }
     
