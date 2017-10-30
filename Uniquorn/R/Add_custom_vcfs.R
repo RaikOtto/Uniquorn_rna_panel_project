@@ -135,8 +135,10 @@ parse_vcf_query_into_db = function(
     
     if ( "Member_CCLs" %in% names(mcols(g_mat))  ){
       
-        g_mat_new = unique(c( GenomicRanges::GRanges(g_mat), 
-            GenomicRanges::GRanges(g_query)))
+        g_mat_new = unique(c(
+            GenomicRanges::GRanges(g_mat),
+            GenomicRanges::GRanges(g_query)
+        ))
         fo_g_mat = IRanges::findOverlaps(
             query = g_mat,
             subject = g_mat_new,

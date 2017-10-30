@@ -38,29 +38,40 @@ remove_ccls_from_database = function(
         mutational_weight_inclusion_threshold = 0
     )
     
-    member_ccls = as.character(GenomicRanges::mcols(g_mat)$Member_CCLs)
-    
     for (ccl_id in ccl_names){
       
         cl_lib = paste(ccl_id, library_name, sep = "_")
         message(paste("Deleting ", cl_lib))
         search_term = paste(c(
             paste( "(",cl_lib,",",")", sep = "" ),
-            paste( "(",cl_lib,")", sep = "" )
+            paste( "(",cl_lib,")", sep = "" ),
+            "(.*,$)"
         ),collapse= "|")
         
-        member_ccls = sapply(
-            member_ccls, 
-            FUN = str_replace_all, 
+        member_ccls <<- as.character( sapply(
+            as.character(GenomicRanges::mcols(g_mat)$Member_CCLs),
+            FUN = str_replace_all,
             pattern = search_term,
             replacement = ""
-        )
+        ) )
+        
+        if( test_mode == FALSE ){
+          
+            stats_path = paste( c( library_path,"/",library_name,"/CCL_List_Uniquorn_DB.RData"), sep ="", collapse= "")
+            g_library = readRDS(stats_path)
+            g_library = data.frame(g_library, stringsAsFactors = F)
+            g_library = g_library[ g_library$CCL!= "",]
+            g_library = g_library[!is.na(g_library$CCL),]
+            g_library = g_library[g_library$CCL != cl_lib,]
+            saveRDS(g_library,file = stats_path)
+        }
     }
     
+    member_ccls = str_replace(member_ccls, pattern = ",$","")
     non_empty_vec = member_ccls != ""
-    g_mat = g_mat[non_empty_vec]
+    g_mat = g_mat[non_empty_vec,]
     member_ccls = member_ccls[ non_empty_vec ]
-    GenomicRanges::mcols(g_mat)$member_ccls = member_ccls
+    GenomicRanges::mcols(g_mat)$Member_CCLs = as.character( member_ccls )
     
     message(paste(
       c( "Excluded ",
@@ -71,11 +82,14 @@ remove_ccls_from_database = function(
     
     message(paste0("Finished removing all ccls. Recalculating DB"))
     
-    write_w0_and_split_w0_into_lower_weights(
-        g_mat = g_mat,
-        ref_gen = ref_gen,
-        library_name = library_name
-    )
+    if( test_mode == FALSE){
+      
+        write_w0_and_split_w0_into_lower_weights(
+            g_mat = g_mat,
+            ref_gen = ref_gen,
+            library_name = library_name
+        )
+    }
     
     message(paste0("Finished removing all cancer cell lines"))
 }
