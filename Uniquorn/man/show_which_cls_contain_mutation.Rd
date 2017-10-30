@@ -2,25 +2,22 @@
 % Please edit documentation in R/Show_database_information.R
 \name{show_which_cls_contain_mutation}
 \alias{show_which_cls_contain_mutation}
-\title{show_which_cls_contain_mutation}
+\title{Cancer Cell Lines With Specific Mutation}
 \usage{
-show_which_cls_contain_mutation( 
-mutation_name, 
-ref_gen)
+show_which_cls_contain_mutation(mutation_name, ref_gen)
 }
 \arguments{
-\item{mutation_name}{Name of the mutation in the format CHROMOSOME_START_STOP, e.g. '11_244501_244510'}
+\item{mutation_name}{a character vector giving the name of the mutation in the format CHROMOSOME_START_STOP, e.g. \code{"11_244501_244510"}.}
 
-\item{ref_gen}{Reference genome version}
+\item{ref_gen}{a character vector specifying the reference genome version. All training sets are associated with a reference genome version. Default is \code{"GRCH37"}.}
 }
 \value{
-R table which contains all cancer cell line samples which contain the specified mutation with respect to the specified reference genome version
+R table which contains all cancer cell line samples which contain the specified mutation with respect to the specified reference genome version.
 }
 \description{
-Show all cancer cell lines in the database which contained the specified mutation and reference Genome. Closed interval coordinates. Format mutation: CHR_START_STOP, e.g. 1_123_123
+This function displays all cancer cell lines in the database which contain a specified mutation. Closed interval coordinates. Format mutation: CHR_START_STOP, e.g. 1_123_123.
 }
 \examples{
-Cls_containing_mutations = show_which_cls_contain_mutation( 
-mutation_name = "10_103354427_103354427", 
-ref_gen = "GRCH37")
+show_which_cls_contain_mutation(mutation_name = "10_103354427_103354427",
+                                ref_gen = "GRCH37")
 }

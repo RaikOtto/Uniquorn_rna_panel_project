@@ -2,22 +2,20 @@
 % Please edit documentation in R/Show_database_information.R
 \name{show_contained_mutations}
 \alias{show_contained_mutations}
-\title{show_contained_mutations}
+\title{All Mutations For Reference Genome}
 \usage{
-show_contained_mutations( 
-ref_gen )
+show_contained_mutations(ref_gen)
 }
 \arguments{
-\item{ref_gen}{Reference genome version}
+\item{ref_gen}{a character vector specifying the reference genome version. All training sets are associated with a reference genome version. Default is \code{"GRCH37"}.}
 }
 \value{
-R Table which contains all mutations associated with a particular cancer cell line for a specified reference genome
+R Table which contains all mutations associated with a specified reference genome.
 }
 \description{
-Show all mutations present in the database for a selected reference Genome: 
 This function shows all training-set mutations for a selected reference genome, i.e. the mutations that are being used
-for identification of query cancer cell lines.
+for identification of a query cancer cell line.
 }
 \examples{
-contained_cls = show_contained_mutations( ref_gen = "GRCH37" )
+show_contained_mutations(ref_gen = "GRCH37")
 }

@@ -4,20 +4,17 @@
 \alias{identify_vcf_file}
 \title{identify_VCF_file}
 \usage{
-identify_vcf_file( 
+identify_vcf_files( 
 vcf_file,
 output_file = "",
 ref_gen = "GRCH37",
 minimum_matching_mutations = 0,
 mutational_weight_inclusion_threshold = 0.5,
-only_first_candidate = FALSE,
 write_xls = FALSE,
 output_bed_file = FALSE,
 manual_identifier_bed_file = "",
-verbose = FALSE,
-p_value = .05,
+verbose = TRUE,
 q_value = .05,
-confidence_score = 10.0,
 n_threads = 1)
 }
 \arguments{
@@ -36,9 +33,6 @@ has to match between query and training sample for a positive prediction}
 with a weight of at least x. Range: 0.0 to 1.0. 1= unique to CL. 
 ~0 = found in many CL samples.}
 
-\item{only_first_candidate}{Only the CL identifier with highest 
-score is predicted to be present in the sample}
-
 \item{write_xls}{Create identification results additionally 
 as xls file for easier reading}
 
@@ -51,14 +45,9 @@ them passing the detection threshold}
 
 \item{verbose}{Print additional information}
 
-\item{p_value}{Required p-value for identification}
+\item{n_threads}{Number of threads to be used}
 
 \item{q_value}{Required q-value for identification}
-
-\item{confidence_score}{Threshold above which a positive prediction occurs
-default 10.0}
-
-\item{n_threads}{Number of threads to be used}
 }
 \value{
 R table with a statistic of the identification result
@@ -74,5 +63,5 @@ the identity of the sample
 \examples{
 HT29_vcf_file = system.file("extdata/HT29.vcf.gz", package="Uniquorn");
 
-identification = identify_vcf_file( HT29_vcf_file )
+identification = identify_vcf_files(HT29_vcf_file)
 }

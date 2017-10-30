@@ -6,7 +6,7 @@
 \usage{
 calculate_similarity_results(sim_list, sim_list_stats, found_mut_mapping,
   minimum_matching_mutations, p_value, q_value, confidence_score,
-  vcf_fingerprint, panels, list_of_cls)
+  vcf_fingerprint, panels)
 }
 \arguments{
 \item{sim_list}{Contains reference mutation data}
@@ -27,8 +27,6 @@ default 3.0}
 \item{vcf_fingerprint}{The start and end positions of variants in the query}
 
 \item{panels}{The reference libraries}
-
-\item{list_of_cls}{List of cancer cell lines}
 }
 \value{
 Results table

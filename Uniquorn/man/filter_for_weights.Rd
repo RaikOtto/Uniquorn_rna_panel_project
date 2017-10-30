@@ -5,11 +5,11 @@
 \title{filter_for_weights}
 \usage{
 filter_for_weights( 
-mutational_weight_inclusion_threshold,
-ref_gen,
-verbose,
-sim_list,
-sim_list_stats)
+    mutational_weight_inclusion_threshold,
+    ref_gen,
+    verbose,
+    sim_list,
+    sim_list_stats)
 }
 \arguments{
 \item{mutational_weight_inclusion_threshold}{Lower bound for mutational weight to be 

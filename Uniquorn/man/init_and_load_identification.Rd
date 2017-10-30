@@ -18,10 +18,6 @@ n_threads)
 associated with a reference genome version. Default: GRCH37}
 
 \item{vcf_file}{Path to vcf_file}
-
-\item{output_file}{Path to output report file}
-
-\item{n_threads}{Specifies number of threads to be used}
 }
 \value{
 Three file path instances and the fingerprint

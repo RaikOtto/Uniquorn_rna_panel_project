@@ -2,25 +2,23 @@
 % Please edit documentation in R/Show_database_information.R
 \name{show_contained_mutations_for_cl}
 \alias{show_contained_mutations_for_cl}
-\title{show_contained_mutations_for_cl}
+\title{Mutations In Cancer Cell Line}
 \usage{
-show_contained_mutations_for_cl( 
-name_cl, 
+show_contained_mutations_for_cl(name_cl, 
 ref_gen)
 }
 \arguments{
-\item{name_cl}{Name of the cancer cell line sample stored in the database}
+\item{name_cl}{a character vector giving the identifier of the cancer cell line for which mutations will be shown.}
 
-\item{ref_gen}{Reference genome version}
+\item{ref_gen}{a character vector specifying the reference genome version. All training sets are associated with a reference genome version. Default is \code{"GRCH37"}.}
 }
 \value{
-R table which contains all mutations associated with the defined cancer cell line and reference genome
+R table which contains all mutations associated with the defined cancer cell line and reference genome.
 }
 \description{
-Show all mutations present in the database for a selected cancer cell line and reference Genome
+This function shows all mutations present in the database for a selected cancer cell line and reference genome.
 }
 \examples{
-SK_OV_3_CELLMINER_mutations = show_contained_mutations_for_cl(
-name_cl = "SK_OV_3_CELLMINER_mutations",
-ref_gen = "GRCH37")
+show_contained_mutations_for_cl(name_cl = "SK_OV_3_CELLMINER_mutations",
+                                ref_gen = "GRCH37")
 }

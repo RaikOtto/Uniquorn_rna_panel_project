@@ -29,7 +29,7 @@ Type: Package
 Maintainer: 'Raik Otto' <raik.otto@hu-berlin.de>
 Date: 2017-03-01
 Author: Raik Otto
-RoxygenNote: 6.0.1
+RoxygenNote: 6.0.1.9000
 NeedsCompilation: no
 Packaged: 2016-01-06 17:31:35 UTC; raikotto
 Suggests: 
@@ -44,3 +44,4 @@ biocViews:
     WholeGenome,
     ExomeSeq
 VignetteBuilder: knitr
+Encoding: UTF-8
