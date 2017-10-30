@@ -1,63 +1,81 @@
 #' Remove Cancer Cell Line
 #'
-#' This function removes a cancer cell line training fingerprint (VCF file) from the database. The names of all training sets can 
+#' This function removes a cancer cell line training fingerprint (VCF file) from 
+#' the database. The names of all training sets can 
 #' be seen by using the function \code{show_contained_cls}.
 #' 
-#' @param name_cl a character vector giving the names of the cancer cell line
+#' @param ccl_names A character vector giving the names of the cancer cell line
 #'  identifiers to be removed. Can be one or many
-#' @param ref_gen a character vector specifying the reference genome version.
+#' @param ref_gen A character vector specifying the reference genome version.
 #'  All training sets are associated with a reference genome version. 
 #'  Default is \code{"GRCH37"}.
-#' @param test_mode is this a test? Just for internal use
-#' @import DBI
+#' @param library_name Name of the library from which the ccls are to be removed
+#' @param test_mode Signifies if this is a test run
+#' @import GenomicRanges stringr IRanges
 #' @usage 
-#' remove_custom_vcf_from_database(name_cl, ref_gen = "GRCH37", test_mode = FALSE)
+#' remove_ccls_from_database(ccl_names, ref_gen = "GRCH37", test_mode = FALSE)
 #' @examples 
-#' remove_custom_vcf_from_database(name_cl = "HT29_CELLMINER",
+#' remove_ccls_from_database(ccl_names = c("HT29_CELLMINER"),
 #'                                 ref_gen = "GRCH37",
 #'                                 test_mode = TRUE)
 #' @return Message that indicates whether the removal was succesful.
 #' @export
-remove_custom_vcf_from_database = function( 
-    name_cl,
+remove_ccls_from_database = function( 
+    ccl_names,
     ref_gen = "GRCH37",
+    library_name,
     test_mode = FALSE
 ){
     message("Reference genome: ", ref_gen)
+  
+    if (length(library_name)> 1)
+        stop("Cannot process more than one library per run, please 
+            provide single libraries.")
     
-    sim_list_stats = initiate_db_and_load_data(request_table = "sim_list_stats",
-                                               subset = "*", ref_gen = ref_gen)
-    sim_list       = initiate_db_and_load_data(request_table = "sim_list",
-                                               subset = c("FINGERPRINT", "CL"),
-                                               ref_gen = ref_gen)
-    for(cl_id in name_cl){
+    g_mat = read_mutation_grange_objects(
+        library_name = library_name,
+        ref_gen = ref_gen,
+        mutational_weight_inclusion_threshold = 0
+    )
+    
+    member_ccls = as.character(GenomicRanges::mcols(g_mat)$Member_CCLs)
+    
+    for (ccl_id in ccl_names){
       
-      cl_id = toupper(cl_id)
-      if(any(sim_list_stats[, CL == cl_id])){
-        message(paste0("Found CL ", cl_id,
-                       ", removing from database."))
-      } else {
-        stop(paste0("No training set for cancer cell line found for the name: ",
-                    cl_id))
-      }
-    sim_list = sim_list[CL != cl_id]
+        cl_lib = paste(ccl_id, library_name, sep = "_")
+        message(paste("Deleting ", cl_lib))
+        search_term = paste(c(
+            paste( "(",cl_lib,",",")", sep = "" ),
+            paste( "(",cl_lib,")", sep = "" )
+        ),collapse= "|")
+        
+        member_ccls = sapply(
+            member_ccls, 
+            FUN = str_replace_all, 
+            pattern = search_term,
+            replacement = ""
+        )
     }
-    message("Removed all samples. Re-calculating the Cancer cell line data")
     
-    res_vec = re_calculate_cl_weights(sim_list = sim_list, ref_gen = ref_gen)
+    non_empty_vec = member_ccls != ""
+    g_mat = g_mat[non_empty_vec]
+    member_ccls = member_ccls[ non_empty_vec ]
+    GenomicRanges::mcols(g_mat)$member_ccls = member_ccls
     
-    message("Finished aggregating, saving to database")
+    message(paste(
+      c( "Excluded ",
+         as.character(sum(non_empty_vec == FALSE)),
+         " variant entries after removal."),
+        collapse = "", sep ="" )
+    )
     
-    write_data_to_db(content_table = as.data.frame(res_vec[1]),
-                     "sim_list",
-                     ref_gen = ref_gen, 
-                     overwrite = TRUE,
-                     test_mode = test_mode)
-    write_data_to_db(content_table = as.data.frame(res_vec[2]),
-                     "sim_list_stats",
-                     ref_gen = ref_gen,
-                     overwrite = TRUE, 
-                     test_mode = test_mode)
+    message(paste0("Finished removing all ccls. Recalculating DB"))
+    
+    write_w0_and_split_w0_into_lower_weights(
+        g_mat = g_mat,
+        ref_gen = ref_gen,
+        library_name = library_name
+    )
     
     message(paste0("Finished removing all cancer cell lines"))
 }

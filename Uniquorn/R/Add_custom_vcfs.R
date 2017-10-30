@@ -111,8 +111,9 @@ parse_vcf_query_into_db = function(
     test_mode = FALSE
 ){
     
-    cl_id = mcols( g_query )$Member_CCLs[1]
-    cl_id = str_replace_all( cl_id, pattern = paste("_",library_name,sep = ""),"" )
+    cl_id = GenomicRanges::mcols( g_query )$Member_CCLs[1]
+    cl_id = str_replace_all( cl_id, 
+        pattern = paste("_",library_name,sep = ""),"" )
     
     cl_data =  show_contained_cls( verbose = FALSE)
     if (cl_id %in% cl_data$CCL[ cl_data$Library == library_name  ] ){
@@ -134,8 +135,9 @@ parse_vcf_query_into_db = function(
     
     if ( "Member_CCLs" %in% names(mcols(g_mat))  ){
       
-        g_mat_new = unique(c( GenomicRanges::GRanges(g_mat), GenomicRanges::GRanges(g_query)))
-        fo_g_mat = findOverlaps(
+        g_mat_new = unique(c( GenomicRanges::GRanges(g_mat), 
+            GenomicRanges::GRanges(g_query)))
+        fo_g_mat = IRanges::findOverlaps(
             query = g_mat,
             subject = g_mat_new,
             select = "arbitrary",
@@ -147,9 +149,10 @@ parse_vcf_query_into_db = function(
         g_mat_new = unique(GenomicRanges::GRanges(g_query))
         fo_g_mat = GenomicRanges::GenomicRangesList()
     }
-    mcols(g_mat_new)$Member_CCLs = rep("",nrow(mcols(g_mat_new)))
+    GenomicRanges::mcols(g_mat_new)$Member_CCLs = 
+        rep("",nrow(GenomicRanges::mcols(g_mat_new)))
     
-    fo_query = findOverlaps(
+    fo_query = IRanges::findOverlaps(
         query = g_query,
         subject = g_mat_new,
         select = "arbitrary",
@@ -164,20 +167,20 @@ parse_vcf_query_into_db = function(
             return(ccl_ids)
     }))
       
-    mcols( g_mat_new )$Member_CCLs[fo_query] = old_members
+    GenomicRanges::mcols( g_mat_new )$Member_CCLs[fo_query] = old_members
     
     if ( "Member_CCLs" %in% names(mcols(g_mat)) )
     
-        mcols( g_mat_new )$Member_CCLs[fo_g_mat]   =
+          GenomicRanges::mcols( g_mat_new )$Member_CCLs[fo_g_mat]   =
           paste( 
-            mcols( g_mat_new )$Member_CCLs[fo_g_mat],
-            elementMetadata(g_mat)$Member_CCLs, sep = ","
+              mcols( g_mat_new )$Member_CCLs[fo_g_mat],
+              elementMetadata(g_mat)$Member_CCLs, sep = ","
           )
     
     
-    mcols( g_mat_new )$Member_CCLs = stringr::str_replace( 
-      mcols( g_mat_new )$Member_CCLs,
-      pattern = "^,",""
+    GenomicRanges::mcols( g_mat_new )$Member_CCLs = stringr::str_replace( 
+        GenomicRanges::mcols( g_mat_new )$Member_CCLs,
+        pattern = "^,",""
     )
     g_mat = g_mat_new
     
