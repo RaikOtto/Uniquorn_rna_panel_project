@@ -55,8 +55,8 @@ for( i_file  in cellminer_raw_samples){
 }
 
 
-#i_files = list.files("~/Uniquorn_data/benchmark_vcf_files/raw_files/",pattern = ".vcf",full.names = T)
-i_files = list.files("~/Uniquorn_data/benchmark_vcf_files/panel_ident_files_regularized/0.5/",pattern = ".ident.tsv",full.names = T,recursive = F)
+i_files = list.files("~/Uniquorn_data/benchmark_vcf_files/raw_files/",pattern = ".vcf",full.names = T)
+#i_files = list.files("~/Uniquorn_data/benchmark_vcf_files/panel_ident_files_regularized/0.5/",pattern = ".ident.tsv",full.names = T,recursive = F)
 
 for(i_file in i_files){
   
@@ -83,3 +83,8 @@ for(i_file in i_files){
     file.rename(i_file,i_file_mod)
 }
 
+sum( str_detect(i_files, pattern = ".GDC.") )
+sum( str_detect(i_files, pattern = ".EGA.") )
+sum( str_detect(i_files, pattern = ".CELLMINER.") )
+sum( str_detect(i_files, pattern = ".COSMIC.") )
+sum( str_detect(i_files, pattern = ".CCLE.") )

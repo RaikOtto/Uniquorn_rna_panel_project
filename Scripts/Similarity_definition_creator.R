@@ -32,7 +32,7 @@ all_cls = str_replace_all(all_cls, pattern =
     paste(c(library_names,"\\.","vcf"), collapse = "|",sep = ""),"")
 
 identifier_plane = str_replace_all(all_cls, pattern = 
-    paste(c("\\_","\\-"), collapse = "|",sep = ""),
+    paste(c("\\_","\\-","\\(","\\)"), collapse = "|",sep = ""),
     "")
 identifier_plane = str_to_upper(identifier_plane)
 # all

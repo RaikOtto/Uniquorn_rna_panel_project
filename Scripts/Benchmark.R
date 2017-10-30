@@ -16,9 +16,6 @@ args = parser$parse_args()
 inclusion_weight     = args$inclusion_weight
 panel_mode           = args$panel_mode
 
-#inclusion_weight      = 0.0
-#panel_mode            = FALSE
-
 p_value               = .05
 minimum_matching_mutations = 0
 run_identification   = F
@@ -187,7 +184,9 @@ parse_identification_data = function( b_file ){
   
 }
 
-#inclusion_weight = 0
+#inclusion_weight      = 0.0
+#panel_mode            = FALSE
+
 run_benchmark(
     inclusion_weight,
     minimum_matching_mutations = minimum_matching_mutations
