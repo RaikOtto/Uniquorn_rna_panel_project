@@ -45,7 +45,7 @@ build_path_variables = function(
   
   raw_files_path                <<- paste( anchor, "raw_files", sep ="/" )
   
-  known_id_file_path            <<- paste( anchor, "known_relationships.tab", sep ="/" )
+  known_id_file_path            <<- "~/Uniquorn_rna_panel_project/Misc/known_relationships.tsv"
   known_id_table                <<- read.table( known_id_file_path, sep ="\t", header = TRUE, fill = TRUE)
   id_pairs                      <<- c( paste( known_id_table$Cl1, known_id_table$Cl2, sep ="_" ), paste( known_id_table$Cl2, known_id_table$Cl1, sep ="_" ) )
 

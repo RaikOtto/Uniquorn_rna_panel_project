@@ -92,6 +92,8 @@ parse_identification_data = function( b_file ){
     ### new
     
     gold_cls = str_to_upper(as.character(gold_t$CL_plane))
+    gold_cls = str_to_replace_all( gold_cls, pattern = "\\(|\\)")
+    
     ident_cls = str_to_upper(as.character(b_name_plane))
     ident_cls = str_replace_all(ident_cls, pattern = "\\.","")
     identifier_index = which( gold_cls == ident_cls )
