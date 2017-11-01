@@ -23,7 +23,8 @@ show_contained_cls = function(
 ){
     
     package_path = system.file("", package = "Uniquorn")
-    library_path =  paste( c( package_path,"/Libraries/",ref_gen), sep ="", collapse= "")
+    library_path =  paste( c( package_path,"/Libraries/",ref_gen),
+        sep ="", collapse= "")
   
     if ( ! dir.exists( library_path ))
         stop("No libraries found!")
@@ -42,9 +43,11 @@ show_contained_cls = function(
     
     for (library_name in libraries){
        
-        stats_path = paste( c( library_path,"/",library_name,"/CCL_List_Uniquorn_DB.RData"), sep ="", collapse= "")
+        stats_path = paste( c( library_path,"/",library_name,
+            "/CCL_List_Uniquorn_DB.RData"), sep ="", collapse= "")
         g_library = readRDS(stats_path)
-        cl_id_no_library = str_replace_all( g_library$CCL, pattern = paste("_",library_name,sep = ""),"" )
+        cl_id_no_library = str_replace_all( g_library$CCL, pattern = 
+            paste("_",library_name,sep = ""),"" )
         g_library$CCL = cl_id_no_library
         
         if (verbose)
@@ -59,79 +62,153 @@ show_contained_cls = function(
     return(ccls_all)
 }
 
-#' All Mutations For Reference Genome
+#' All variants contained in reference library
 #' 
-#' This function shows all training-set mutations for a selected reference genome, i.e. the mutations that are being used
-#' for identification of a query cancer cell line.
+#' This function shows all variants contained in a reference library
+#' for a given inclusion weight. Default inclusion weight is 0 
+#' (all variants)
 #' 
-#' @param ref_gen a character vector specifying the reference genome version. All training sets are associated with a reference genome version. Default is \code{"GRCH37"}.
+#' @param ref_gen a character vector specifying the reference genome 
+#' version. All training sets are associated with a reference genome version. 
+#' Default is \code{"GRCH37"}.
+#' @param library_name Name of the reference library
+#' @param mutational_weight_inclusion_threshold Include only mutations 
+#' with a weight of at least x. Range: 0.0 to 1.0. 1= unique to CL. 
+#' ~0 = found in many CL samples. 
 #' @usage 
-#' show_contained_mutations(ref_gen)
-#' @examples 
-#' show_contained_mutations(ref_gen = "GRCH37")
-#' @return R Table which contains all mutations associated with a specified reference genome.
+#' show_contained_variants_in_library(ref_gen)
+#' @examples
+#' show_contained_variants_in_library(
+#' ref_gen = "GRCH37",
+#' library_name = "CELLMINER",
+#' mutational_weight_inclusion_threshold = 0)
+#' @return Returns a GenomicRanges object that contains the variants
 #' @export
-show_contained_mutations = function(ref_gen = "GRCH37"){
+show_contained_variants_in_library = function(
+    ref_gen = "GRCH37",
+    library_name,
+    mutational_weight_inclusion_threshold = 0
+){
   
-    message("Reference genome: ", ref_gen)
+    message(paste( 
+      c("Entered reference genome: ", ref_gen, 
+        " entered library name: ", library_name),
+        collapse= "",
+        sep = "")
+    )
     
-    sim_list = initiate_db_and_load_data(request_table = "sim_list",
-                                             subset = c("FINGERPRINT", "CL"),
-                                             ref_gen = ref_gen)
-    
-    message("Found ", nrow(sim_list), " many cancer cell lines associated",
-            " mutations for reference genome ", ref_gen, ".")
+    package_path = system.file("", package = "Uniquorn")
+    library_path =  paste( c( package_path,"/Libraries/",ref_gen), sep ="", collapse= "")
   
-    return(sim_list)  
+    if ( ! dir.exists( library_path ))
+        stop("No libraries found!")
+  
+    libraries = list.dirs(library_path,full.names = F)
+    libraries = libraries[ libraries != ""]
+    
+    if (! (library_name %in% libraries ))
+        stop("Could not find library")
+    
+    g_mat = read_mutation_grange_objects(
+        library_name = library_name,
+        ref_gen = ref_gen,
+        mutational_weight_inclusion_threshold = 
+          mutational_weight_inclusion_threshold
+    )
+  
+    return(g_mat)
 }
 
-#' Mutations In Cancer Cell Line
+#' Variants In Cancer Cell Line
 #' 
-#' This function shows all mutations present in the database for a selected cancer cell line and reference genome.
+#' This function shows all mutations present in the database 
+#' for a selected cancer cell line and reference genome.
 #' 
-#' @param name_cl a character vector giving the identifier of the cancer cell line for which mutations will be shown.
-#' @param ref_gen a character vector specifying the reference genome version. All training sets are associated with a reference genome version. Default is \code{"GRCH37"}.
-#' @import DBI
+#' @param name_cl a character vector giving the identifier 
+#' of the cancer cell line for which mutations will be shown.
+#' @param ref_gen a character vector specifying the reference 
+#' genome version. All training sets are associated with a 
+#' reference genome version. Default is \code{"GRCH37"}.
+#' @param library_name Name of the reference library 
+#' @param mutational_weight_inclusion_threshold Include only mutations 
+#' with a weight of at least x. Range: 0.0 to 1.0. 1= unique to CL. 
+#' ~0 = found in many CL samples. 
+#' @import stringr
 #' @usage 
-#' show_contained_mutations_for_cl(name_cl, 
-#' ref_gen)
+#' show_contained_variants_for_cl(name_cl, 
+#' ref_gen,
+#' library_name,
+#' mutational_weight_inclusion_threshold)
 #' @examples 
-#' show_contained_mutations_for_cl(name_cl = "SK_OV_3_CELLMINER_mutations",
-#'                                 ref_gen = "GRCH37")
-#' @return R table which contains all mutations associated with the defined cancer cell line and reference genome.
+#' show_contained_variants_for_cl(
+#' name_cl = "SK_OV_3",
+#' ref_gen = "GRCH37",
+#' library_name = "CELLMINER",
+#' mutational_weight_inclusion_threshold = 0)
+#' @return R table which contains all mutations associated with the 
+#' defined cancer cell line and reference genome.
 #' @export
-show_contained_mutations_for_cl = function(name_cl, ref_gen = "GRCH37"){
+show_contained_variants_for_cl = function(
+    name_cl,
+    ref_gen = "GRCH37",
+    library_name,
+    mutational_weight_inclusion_threshold = 0
+){
 
-    message("Reference genome: ", ref_gen)
+    message(paste( 
+      c("Entered reference genome: ", ref_gen, 
+        " entered library name: ", library_name,
+        " entered name of ccl: ", name_cl
+      ),
+      collapse= "",
+      sep = "")
+    )
     
-    sim_list = initiate_db_and_load_data(request_table = "sim_list",
-                                       subset = c("FINGERPRINT", "CL"),
-                                       ref_gen = ref_gen)
-    sim_list = sim_list[CL %like% name_cl]
-
-    if (nrow(sim_list) == 0){
-        message("Could not find the cancer cell line ", name_cl,
-                " in the database.")
-    } else {
-        message("Found ", nrow(sim_list), " many mutations for cancer cell line",
-                name_cl, " for reference genome ", ref_gen )
-    }
-    return(sim_list)
+    package_path = system.file("", package = "Uniquorn")
+    library_path =  paste( c( package_path,"/Libraries/",ref_gen), sep ="", collapse= "")
+    
+    if ( ! dir.exists( library_path ))
+      stop("No libraries found!")
+    
+    libraries = list.dirs(library_path,full.names = F)
+    libraries = libraries[ libraries != ""]
+    
+    if (! (library_name %in% libraries ))
+      stop("Could not find library")
+    
+    g_mat = read_mutation_grange_objects(
+      library_name = library_name,
+      ref_gen = ref_gen,
+      mutational_weight_inclusion_threshold = 
+        mutational_weight_inclusion_threshold
+    )
+    
+    g_query_index = stringr::str_detect(g_mat$Member_CCLs, pattern = name_cl)
+    g_query = g_mat[g_query_index,]
+    
+    return(g_query)
 }
 
 #' Cancer Cell Lines With Specific Mutation
 #' 
-#' This function displays all cancer cell lines in the database which contain a specified mutation. Closed interval coordinates. Format mutation: CHR_START_STOP, e.g. 1_123_123.
+#' This function displays all cancer cell lines in the database which 
+#' contain a specified mutation. Closed interval coordinates. 
+#' Format mutation: CHR_START_STOP, e.g. 1_123_123.
 #' 
-#' @param mutation_name a character vector giving the name of the mutation in the format CHROMOSOME_START_STOP, e.g. \code{"11_244501_244510"}.
-#' @param ref_gen a character vector specifying the reference genome version. All training sets are associated with a reference genome version. Default is \code{"GRCH37"}.
+#' @param mutation_name a character vector giving the name of the mutation 
+#' in the format CHROMOSOME_START_STOP, e.g. \code{"11_244501_244510"}.
+#' @param ref_gen a character vector specifying the reference genome 
+#' version. All training sets are associated with a reference genome 
+#' version. Default is \code{"GRCH37"}.
 #' @usage 
 #' show_which_cls_contain_mutation(mutation_name, ref_gen)
 #' @examples 
 #' show_which_cls_contain_mutation(mutation_name = "10_103354427_103354427",
 #'                                 ref_gen = "GRCH37")
 #' @import DBI 
-#' @return R table which contains all cancer cell line samples which contain the specified mutation with respect to the specified reference genome version.
+#' @return R table which contains all cancer cell line samples which 
+#' contain the specified mutation with respect to the specified 
+#' reference genome version.
 #' @export
 show_which_cls_contain_mutation = function(mutation_name, ref_gen = "GRCH37"){
   
@@ -159,7 +236,8 @@ read_library_names = function(
 ){
   
     package_path = system.file("", package = "Uniquorn")
-    library_path =  paste( c( package_path,"/Libraries/",ref_gen,"/"), sep ="", collapse= "")
+    library_path =  paste( c( package_path,"/Libraries/",ref_gen,"/"), 
+          sep ="", collapse= "")
     
     library_names = list.dirs(library_path, full.names = F)
     library_names = library_names[library_names!= ""]
