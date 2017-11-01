@@ -12,6 +12,7 @@ minimum_matching_mutations = 0,
 mutational_weight_inclusion_threshold = 0.5,
 write_xls = FALSE,
 output_bed_file = FALSE,
+robust_mode = FALSE,
 manual_identifier_bed_file = "",
 verbose = TRUE,
 q_value = .05,
@@ -38,6 +39,10 @@ as xls file for easier reading}
 
 \item{output_bed_file}{If BED files for IGV visualization should be 
 created for the Cancer Cell lines that pass the threshold}
+
+\item{robust_mode}{Improves specificity at the cost of sensitivity when
+reference and query CCL are based on heterogeneous technologies, in 
+particular with respect to the amount of variants available.}
 
 \item{manual_identifier_bed_file}{Manually enter a vector of CL 
 name(s) whose bed files should be created, independently from 
