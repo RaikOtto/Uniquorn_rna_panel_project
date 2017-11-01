@@ -28,6 +28,10 @@ remove_ccls_from_database = function(
 ){
     message("Reference genome: ", ref_gen)
   
+    package_path = system.file("", package = "Uniquorn")
+    library_path =  paste( c( package_path,"/Libraries/",ref_gen),
+                         sep ="", collapse= "")
+  
     if (length(library_name)> 1)
         stop("Cannot process more than one library per run, please 
             provide single libraries.")
@@ -41,10 +45,10 @@ remove_ccls_from_database = function(
     for (ccl_id in ccl_names){
       
         cl_lib = paste(ccl_id, library_name, sep = "_")
-        message(paste("Deleting ", cl_lib))
+        message(paste("Deleting ", ccl_id))
         search_term = paste(c(
-            paste( "(",cl_lib,",",")", sep = "" ),
-            paste( "(",cl_lib,")", sep = "" ),
+            paste( "(",ccl_id,",",")", sep = "" ),
+            paste( "(",ccl_id,")", sep = "" ),
             "(.*,$)"
         ),collapse= "|")
         
@@ -62,7 +66,7 @@ remove_ccls_from_database = function(
             g_library = data.frame(g_library, stringsAsFactors = F)
             g_library = g_library[ g_library$CCL!= "",]
             g_library = g_library[!is.na(g_library$CCL),]
-            g_library = g_library[g_library$CCL != cl_lib,]
+            g_library = g_library[g_library$CCL != ccl_id,]
             saveRDS(g_library,file = stats_path)
         }
     }
@@ -106,7 +110,7 @@ remove_ccls_from_database = function(
 #'  All training sets are associated with a reference genome version. 
 #'  Default is \code{"GRCH37"}.
 #' @param test_mode is this a test? Just for internal use.
-#' @import DBI
+#' @import stringr
 #' @usage 
 #' remove_library_from_database(library, ref_gen = "GRCH37", test_mode = FALSE)
 #' @examples 
@@ -122,34 +126,7 @@ remove_library_from_database = function(
 ){
   message("Reference genome: ", ref_gen)
   
-  sim_list_stats = initiate_db_and_load_data(request_table = "sim_list_stats",
-                                             subset = "*", ref_gen = ref_gen)
-  sim_list       = initiate_db_and_load_data(request_table = "sim_list",
-                                             subset = c("FINGERPRINT", "CL"),
-                                             ref_gen = ref_gen)
-  
-  if(any(sim_list_stats[, CL %like% library])){
-    message(paste0("Found ", sum(sim_list_stats[, CL %like% library])), 
-                   " training sets for library ", library, ". Removing all.")
-  } else {
-    stop("No training set for library ", library, " found in database.")
-  }
-  sim_list = sim_list[!(CL %like% library)]
-
-  message("Removed all samples. Re-calculating the Cancer cell line data.")
-  res_vec = re_calculate_cl_weights(sim_list = sim_list, ref_gen = ref_gen)
-  message("Finished aggregating, saving to database.")
-  
-  write_data_to_db(content_table = as.data.frame(res_vec[1]),
-                   "sim_list",
-                   ref_gen = "GRCH37", 
-                   overwrite = TRUE,
-                   test_mode = test_mode)
-  write_data_to_db(content_table = as.data.frame(res_vec[2]),
-                   "sim_list_stats",
-                   ref_gen = "GRCH37",
-                   overwrite = TRUE, 
-                   test_mode = test_mode)
+  ###
   
   message("Removing library ", library, " and all associated",
           " cancer cell lines done.")

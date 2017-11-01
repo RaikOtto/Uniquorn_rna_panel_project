@@ -48,7 +48,7 @@ add_p_q_values_statistics = function(
         background_cls_traces = sum(white_balls_found >= mean(white_balls_found))
         
         if ( robust_mode ) {
-            message("Using robust identification mode")
+            
             likelihood_found = ( white_balls_possible / sum(white_balls_possible) ) **
                 (white_balls_found / sum(white_balls_found))
         } else {

@@ -74,6 +74,9 @@ identify_vcf_file = function(
         Library = as.character()
     )
     
+    if (robust_mode)
+        message("Using robust identification mode")
+    
     for( library_name in library_names ){
         
         options(warn=-1)

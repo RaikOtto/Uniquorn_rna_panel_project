@@ -13,7 +13,7 @@
 #' @param n_threads an integer specifying the number of threads to be used.
 #' @param test_mode Is this a test? Just for internal use
 #' @return Message wheather the adding was successful
-#' @import BiocParallel GenomicRanges IRanges
+#' @import doParallel GenomicRanges IRanges
 #' @usage 
 #' add_new_ccls_to_ccl_library(vcf_input_files, ref_gen = "GRCH37", library = "CUSTOM",
 #'                            n_threads = 1, test_mode = FALSE)
