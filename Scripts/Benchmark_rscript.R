@@ -34,6 +34,7 @@ run_identification = function(
     type_benchmark = type_benchmark,
     ref_gen,
     panel_mode,
+    robust_mode,
     number_threads
 ){
   
@@ -54,7 +55,7 @@ run_identification = function(
     )
     
     ### !!! ###
-    
+    /usr/bin/
     raw_files_path = "~/Uniquorn_data/benchmark_vcf_files/raw_files/"
     
     build_path_variables( 
@@ -98,7 +99,8 @@ run_identification = function(
                 identify_vcf_file(
                     i_file,
                     mutational_weight_inclusion_threshold = inclusion_weight,
-                    output_file = out_path_ident_file
+                    output_file = out_path_ident_file,
+                    robust_mode = robust_mode
                 )
             }
         }
@@ -120,7 +122,8 @@ run_identification = function(
                 identify_vcf_file(
                     i_file,
                     mutational_weight_inclusion_threshold = inclusion_weight,
-                    output_file = out_path_ident_file
+                    output_file = out_path_ident_file,
+                    robust_mode = robust_mode
                 )
             }
         }
