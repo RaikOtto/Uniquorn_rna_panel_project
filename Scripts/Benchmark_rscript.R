@@ -55,7 +55,7 @@ run_identification = function(
     )
     
     ### !!! ###
-    /usr/bin/
+    
     raw_files_path = "~/Uniquorn_data/benchmark_vcf_files/raw_files/"
     
     build_path_variables( 
