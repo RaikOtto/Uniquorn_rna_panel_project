@@ -20,6 +20,7 @@ p_value               = .05
 minimum_matching_mutations = 0
 run_identification   = F
 auc_mode             = FALSE
+regex_term = "\\(|\\*|\\-|\\-|\\_|\\+|\\-|\\)|\\-|\\:|\\[|\\]"
 
 run_benchmark = function(
     inclusion_weight = inclusion_weight, 
@@ -28,8 +29,11 @@ run_benchmark = function(
   
     source("~/Uniquorn_rna_panel_project/Scripts/utility.R")
     
+    inclusion_weight_path = as.character( inclusion_weight )
+    inclusion_weight_path = str_replace( as.character( inclusion_weight_path ), pattern ="\\.", "_" )
+  
     build_path_variables(
-      inclusion_weight = inclusion_weight,
+      inclusion_weight = inclusion_weight_path,
       only_first = FALSE,
       exclude_self = FALSE,
       run_identification = FALSE,
@@ -81,12 +85,12 @@ parse_identification_data = function( b_file ){
     
     b_name = tail(unlist(str_split(b_file, pattern = "/")  ),1)
     b_name_plane = str_replace( b_name, pattern = paste( c(".",source_file,".ident.tsv"), sep ="", collapse = ""),"")
-    b_name_plane = str_replace_all( b_name_plane, pattern = ,"[\\(\\*\\-\\-\\_\\+\\-\\)-]", "")
+    b_name_plane = str_replace_all( b_name_plane, pattern = regex_term, "")
     b_name_full = str_replace( str_replace( b_name, pattern = ".ident.tsv",""), "\\.", "_" )
     query_vec = rep(b_name_full, nrow(b_table))
     
     b_name_ccls = str_to_upper( as.character(b_table$CCL) )
-    b_name_ccls_plane = str_to_upper( as.character(sapply( b_name_ccls, FUN = str_replace_all, pattern = "[\\(\\*\\-\\_\\+\\)]","")) )
+    b_name_ccls_plane = str_to_upper( as.character(sapply( b_name_ccls, FUN = str_replace_all, pattern = regex_term,"")) )
     b_name_ccls_full = paste( as.character(b_name_ccls_plane), b_table$Library, sep ="_" )
     
     ### new
@@ -109,7 +113,7 @@ parse_identification_data = function( b_file ){
     for(i in 1:length(identical_cls)){
         ident_ident <<- c( ident_ident, paste( c( head( as.character( unlist(split_ident[i])), ident_len[i] - 1)),collapse= "", sep ="" ) )
     }
-    ident_ident = str_to_upper( as.character(sapply( ident_ident, FUN = str_replace_all, pattern = "[\\(\\*\\-\\_\\+\\)]","")) )
+    ident_ident = str_to_upper( as.character(sapply( ident_ident, FUN = str_replace_all, pattern = regex_term,"")) )
     ident_ident = paste(ident_ident, ident_lib, sep = "_")
     identical_cls_vec = b_name_ccls_full %in% ident_ident
     
@@ -126,7 +130,7 @@ parse_identification_data = function( b_file ){
             next()
         related_ident <<- c( related_ident, head( as.character( unlist(split_related[i])), related_len[i] - 1) )
     }
-    related_ident = str_to_upper( as.character(sapply( related_ident, FUN = str_replace_all, pattern = "[\\(\\*\\-\\_\\+\\)]","")) )
+    related_ident = str_to_upper( as.character(sapply( related_ident, FUN = str_replace_all, pattern = regex_term,"")) )
     related_ident = paste(related_ident, related_lib, sep = "_")
     
     related_cls_vec = b_name_ccls_full %in% related_ident
@@ -156,7 +160,7 @@ parse_identification_data = function( b_file ){
     for(i in 1:length(found)){
         found_ident <<- c( found_ident, head( as.character( unlist(split_found[i])), found_len[i] - 1) )
     }
-    found_ident = str_to_upper( as.character(sapply( found_ident, FUN = str_replace_all, pattern = "[\\(\\*\\-\\_\\+\\)]","")) )
+    found_ident = str_to_upper( as.character(sapply( found_ident, FUN = str_replace_all, pattern = regex_term,"")) )
     found_ident = paste(found_ident, found_lib, sep = "_")
     
     true_pos_ident  = to_be_found[ to_be_found %in% found ]

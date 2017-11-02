@@ -1,6 +1,15 @@
 #source("~/Dropbox/PhD/Uniquorn_project/Scripts/calculations_vis.R")
 library("tidyr")
 
+##
+
+abs_mat = variant_t
+abs_mat$Count = log(abs_mat$Count)
+
+# histogram
+
+aggregate( abs_mat$Count, by = list(abs_mat$Library), FUN = mean )
+aggregate( abs_mat$Count, by = list( paste(abs_mat$Library,abs_mat$Weight )) , FUN = mean )
 
 # relative counts
 
@@ -13,44 +22,14 @@ relative_plot = relative_plot + xlab("")
 relative_plot = relative_plot + theme( axis.text.x = element_text(angle = 330, vjust = 0.5) )
 relative_plot
 
-# histogram
-
-cl_mat_merge$Group = factor( cl_mat_merge$Group, levels = c("CellMiner raw","CellMiner filtered","CoSMIC raw","CoSMIC filtered","CCLE raw","CCLE filtered") )
-cl_mat_merge$Panel = factor( cl_mat_merge$Panel, levels = c("CellMiner","CoSMIC","CCLE") )
-
-vio_all = ggplot( cl_mat_merge, aes( x = Group, y = log2( as.double(Count) )  ) ) 
-vio_all = vio_all + geom_violin(alpha=0.5, aes(fill = Panel ) )
-vio_all = vio_all + geom_jitter(alpha=0.25, aes( ), position = position_jitter(width = 0.05))
-vio_all = vio_all + theme(legend.position=c(.5, .1),legend.direction="horizontal")
-vio_all = vio_all + scale_x_discrete(
-    "Amount of variants depending on their weight",
-    labels = c(
-        "CoSMIC raw" = "All","CoSMIC filtered" = "Unique","CCLE raw" = "All",
-        "CCLE filtered" = "Unique","CellMiner raw" = "All","CellMiner filtered" = "Unique"
-    )) 
-vio_all = vio_all + labs(y = "Log2 amount variants", x = "")
-vio_all = vio_all + guides(fill=guide_legend(title=NULL))
-vio_all = vio_all + scale_fill_manual( values = c("Green","#0072B2","Red") )
-vio_all
 # absolute_plot
 
-cl_count_mat = cl_count_mat %>% unite( Weight_Group, Group, Weight, sep = "_", remove = F )
-
-if ( ! ( "Count" %in% colnames( cl_abs_count_mat ) ) )
-    cl_abs_count_mat$Count = log2(as.double(cl_abs_count_mat$Count))
-
-interval_mat$Weight = factor( interval_mat$Weight )
-interval_mat$Group = factor( interval_mat$Group )
-cl_abs_count_mat$Weight = factor(cl_abs_count_mat$Weight)
-cl_abs_count_mat$Group = factor( cl_abs_count_mat$Group )
-cl_abs_count_mat$Count = as.double(cl_abs_count_mat$Count  )
-
-tidy_dist = ggplot( data = cl_abs_count_mat, aes( Weight, log2( Count ) ) )
-tidy_dist = tidy_dist + geom_boxplot(aes(fill = Group))
+tidy_dist = ggplot( data = abs_mat, aes( Weight, Count ) )
+tidy_dist = tidy_dist + geom_boxplot(aes(fill = Library))
 tidy_dist = tidy_dist + ylab("Log 2")
 tidy_dist = tidy_dist + xlab("Variant weight")
 
-tidy_dist = tidy_dist + guides(fill=guide_legend(title="Panels"))
+tidy_dist = tidy_dist + guides(fill=guide_legend(title="Libraries"))
 tidy_dist
 
 # combine plots

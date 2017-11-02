@@ -1,7 +1,4 @@
 library("stringr")
-library("BiocParallel")
-library("doParallel")
-library("foreach")
 library("devtools")
 library("argparse")
 setwd("~/Uniquorn_rna_panel_project/Uniquorn/")
@@ -39,6 +36,9 @@ run_identification = function(
 ){
   
     source("~/Uniquorn_rna_panel_project/Scripts/utility.R")
+  
+    inclusion_weight_path = as.character( inclusion_weight )
+    inclusion_weight_path = str_replace( as.character( inclusion_weight_path ), pattern ="\\.", "_" )
     
     build_path_variables( 
         inclusion_weight = inclusion_weight,

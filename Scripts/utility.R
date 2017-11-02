@@ -116,8 +116,7 @@ build_tables = function(){
   )
   
   auc_table <<- data.frame(
-    "Conf_score" = as.double(),
-    "Mutations_found" = as.integer(),
+    "P_values" = as.double(),
     "Should_be_found" = as.logical()
   )
 }

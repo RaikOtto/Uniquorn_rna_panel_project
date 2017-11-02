@@ -120,9 +120,10 @@ write.table(x = all_cls,"~//Uniquorn_rna_panel_project/Misc//Goldstandard.tsv",s
 ### two-sided 
 all_cls = as.data.frame(all_cls)
 #all_cls       = cbind( all_cls, rep("", length(all_cls[,1])) )
-
+if(exists("c"))
+    remove("c")
 merged_sim_rel = mapply(
-    c,
+    FUN=c,
     str_split( all_cls$Name_identical, "," ),
     str_split( all_cls$Related, "," ),
     SIMPLIFY=FALSE

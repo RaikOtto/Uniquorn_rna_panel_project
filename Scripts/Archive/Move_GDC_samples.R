@@ -71,16 +71,18 @@ for(i_file in i_files){
     if(str_detect(i_file,pattern = "CELLMINER")) 
         library_name = "CELLMINER"
     
-    #i_file_mod = str_replace( i_file, pattern = paste(c(".",library_name,".vcf"),collapse= "",sep =""),"")
-    i_file_mod = str_replace( i_file, pattern = paste(c(".",library_name,".ident.tsv"),collapse= "",sep =""),"")
-    i_file_mod = str_replace_all(i_file_mod, pattern = "\\.", "_")
-    #i_file_mod = paste(i_file_mod, paste(c(".",library_name,".vcf"),collapse= "",sep =""),sep = "")
-    i_file_mod = paste(i_file_mod, paste(c(".",library_name,".ident.tsv"),collapse= "",sep =""),sep = "")
-    i_file_mod = str_replace(i_file_mod,pattern = "/1_0/","/1.0/")
-    i_file_mod = str_replace(i_file_mod,pattern = "/0_5/","/0.5/")
-    i_file_mod = str_replace(i_file_mod,pattern = "/0_25/","/0.25/")
-    i_file_mod = str_replace(i_file_mod,pattern = "/0_0/","/0.0/")
-    file.rename(i_file,i_file_mod)
+    splitter = paste("\\.",library_name, sep ="")
+    plane_i_file = as.character( unlist( str_split( i_file, pattern = splitter)  ) )[1]
+    
+    ending = paste( c(
+          ".",
+          library_name,
+          ".vcf"
+          ), sep = "", collapse = ""
+    )
+    full_i_file = paste(plane_i_file, ending, sep ="" )
+    
+    file.rename(i_file,full_i_file)
 }
 
 sum( str_detect(i_files, pattern = ".GDC.") )
