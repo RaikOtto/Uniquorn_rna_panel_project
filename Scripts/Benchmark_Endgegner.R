@@ -87,17 +87,14 @@ run_small_statistics = function(
     Sensitivity = round(nr_true_positives / (nr_true_positives + nr_false_negatives),3) * 100
     print(paste(c("Sensitivity: ",Sensitivity),collapse = "",sep = ""))
     
-    TPR = round(nr_true_positives / (nr_true_positives + nr_false_positive),3) * 100
-    print(paste(c("TPR: ",TPR),collapse = "",sep = ""))
-    
-    PPV = round( nr_true_positives / ( nr_true_positives + nr_false_negatives ),3) * 100
+    PPV = round( nr_true_positives / ( nr_true_positives + nr_false_positive ),3) * 100
     print(paste(c("PPV: ",PPV),collapse = "",sep = ""))
     
     F1 = round( (2* nr_true_positives) / ((2*nr_true_positives) + nr_false_positive + nr_false_negatives) ,3) * 100
     print(paste(c("F1: ",F1),collapse = "",sep = ""))
 }
-panel_mode = FALSE
-inclusion_weight = .0
+#panel_mode = FALSE
+#inclusion_weight = 1.0
 run_small_statistics(
     inclusion_weight = inclusion_weight,
     panel_mode = panel_mode
