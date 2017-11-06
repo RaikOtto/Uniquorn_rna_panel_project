@@ -1,5 +1,7 @@
 library(stringr)
 
+regex_term = "\\(|\\*|\\-|\\-|\\_|\\+|\\-|\\)|\\-|\\:|\\[|\\]"
+
 gdc_raw_samples = list.files("~/Uniquorn_data/GDC_results//vcf_hg19//", full.names = F)
 gdc_raw_samples_path = list.files("~/Uniquorn_data/GDC_results//vcf_hg19//", full.names = T)
 
@@ -55,35 +57,30 @@ for( i_file  in cellminer_raw_samples){
 }
 
 
-i_files = list.files("~/Uniquorn_data/benchmark_vcf_files/raw_files/",pattern = ".vcf",full.names = T)
-#i_files = list.files("~/Uniquorn_data/benchmark_vcf_files/panel_ident_files_regularized/0.5/",pattern = ".ident.tsv",full.names = T,recursive = F)
+i_files = list.files("~/Uniquorn_data/benchmark_vcf_files/ident_files_regularized/1//",pattern = ".ident.tsv",full.names = T, recursive = T)
+ll_2 <<- c()
+files <<- c()
 
 for(i_file in i_files){
   
-    if(str_detect(i_file,pattern = "GDC")) 
-        library_name = "GDC"
-    if(str_detect(i_file,pattern = "EGA")) 
-        library_name = "EGA"
-    if(str_detect(i_file,pattern = "COSMIC")) 
-        library_name = "COSMIC"
-    if(str_detect(i_file,pattern = "CCLE")) 
-        library_name = "CCLE"
-    if(str_detect(i_file,pattern = "CELLMINER")) 
-        library_name = "CELLMINER"
+    filename = tail(as.character(unlist(str_split(i_file, pattern = "/"))), 1)
+    ll_2 <<- c(ll_2, filename)
     
-    splitter = paste("\\.",library_name, sep ="")
-    plane_i_file = as.character( unlist( str_split( i_file, pattern = splitter)  ) )[1]
+    #files <<- c(files, filename)
+    #lib_file = as.character(unlist(str_replace(i_file, pattern = "\\.vcf","")))
+    #library_name = tail( as.character(unlist(str_split(lib_file, pattern = "\\."))), 1 )
     
-    ending = paste( c(
-          ".",
-          library_name,
-          ".vcf"
-          ), sep = "", collapse = ""
-    )
-    full_i_file = paste(plane_i_file, ending, sep ="" )
+    #splitter = paste(c(".",library_name,".ident.tsv"), sep ="", collapse= "")
+    #splitter = paste(c(".",library_name,".vcf"), sep ="", collapse= "")
+    #plane_i_file = as.character( unlist( str_replace_all( i_file, pattern = splitter, "")  ) )
+    #plane_i_file = str_replace_all(plane_i_file, pattern = "\\.","_")
     
-    file.rename(i_file,full_i_file)
+    #full_i_file = paste(plane_i_file, splitter, sep ="" )
+    
+    #file.rename(i_file,full_i_file)
 }
+
+ll = unique((files))
 
 sum( str_detect(i_files, pattern = ".GDC.") )
 sum( str_detect(i_files, pattern = ".EGA.") )
