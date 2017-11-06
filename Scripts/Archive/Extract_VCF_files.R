@@ -20,6 +20,7 @@ library_names = Uniquorn:::read_library_names(ref_gen = "GRCH37")
 
 for (library_name in library_names){
     
+    print(library_name)
     ccl_list = Uniquorn::show_contained_ccls(ref_gen = "GRCH37")
 
     g_mat = read_mutation_grange_objects(
@@ -29,8 +30,21 @@ for (library_name in library_names){
     )
     
     member_ccls = as.character(ccl_list$CCL[ccl_list$Library == library_name])
+    member_info = as.character( g_mat$Member_CCLs )
+    member_info = as.character(sapply(member_info, FUN = function(vec){return(str_replace_all(vec,pattern = "\\[|\\]",""))}))
     
     for (ccl_name in member_ccls){
+      
+        print(ccl_name)
+        ccl_name = as.character( str_replace_all(ccl_name,pattern = "\\[|\\]","") )
+        
+        vcf_file_name = paste0(
+          c("~/Uniquorn_data/benchmark_vcf_files/raw_files_new/", ccl_name, ".",library_name,".vcf"),
+          collapse= ""
+        )
+        
+        if (file.exists(vcf_file_name))
+            next()
       
         index = str_detect(member_info, pattern = ccl_name)
         var_info = g_mat[index,]
@@ -62,11 +76,6 @@ for (library_name in library_names){
         vcf_file = matrix(rbind(header_row, vcf_file), nrow = length(chroms) + 1)
         vcf_file[1,1] = paste(head, vcf_file[1,1], sep ="")
         
-        
-        vcf_file_name = paste0(
-          c("~/Uniquorn_data/benchmark_vcf_files/raw_files_new/", ccl_name, ".",library_name,".vcf"),
-          collapse= ""
-        )
         write.table(vcf_file, file = vcf_file_name, sep = "\t", quote =F, row.names = F, col.names = F)
         
     }

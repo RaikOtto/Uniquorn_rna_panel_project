@@ -1,6 +1,6 @@
 library(stringr)
 
-regex_term = "\\(|\\*|\\-|\\-|\\_|\\+|\\-|\\)|\\-|\\:|\\[|\\]"
+regex_term = "\\(|\\*|\\-|\\-|\\_|\\+|\\-|\\)|\\-|\\:|\\[|\\]|\\."
 
 gdc_raw_samples = list.files("~/Uniquorn_data/GDC_results//vcf_hg19//", full.names = F)
 gdc_raw_samples_path = list.files("~/Uniquorn_data/GDC_results//vcf_hg19//", full.names = T)
@@ -36,7 +36,7 @@ for( i_file  in cellminer_raw_samples){
     header = vcf_t[ grep(vcf_t[,1], pattern = "^##"),]
     ##FORMAT=<ID=AD,Number=R,Type=Integer,Description="Allelic depths for the ref and alt alleles in the order listed">
     ##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Approximate read depth (reads with MQ=255 or with bad mates are filtered)">
-    ##FORMAT=<ID=GQ,Number=1,Type=Integer,Description="Genotype Quality">
+    ##FORMAT=<ID=GQ,Number=1,Type=Integer,Description=ori_files"Genotype Quality">
     ##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
     ##FORMAT=<ID=PL,Number=G,Type=Integer,Description="Normalized, Phred-scaled likelihoods for genotypes as defined in the VCF specification">
     
@@ -57,33 +57,21 @@ for( i_file  in cellminer_raw_samples){
 }
 
 
-i_files = list.files("~/Uniquorn_data/benchmark_vcf_files/ident_files_regularized/1//",pattern = ".ident.tsv",full.names = T, recursive = T)
-ll_2 <<- c()
-files <<- c()
+i_files_ori = list.files("~/Uniquorn_data/benchmark_vcf_files/GDC_vcf//",pattern = ".VCF",full.names = T, recursive = F)
 
-for(i_file in i_files){
-  
-    filename = tail(as.character(unlist(str_split(i_file, pattern = "/"))), 1)
-    ll_2 <<- c(ll_2, filename)
-    
-    #files <<- c(files, filename)
-    #lib_file = as.character(unlist(str_replace(i_file, pattern = "\\.vcf","")))
-    #library_name = tail( as.character(unlist(str_split(lib_file, pattern = "\\."))), 1 )
-    
-    #splitter = paste(c(".",library_name,".ident.tsv"), sep ="", collapse= "")
-    #splitter = paste(c(".",library_name,".vcf"), sep ="", collapse= "")
-    #plane_i_file = as.character( unlist( str_replace_all( i_file, pattern = splitter, "")  ) )
-    #plane_i_file = str_replace_all(plane_i_file, pattern = "\\.","_")
-    
-    #full_i_file = paste(plane_i_file, splitter, sep ="" )
-    
-    #file.rename(i_file,full_i_file)
-}
+file_name = as.character(sapply(i_files_ori, FUN = function(vec){return(tail(as.character(unlist(str_split(vec,pattern = "/"))),1))}))
+stem = as.character(sapply(i_files_ori, FUN = function(vec){
+   split = as.character(unlist(str_split(vec,pattern = "/")))
+   split_len = length(split)
+   return( paste( head(split, split_len-1), sep ="", collapse = "/" ) )
+}))
 
-ll = unique((files))
+i_files = str_replace(file_name, pattern = ".GDC.VCF","")
+i_files = str_replace_all(i_files, pattern = regex_term,"")
 
-sum( str_detect(i_files, pattern = ".GDC.") )
-sum( str_detect(i_files, pattern = ".EGA.") )
-sum( str_detect(i_files, pattern = ".CELLMINER.") )
-sum( str_detect(i_files, pattern = ".COSMIC.") )
-sum( str_detect(i_files, pattern = ".CCLE.") )
+i_files = str_to_upper(i_files)
+#i_files = paste(i_files, ".EGA.VCF", sep = "")
+i_files = paste(stem,i_files, sep ="/")
+
+for (i in 1:length(i_files_ori))
+    file.rename(i_files_ori[i],i_files[i])
