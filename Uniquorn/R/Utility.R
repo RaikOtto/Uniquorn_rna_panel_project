@@ -28,14 +28,14 @@ write_mutation_grange_objects = function(
             collapse = "",
             sep =""
         ),
-        showWarnings = F)
+        showWarnings = FALSE)
     dir.create(
         paste( 
             c(package_path,"/Libraries/",ref_gen,"/",library_name),
             collapse = "",
             sep =""
         ),
-        showWarnings = F
+        showWarnings = FALSE
     )
     saveRDS(g_mat,rdata_path)
 }
@@ -58,7 +58,8 @@ read_mutation_grange_objects = function(
     )
     
     if (! file.exists( rdata_path )){
-        message(paste(c("Database not found: ", rdata_path,", creating new database."),collapse = "",sep =""))
+        message(paste(c("Database not found: ", rdata_path,
+                        ", creating new database."),collapse = "",sep =""))
         g_mat = GenomicRanges::GRanges(
             seqnames = NULL,
             IRanges(
@@ -72,7 +73,7 @@ read_mutation_grange_objects = function(
             collapse = "",
             sep =""
           ),
-          showWarnings = F
+          showWarnings = FALSE
         )
         dir.create(
             paste( 
@@ -80,14 +81,14 @@ read_mutation_grange_objects = function(
                 collapse = "",
                 sep =""
             ),
-        showWarnings = F)
+        showWarnings = FALSE)
         dir.create(
             paste( 
                 c(package_path,"/Libraries/",ref_gen,"/",library_name),
                 collapse = "",
                 sep =""
             ),
-        showWarnings = F)
+        showWarnings = FALSE)
     } else {
         g_mat = readRDS(rdata_path)
     }

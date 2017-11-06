@@ -49,7 +49,8 @@ add_p_q_values_statistics = function(
         
         if ( robust_mode ) {
             
-            likelihood_found = ( white_balls_possible / sum(white_balls_possible) ) **
+            likelihood_found = ( white_balls_possible / 
+                  sum(white_balls_possible) ) **
                 (white_balls_found / sum(white_balls_found))
         } else {
             likelihood_found = white_balls_possible / sum(white_balls_possible)
@@ -76,8 +77,7 @@ add_p_q_values_statistics = function(
     }
     match_t$P_values = p_values
     match_t$P_value_sig = match_t$P_values <= p_value
-    #match_t[order(match_t$P_values,decreasing = F),]
-  
+
     return(match_t)
 }
 

@@ -1,4 +1,4 @@
-#' add_new_ccls_to_ccl_library
+#' add_custom_vcf_to_database
 #
 #' This function adds the variants of parsed custom CCLs to a monet DB instance
 #'  
@@ -15,15 +15,22 @@
 #' @return Message wheather the adding was successful
 #' @import doParallel GenomicRanges IRanges
 #' @usage 
-#' add_new_ccls_to_ccl_library(vcf_input_files, ref_gen = "GRCH37", library = "CUSTOM",
-#'                            n_threads = 1, test_mode = FALSE)
+#' add_custom_vcf_to_database(
+#'   vcf_input_files,
+#'   ref_gen = "GRCH37",
+#'   library = "CUSTOM",
+#'   n_threads = 1,
+#'   test_mode = FALSE
+#' )
 #' @examples 
 #' HT29_vcf_file = system.file("extdata/HT29.vcf.gz", package = "Uniquorn");
-#' add_new_ccls_to_ccl_library(vcf_input_files = HT29_vcf_file,
-#'                            library = "CUSTOM",
-#'                            ref_gen = "GRCH37",
-#'                            n_threads = 1,
-#'                            test_mode = TRUE)
+#' add_custom_vcf_to_database(
+#'   vcf_input_files = HT29_vcf_file,
+#'   library = "CUSTOM",
+#'   ref_gen = "GRCH37",
+#'   n_threads = 1,
+#'   test_mode = TRUE
+#' )
 #' @export
 add_custom_vcf_to_database = function(
     vcf_input_files,
@@ -77,33 +84,20 @@ add_custom_vcf_to_database = function(
     print("Finished")
 }
 
-#' write_vcf_file_to_monet_db
+#' parse_vcf_query_into_db
 #
 #' This function adds the variants of parsed custom CCLs to a monet DB instance
 #'  
-#' @param vcf_input_files a character vector containing the input vcf files.
-#'  This may be one or many vcf files.
+#' @param g_query a GenomicRanges object
 #' @param ref_gen a character string specifying the reference genome version.
 #'  All training sets are associated with a reference genome version.
 #'  Default is \code{"GRCH37"}. 
 #' @param library_name a character string giving the name of the library to add the
 #'  cancer cell lines to. Default is \code{"CUSTOM"}. 
 #'  Library name will be automatically added as a suffix to the identifier.
-#' @param n_threads an integer specifying the number of threads to be used.
 #' @param test_mode Is this a test? Just for internal use
 #' @return Message wheather the adding was successful
 #' @import GenomicRanges stringr IRanges
-#' @usage 
-#' write_vcf_file_to_monet_db(vcf_input_files, ref_gen = "GRCH37", library_name = "CUSTOM",
-#'  cl_id, n_threads = 1, test_mode = FALSE)
-#' @examples 
-#' HT29_vcf_file = system.file("extdata/HT29.vcf.gz", package = "Uniquorn");
-#' write_vcf_file_to_monet_db(vcf_input_files = HT29_vcf_file,
-#'                            library_name = "CUSTOM",
-#'                            ref_gen = "GRCH37",
-#'                            cl_id = "Test_id"
-#'                            n_threads = 1,
-#'                            test_mode = TRUE)
 parse_vcf_query_into_db = function(
     g_query,
     ref_gen = "GRCH37",

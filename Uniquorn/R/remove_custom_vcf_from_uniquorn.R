@@ -44,11 +44,11 @@ remove_ccls_from_database = function(
     
     for (ccl_id in ccl_names){
       
-        cl_lib = paste(ccl_id, library_name, sep = "_")
+        ccl_lib = paste(ccl_id, library_name, sep = "_")
         message(paste("Deleting ", ccl_id))
         search_term = paste(c(
-            paste( "(",ccl_id,",",")", sep = "" ),
-            paste( "(",ccl_id,")", sep = "" ),
+            paste( "(",ccl_lib,",",")", sep = "" ),
+            paste( "(",ccl_lib,")", sep = "" ),
             "(.*,$)"
         ),collapse= "|")
         
@@ -58,12 +58,26 @@ remove_ccls_from_database = function(
             pattern = search_term,
             replacement = ""
         ) )
+        member_ccls = str_replace_all(member_ccls,pattern = ",$","")
+
+        non_empty_vec = member_ccls != ""
+        g_mat = g_mat[non_empty_vec,]
+        member_ccls = member_ccls[ non_empty_vec ]
+        GenomicRanges::mcols(g_mat)$Member_CCLs = as.character( member_ccls )
+        
+        message(paste(
+          c( "Excluded ",
+             as.character(sum(non_empty_vec == FALSE)),
+             " variant entries after removal."),
+          collapse = "", sep ="" )
+        )
         
         if( test_mode == FALSE ){
           
-            stats_path = paste( c( library_path,"/",library_name,"/CCL_List_Uniquorn_DB.RData"), sep ="", collapse= "")
+            stats_path = paste( c( library_path,"/",library_name,
+                "/CCL_List_Uniquorn_DB.RData"), sep ="", collapse= "")
             g_library = readRDS(stats_path)
-            g_library = data.frame(g_library, stringsAsFactors = F)
+            g_library = data.frame(g_library, stringsAsFactors = FALSE)
             g_library = g_library[ g_library$CCL!= "",]
             g_library = g_library[!is.na(g_library$CCL),]
             g_library = g_library[g_library$CCL != ccl_id,]
@@ -71,19 +85,7 @@ remove_ccls_from_database = function(
         }
     }
     
-    member_ccls = str_replace(member_ccls, pattern = ",$","")
-    non_empty_vec = member_ccls != ""
-    g_mat = g_mat[non_empty_vec,]
-    member_ccls = member_ccls[ non_empty_vec ]
-    GenomicRanges::mcols(g_mat)$Member_CCLs = as.character( member_ccls )
-    
-    message(paste(
-      c( "Excluded ",
-         as.character(sum(non_empty_vec == FALSE)),
-         " variant entries after removal."),
-        collapse = "", sep ="" )
-    )
-    
+    #member_ccls = str_replace(member_ccls, pattern = ",$","")
     message(paste0("Finished removing all ccls. Recalculating DB"))
     
     if( test_mode == FALSE){

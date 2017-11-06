@@ -18,12 +18,15 @@ match_query_ccl_to_database = function(
       type = "equal"
   )
   match = IRanges::subsetByOverlaps(g_mat, g_query)
-  cl_ids = as.character(unlist(str_split(GenomicRanges::mcols(match)$Member_CCLs, pattern = "," )))
+  cl_ids = as.character(unlist(
+      str_split(GenomicRanges::mcols(match)$Member_CCLs, pattern = "," )
+  ))
   cl_ids = str_replace_all( cl_ids, pattern = paste("_",library_name,sep = ""),"" )
   
-  #sort(table(hit_ccls),decreasing = T)
-  matching_variants = sort(table(cl_ids), decreasing = T)
-  cl_ids_all = str_replace_all( GenomicRanges::mcols(g_mat)$Member_CCLs, pattern = paste("_",library_name,sep = ""),"" )
+  matching_variants = sort(table(cl_ids), decreasing = TRUE)
+  cl_ids_all = str_replace_all( 
+      GenomicRanges::mcols(g_mat)$Member_CCLs, pattern = paste("_",library_name,sep = ""),
+  "" )
   cl_ids_all = unique(as.character(unlist(str_split(cl_ids_all,pattern = ","))))
   missing_ccls = table( cl_ids_all[ !( cl_ids_all %in% names(matching_variants) ) ] )
   missing_ccls = missing_ccls - 1
@@ -37,7 +40,7 @@ match_query_ccl_to_database = function(
   
   ### add stats info
   
-  cl_data <<-  show_contained_cls( verbose = FALSE)
+  cl_data <<-  show_contained_ccls( verbose = FALSE)
   cl_data = cl_data[cl_data$Library == library_name,]
   
   switch(as.character(mutational_weight_inclusion_threshold),
@@ -50,7 +53,8 @@ match_query_ccl_to_database = function(
   )
   
   all_muts = as.character(cl_data[[weight_name]])
-  ccl_match = match( as.character(matching_variants_t$CCL), as.character(cl_data$CCL), nomatch = 0)
+  ccl_match = match( as.character(
+      matching_variants_t$CCL), as.character(cl_data$CCL), nomatch = 0)
   
   missing_libraries = unique(as.character(matching_variants_t$Library[ccl_match == 0] ) )
   
@@ -71,7 +75,7 @@ match_query_ccl_to_database = function(
       )
     }
     
-    cl_data <<-  show_contained_cls( verbose = FALSE)
+    cl_data <<-  show_contained_ccls( ref_gen = ref_gen, verbose = FALSE)
     cl_data = cl_data[cl_data$Library == library_name,]
     
     switch(as.character(mutational_weight_inclusion_threshold),
@@ -84,7 +88,9 @@ match_query_ccl_to_database = function(
     )
     
     all_muts <<- as.character(cl_data[[weight_name]])
-    ccl_match <<- match( as.character(matching_variants_t$CCL), as.character(cl_data$CCL), nomatch = 0)
+    ccl_match <<- match( as.character(
+        matching_variants_t$CCL
+    ), as.character(cl_data$CCL), nomatch = 0)
   }
   
   matching_variants_t$All_variants = all_muts[ccl_match]

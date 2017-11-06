@@ -1,4 +1,4 @@
-#' Display Contained Cancer Cell Lines
+#' show_contained_ccls
 #' 
 #' This function displays the names, amount of mutations/variations and the overall weight of the mutations of all contained cancer cell line fingerprints 
 #' for a chosen reference genome and optional library.
@@ -8,16 +8,16 @@
 #' @return R table which contains the identifiers of all cancer cell line samples
 #'  which match the specified parameters (reference genome and library).
 #' @usage 
-#' show_contained_cls(ref_gen, library = NULL)
+#' show_contained_ccls(ref_gen, library = NULL)
 #' @examples
 #' ##Show all contained cancer cell lines for reference GRCH37
-#' show_contained_cls(ref_gen = "GRCH37", verbose = TRUE)
+#' show_contained_ccls(ref_gen = "GRCH37", verbose = TRUE)
 #' 
 #' ##Show just cancer cell lines contained in library CELLMINER
-#' show_contained_cls(ref_gen = "GRCH37", library = "CELLMINER")
+#' show_contained_ccls(ref_gen = "GRCH37", library = "CELLMINER")
 #' @import GenomicRanges stringr
 #' @export
-show_contained_cls = function(
+show_contained_ccls = function(
     ref_gen = "GRCH37",
     verbose = TRUE
 ){
@@ -29,7 +29,7 @@ show_contained_cls = function(
     if ( ! dir.exists( library_path ))
         stop("No libraries found!")
     
-    libraries = list.dirs(library_path,full.names = F)
+    libraries = list.dirs(library_path,full.names = FALSE)
     libraries = libraries[ libraries != ""]
     
     ccls_all <<- data.frame(
@@ -104,7 +104,7 @@ show_contained_variants_in_library = function(
     if ( ! dir.exists( library_path ))
         stop("No libraries found!")
   
-    libraries = list.dirs(library_path,full.names = F)
+    libraries = list.dirs(library_path,full.names = FALSE)
     libraries = libraries[ libraries != ""]
     
     if (! (library_name %in% libraries ))
@@ -170,7 +170,7 @@ show_contained_variants_for_ccl = function(
     if ( ! dir.exists( library_path ))
       stop("No libraries found!")
     
-    libraries = list.dirs(library_path,full.names = F)
+    libraries = list.dirs(library_path,full.names = FALSE)
     libraries = libraries[ libraries != ""]
     
     if (! (library_name %in% libraries ))
@@ -213,7 +213,7 @@ show_contained_variants_for_ccl = function(
 #' ref_gen,
 #' library_name,
 #' mutational_weight_inclusion_threshold)
-#' @examples  chromosome = 8, start = 92030762,  end = 92030762
+#' @examples
 #' show_which_ccls_contain_variant(
 #' start = 92030762,
 #' end = 92030762,
@@ -246,7 +246,7 @@ show_which_ccls_contain_variant = function(
     if ( ! dir.exists( library_path ))
         stop("No libraries found!")
     
-    libraries = list.dirs(library_path,full.names = F)
+    libraries = list.dirs(library_path,full.names = FALSE)
     libraries = libraries[ libraries != ""]
     
     if (! (library_name %in% libraries ))
@@ -261,8 +261,6 @@ show_which_ccls_contain_variant = function(
     
     chromosome = stringr::str_to_upper(chromosome)
     chroms = stringr::str_replace( chromosome, pattern = "^CHR" , "")
-    
-    # chromosome = 8, start = 92030762,  end = 92030762
     
     g_query = GenomicRanges::GRanges(
         seqnames = c( chroms ),
@@ -299,7 +297,7 @@ read_library_names = function(
     library_path =  paste( c( package_path,"/Libraries/",ref_gen,"/"), 
           sep ="", collapse= "")
     
-    library_names = list.dirs(library_path, full.names = F)
+    library_names = list.dirs(library_path, full.names = FALSE)
     library_names = library_names[library_names!= ""]
     
     return(library_names)

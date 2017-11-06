@@ -11,8 +11,8 @@
 #' @return Loci-based DNA-mutational fingerprint of the cancer cell line
 #'  as found in the input VCF file.identify_vcf_files
 parse_vcf_file = function(
-  vcf_file,
-  ref_gen
+    vcf_file,
+    ref_gen
 ){
     switch(ref_gen,
            "GRCH37" = {ref_gen = "hg19"}
@@ -24,9 +24,10 @@ parse_vcf_file = function(
     chroms = as.character(unlist(str_replace(
       as.character(unlist(g_query@rowRanges@seqnames )),pattern = "chr|CHR","")))
     start_var = as.integer( as.character(unlist(g_query@rowRanges@ranges@start)) )
-    end_var = start_var + as.integer(as.character(unlist(g_query@rowRanges@ranges@width))) -1
+    end_var = start_var + as.integer(as.character(unlist(
+      g_query@rowRanges@ranges@width))) -1
     
-    chroms_pure = grep(chroms, pattern = "_", invert = T)
+    chroms_pure = grep(chroms, pattern = "_", invert = TRUE)
     chroms      = chroms[ chroms_pure ]
     chroms      = str_replace(chroms,pattern = "^chr","")
     start_var   = start_var[chroms_pure]
@@ -122,8 +123,10 @@ write_w0_and_split_w0_into_lower_weights = function( g_mat, library_name, ref_ge
   
   package_path = system.file("", package = "Uniquorn")
   
-  input_ccls = unique(as.character(unlist(str_split( g_mat$Member_CCLs, pattern = "," ) ) ))
-  output_ccls = unique(as.character(unlist(str_split( ccl_stats$CCL, pattern = "," ) ) ))
+  input_ccls = unique(as.character(unlist(
+      str_split( g_mat$Member_CCLs, pattern = "," ) ) ))
+  output_ccls = unique(as.character(unlist(
+      str_split( ccl_stats$CCL, pattern = "," ) ) ))
   missing_ccls = sum((input_ccls %in%  output_ccls) == FALSE)
   
   if( missing_ccls != 0) stop("Loading of CCLs has not worked!")
