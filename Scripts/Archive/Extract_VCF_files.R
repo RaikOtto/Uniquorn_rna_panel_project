@@ -1,11 +1,13 @@
 library("stringr")
+library("GenomicRanges")
 library(devtools)
 setwd("~/Uniquorn_rna_panel_project/Uniquorn/")
 load_all()
 
+regex_term = "\\(|\\*|\\-|\\-|\\_|\\+|\\-|\\)|\\-|\\:|\\[|\\]|\\."
 output_directory = "~/Uniquorn_data/benchmark_vcf_files/raw_files_new/"
 
-database = show_contained_cls()
+database = show_contained_ccls()
 
 ccl_list = database$CCL
 
@@ -17,6 +19,7 @@ header_row =  c("CHROM","POS","ID","REF","ALT","QUAL","FILTER","INFO","FORMAT","
 ###
 
 library_names = Uniquorn:::read_library_names(ref_gen = "GRCH37")
+library_names = c("COSMIC")
 
 for (library_name in library_names){
     
@@ -35,16 +38,22 @@ for (library_name in library_names){
     
     for (ccl_name in member_ccls){
       
-        print(ccl_name)
-        ccl_name = as.character( str_replace_all(ccl_name,pattern = "\\[|\\]","") )
+        #print(ccl_name)
+        ccl_name = as.character( str_replace_all(ccl_name,pattern = regex_term,"") )
         
-        vcf_file_name = paste0(
+        vcf_file_name <<- paste0(
           c("~/Uniquorn_data/benchmark_vcf_files/raw_files_new/", ccl_name, ".",library_name,".vcf"),
           collapse= ""
         )
         
-        if (file.exists(vcf_file_name))
-            next()
+        if (file.exists(vcf_file_name)){
+            print(vcf_file_name)
+            vcf_file_name <<- paste0(
+                c("~/Uniquorn_data/benchmark_vcf_files/raw_files_new/", ccl_name,"_2", ".",library_name,".vcf"),
+                collapse= ""
+            )
+        }
+            
       
         index = str_detect(member_info, pattern = ccl_name)
         var_info = g_mat[index,]
