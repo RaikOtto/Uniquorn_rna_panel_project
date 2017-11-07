@@ -14,7 +14,7 @@ inclusion_weight     = args$inclusion_weight
 panel_mode           = args$panel_mode
 robust_mode          = args$robust_mode
 
-regex_term = "\\(|\\*|\\-|\\-|\\_|\\+|\\-|\\)|\\-|\\:|\\[|\\]"
+regex_term = "\\(|\\*|\\-|\\-|\\_|\\+|\\-|\\)|\\-|\\:|\\[|\\]|\\."
 
 run_benchmark = function(
     inclusion_weight,
@@ -35,6 +35,11 @@ run_benchmark = function(
         c("~/Uniquorn_data/benchmark_vcf_files/AUC/auc_",as.character(inclusion_weight),".tsv" ),
         collapse = ""
     )
+    
+    seen_obj_path = paste0(
+        c("~/Uniquorn_data/benchmark_vcf_files/AUC/auc_",as.character(inclusion_weight),".RDS" ),
+        collapse = ""
+    )
         
     # pre process
     
@@ -44,6 +49,13 @@ run_benchmark = function(
         full.names = T
     )
     
+    if (file.exists(seen_obj_path)) {
+        seen_obj <<- readRDS(seen_obj_path)
+    } else {
+        seen_obj <<- c()
+    }
+        
+    
     ## benchmark results positive predictions
   
     build_tables()
@@ -51,6 +63,14 @@ run_benchmark = function(
     parse_identification_data = function( b_file ){
     
         print(b_file)
+        identifier = str_replace( tail( as.character(unlist(str_split(b_file, pattern = "/"))), 1 ), pattern =".ident.tsv", "" )
+      
+        if (identifier %in% seen_obj){
+            next()
+        } else {
+            seen_obj <<- c(seen_obj, identifier)
+            saveRDS(seen_obj, file = seen_obj_path)
+        }
       
         b_table = read.table(b_file, sep ="\t", header = T, stringsAsFactors = FALSE)
         library_names = Uniquorn::read_library_names(ref_gen = "GRCH37")

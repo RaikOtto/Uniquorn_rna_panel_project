@@ -22,7 +22,6 @@ robust_mode                = args$robust_mode
 run_identification   = F
 auc_mode             = FALSE
 ref_gen              = "GRCH37"
-#type_benchmark       = "non_regularized"
 type_benchmark       = "regularized"
 
 run_identification = function(
@@ -54,6 +53,8 @@ run_identification = function(
         replacement = paste(c("ident_files_regularized",inclusion_weight,""),sep="",collapse= "/")
     )
     
+    #seen_obj_path = str_replace(out_path_ident, pattern = ".Benchmark_identification_result.tab", ".seen_obj.RDS")
+    
     ### !!! ###
     
     raw_files_path = "~/Uniquorn_data/benchmark_vcf_files/raw_files/"
@@ -80,52 +81,32 @@ run_identification = function(
     }
     i_files = list.files( raw_files_path, pattern = ".vcf$", full.names = T ,ignore.case = TRUE)
     
+    #if (file.exists(seen_obj_path)) {seen_obj <<- readRDS(seen_obj_path)
+    #} else {seen_obj <<- c()}
     
     
-    if( number_threads > 1 ){
+    for (i_file in i_files){
       
-        doParallel::registerDoParallel(number_threads)  
-        foreach::foreach(
-            i_file = i_files
-        ) %dopar% {
-            print(c(match(i_file , i_files),i_file))
-            file_name = tail(as.character(unlist(str_split(i_file,pattern = "/"))),1)
-            file_name = str_replace(file_name,pattern =".vcf",".ident.tsv")
-            out_path_ident_file = paste(out_path_ident, file_name,sep ="")
-            
-            if( !file.exists(out_path_ident_file) ){
-              
-                file.create(out_path_ident_file)
-                identify_vcf_file(
-                    i_file,
-                    mutational_weight_inclusion_threshold = inclusion_weight,
-                    output_file = out_path_ident_file,
-                    robust_mode = robust_mode
-                )
-            }
-        }
+        print(c(match(i_file , i_files),i_file))
+        file_name = tail(as.character(unlist(str_split(i_file,pattern = "/"))),1)
+        file_name = str_replace(file_name,pattern =".(vcf)|(.VCF)",".ident.tsv")
+        out_path_ident_file = paste(out_path_ident, file_name,sep ="")
         
-        doParallel::stopImplicitCluster()
+        #if (file_name %in% seen_obj){next()
+        #} else {
+        #    seen_obj <<- c(seen_obj, file_name)
+        #    saveRDS(seen_obj, file = seen_obj_path)
+        #}
         
-    } else {
-    
-        for (i_file in i_files){
-          
-            print(c(match(i_file , i_files),i_file))
-            file_name = tail(as.character(unlist(str_split(i_file,pattern = "/"))),1)
-            file_name = str_replace(file_name,pattern =".vcf",".ident.tsv")
-            out_path_ident_file = paste(out_path_ident, file_name,sep ="")
+        if( !file.exists(out_path_ident_file) ){
             
-            if( !file.exists(out_path_ident_file) ){
-                
-                file.create(out_path_ident_file)
-                identify_vcf_file(
-                    i_file,
-                    mutational_weight_inclusion_threshold = inclusion_weight,
-                    output_file = out_path_ident_file,
-                    robust_mode = robust_mode
-                )
-            }
+            file.create(out_path_ident_file)
+            identify_vcf_file(
+                i_file,
+                mutational_weight_inclusion_threshold = inclusion_weight,
+                output_file = out_path_ident_file,
+                robust_mode = robust_mode
+            )
         }
     }
 }
@@ -135,7 +116,7 @@ run_identification(
     minimum_matching_mutations = minimum_matching_mutations,
     type_benchmark = type_benchmark,
     ref_gen = ref_gen,
-    panel_mode = args$panel,
+    panel_mode = panel_mode,
     robust_mode = robust_mode,
     number_threads = args$number_threads
 )

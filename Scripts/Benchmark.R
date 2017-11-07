@@ -44,20 +44,42 @@ run_benchmark = function(
     )
     gold_t <<- read.table( file = "~//Uniquorn_rna_panel_project/Misc/Goldstandard.tsv",sep="\t", header = TRUE)
     
+    seen_obj_path = str_replace(out_path_ident, pattern = "_Benchmark_identification_result.tab", ".seen_obj.RDS")
+    
     if (panel_mode){
         ident_result_files_path <<- str_replace(ident_result_files_path,pattern = "ident_files","panel_ident_files")
         benchmark_ident_file_path <<- str_replace(benchmark_ident_file_path,pattern = "Benchmark_results","panel_Benchmark_results")
         benchmark_res_file_path <<- str_replace(benchmark_res_file_path,pattern = "Benchmark_results","panel_Benchmark_results")
     }
     
-    b_files <<- list.files(ident_result_files_path , pattern = ".ident.tsv", full.names = T )
+    b_files <<- list.files(ident_result_files_path , pattern = ".ident.tsv", full.names = T, ignore.case = T )
     
     ## benchmark results positive predictions
     
-    build_tables()
+    if (file.exists(seen_obj_path)) {seen_obj <<- readRDS(seen_obj_path)
+        seen_obj <<- readRDS(seen_obj_path)
+        res_ident_table <<- read.table( benchmark_ident_file_path, sep ="\t", header = T )
+        res_table <<- read.table( benchmark_res_file_path, sep ="\t", header = T )
     
-    for (b_file in b_files)
-      parse_identification_data(b_file)
+    } else {
+        seen_obj <<- c()
+        build_tables()
+    }
+    
+    
+    for (b_file in b_files){
+      
+        identifier = str_replace( tail( as.character(unlist(str_split(b_file, pattern = "/"))), 1 ), pattern =".ident.tsv", "" )
+    
+        if (identifier %in% seen_obj){
+            next()
+        } else {
+            seen_obj <<- c(seen_obj, identifier)
+            saveRDS(seen_obj, file = seen_obj_path)
+        }
+      
+        parse_identification_data(b_file)
+    }
     
     #sapply( b_files, FUN = parse_identification_data)
     

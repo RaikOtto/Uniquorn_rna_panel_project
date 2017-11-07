@@ -3,6 +3,9 @@ source("~/Uniquorn_rna_panel_project/Scripts/utility.R")
 library("ROCR")
 library("grid")
 library("ggplot2")
+library(devtools)
+setwd("~/Uniquorn_rna_panel_project/Uniquorn/")
+load_all()
 
 perf_vec <<- c()
 anchor = "~/Uniquorn_data/benchmark_vcf_files/AUC/"
@@ -36,13 +39,14 @@ run_rocr = function( anchor ){
           text = input_t
         )
       )
+      print(nrow(auc_t))
       
       many_labs = as.character( auc_t$Should_be_found )
       many_labs[ many_labs != "TRUE" ] = 0.0
       many_labs[ many_labs == "TRUE" ] = 1.0
       
       pred_obj = ROCR::prediction(
-        predictions = as.double( auc_t$P_values  ),
+        predictions = 1-as.double( auc_t$P_values  ), ####
         labels = many_labs 
       )
       pred_obj_2 <<- pred_obj
@@ -80,33 +84,23 @@ perf_2 = unlist(perf_vec)[[2]]
 perf_3 = unlist(perf_vec)[[3]]
 perf_4 = unlist(perf_vec)[[4]]
 
-x_val_1 = 100 - ( as.double(unlist(perf_1@x.values ) ) ) * 100
-x_val_2 = 100 - ( as.double(unlist(perf_2@x.values ) ) ) * 100
-x_val_3 = 100 - ( as.double(unlist(perf_3@x.values ) ) ) * 100
-x_val_4 = 100 - ( as.double(unlist(perf_4@x.values ) ) ) * 100
+x_val_1 = as.double(unlist(perf_1@x.values ) )
+x_val_2 = as.double(unlist(perf_2@x.values ) )
+x_val_3 = as.double(unlist(perf_3@x.values ) )
+x_val_4 = as.double(unlist(perf_4@x.values ) )
+y_val_1 = as.double( unlist(perf_1@y.values) ) * 100
+y_val_2 = as.double( unlist(perf_2@y.values) ) * 100
+y_val_3 = as.double( unlist(perf_3@y.values) ) * 100
+y_val_4 = as.double( unlist(perf_4@y.values) ) * 100
 
-y_val_1 = 100 - ( as.double( unlist(perf_1@y.values) ) ) * 100
-y_val_2 = 100 - ( as.double( unlist(perf_2@y.values) ) ) * 100
-y_val_3 = 100 - ( as.double( unlist(perf_3@y.values) ) ) * 100
-y_val_4 = 100 - ( as.double( unlist(perf_4@y.values) ) ) * 100
-
-#x_val_1 = as.double(unlist(perf_1@x.values ) )
-#x_val_2 = as.double(unlist(perf_2@x.values ) )
-#x_val_3 = as.double(unlist(perf_3@x.values ) )
-#x_val_4 = as.double(unlist(perf_4@x.values ) )
-
-#y_val_1 = as.double( unlist(perf_1@y.values) )
-#y_val_2 = as.double( unlist(perf_2@y.values) )
-#y_val_3 = as.double( unlist(perf_3@y.values) )
-#y_val_4 = as.double( unlist(perf_4@y.values) )
-
-plot( x= (x_val_1), y = (y_val_1))
-
-min_min = min(c(length(x_val_1),length(x_val_2),length(x_val_3),length(x_val_4)))
+min_min_x = min(c(length(x_val_1),length(x_val_2),length(x_val_3),length(x_val_4)))
+min_min_y = min(c(length(y_val_1),length(y_val_2),length(y_val_3),length(y_val_4)))
+min_min = min(min_min_x, min_min_y)
 
 x_val_1 = x_val_1[1:min_min];x_val_2 = x_val_2[1:min_min];x_val_3 = x_val_3[1:min_min];x_val_4 = x_val_4[1:min_min];
 y_val_1 = y_val_1[1:min_min];y_val_2 = y_val_2[1:min_min];y_val_3 = y_val_3[1:min_min];y_val_4 = y_val_4[1:min_min];
 
+plot( x= (x_val_2), y = (y_val_2))
 
 weights = as.factor( 
   c( 
@@ -137,8 +131,13 @@ q_bird = ggplot(
   data = plots_frame, 
   aes( x = X, y = Y )
 ) + geom_line( size = 2, aes( linetype = Weight, color = Weight) )
-q_bird  = q_bird + xlim( 0, 0.02)
+q_bird  = q_bird + xlim( 0, 0.0002)
 q_bird  = q_bird + xlab( "" ) + ylab( "" )
+q_bird
+
+
+
+
 q_bird = q_bird + theme( 
   panel.background = element_blank(),
   legend.position  = "none",
@@ -147,9 +146,6 @@ q_bird = q_bird + theme(
     c( .0,.0,.01,.01), "cm"
   )
 )
-
-q_bird
-
 
 q = ggplot( 
   data = plots_frame_2,
