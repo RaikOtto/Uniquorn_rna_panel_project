@@ -1,7 +1,4 @@
 library("stringr")
-#library("BiocParallel")
-#library("doParallel")
-#library("foreach")
 library("devtools")
 library("argparse")
 setwd("~/Uniquorn_rna_panel_project/Uniquorn/")
@@ -20,7 +17,7 @@ p_value               = .05
 minimum_matching_mutations = 0
 run_identification   = F
 auc_mode             = FALSE
-regex_term = "\\(|\\*|\\-|\\-|\\_|\\+|\\-|\\)|\\-|\\:|\\[|\\]"
+regex_term = "\\(|\\*|\\-|\\-|\\_|\\+|\\-|\\)|\\-|\\:|\\[|\\]|\\."
 
 run_benchmark = function(
     inclusion_weight = inclusion_weight, 

@@ -78,7 +78,7 @@ run_identification = function(
         out_path_ident = paste(c("~/Uniquorn_data/benchmark_vcf_files/ident_files_",type_benchmark,
                                "/",inclusion_weight,"/"),sep="",collapse= "")
     }
-    i_files = list.files( raw_files_path, pattern = ".vcf$", full.names = T )
+    i_files = list.files( raw_files_path, pattern = ".vcf$", full.names = T ,ignore.case = TRUE)
     
     
     

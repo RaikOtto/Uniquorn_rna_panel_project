@@ -19,7 +19,7 @@ header_row =  c("CHROM","POS","ID","REF","ALT","QUAL","FILTER","INFO","FORMAT","
 ###
 
 library_names = Uniquorn:::read_library_names(ref_gen = "GRCH37")
-library_names = c("COSMIC")
+library_names = c("CELLMINER")
 
 for (library_name in library_names){
     
@@ -28,13 +28,14 @@ for (library_name in library_names){
 
     g_mat = read_mutation_grange_objects(
         library_name = library_name,
-        ref_gen = ref_gen,
+        ref_gen = "GRCH37",
         mutational_weight_inclusion_threshold = 0
     )
     
     member_ccls = as.character(ccl_list$CCL[ccl_list$Library == library_name])
     member_info = as.character( g_mat$Member_CCLs )
-    member_info = as.character(sapply(member_info, FUN = function(vec){return(str_replace_all(vec,pattern = "\\[|\\]",""))}))
+    member_info = as.character(sapply(member_info, FUN = function(vec){return(str_replace_all(vec,pattern = regex_term,""))}))
+    member_info = as.character(sapply(member_info, FUN = function(vec){return(str_replace_all(vec,pattern = library_name,""))}))
     
     for (ccl_name in member_ccls){
       
@@ -42,19 +43,18 @@ for (library_name in library_names){
         ccl_name = as.character( str_replace_all(ccl_name,pattern = regex_term,"") )
         
         vcf_file_name <<- paste0(
-          c("~/Uniquorn_data/benchmark_vcf_files/raw_files_new/", ccl_name, ".",library_name,".vcf"),
+          c("~/Uniquorn_data/benchmark_vcf_files/raw_files/", ccl_name, ".",library_name,".vcf"),
           collapse= ""
         )
         
         if (file.exists(vcf_file_name)){
             print(vcf_file_name)
             vcf_file_name <<- paste0(
-                c("~/Uniquorn_data/benchmark_vcf_files/raw_files_new/", ccl_name,"_2", ".",library_name,".vcf"),
+                c("~/Uniquorn_data/benchmark_vcf_files/raw_files/", ccl_name,"_2", ".",library_name,".vcf"),
                 collapse= ""
             )
         }
-            
-      
+        
         index = str_detect(member_info, pattern = ccl_name)
         var_info = g_mat[index,]
         as.data.frame(var_info)

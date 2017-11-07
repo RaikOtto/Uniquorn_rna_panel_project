@@ -57,7 +57,7 @@ for( i_file  in cellminer_raw_samples){
 }
 
 
-i_files_ori = list.files("~/Uniquorn_data/benchmark_vcf_files/GDC_vcf/",pattern = ".GDC.vcf",full.names = T, recursive = F)
+i_files_ori = list.files("~/Uniquorn_data/benchmark_vcf_files/raw_files//",pattern = ".COSMIC.VCF",full.names = T, recursive = F)
 
 file_name = as.character(sapply(i_files_ori, FUN = function(vec){return(tail(as.character(unlist(str_split(vec,pattern = "/"))),1))}))
 stem = as.character(sapply(i_files_ori, FUN = function(vec){
@@ -66,15 +66,14 @@ stem = as.character(sapply(i_files_ori, FUN = function(vec){
    return( paste( head(split, split_len-1), sep ="", collapse = "/" ) )
 }))
 
-i_files = str_replace(file_name, pattern = ".GDC.vcf","")
-
-#i_files = g$CCL
+i_files = str_replace_all(file_name, pattern = ".COSMIC.VCF","")
+i_files = str_replace_all(i_files, pattern = "COSMICVCF","")
 i_files = str_replace_all(i_files, pattern = regex_term,"")# <<<---
 
 i_files = str_to_upper(i_files)
-i_files = str_replace_all(i_files, pattern = "HG19VCF","")
+#i_files = str_replace_all(i_files, pattern = "HG19VCF","")
 
-i_files = paste(i_files, ".EGA.VCF", sep = "")
+i_files = paste(i_files, ".COSMIC.VCF", sep = "")
 i_files = paste(stem,i_files, sep ="/")
 
 for (i in 1:length(i_files_ori))

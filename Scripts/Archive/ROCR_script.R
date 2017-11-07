@@ -16,11 +16,11 @@ run_rocr = function( anchor ){
         header = T, stringsAsFactors = F, sep = "\t", col.names = c("P_values","Should_be_found")
     )
     auc_t_0_25    = read.table( 
-        paste0( anchor, "auc_0_25.tsv" ), 
+        paste0( anchor, "auc_0.25.tsv" ), 
         header = T, stringsAsFactors = F, sep = "\t", col.names = c("P_values","Should_be_found")
     )
     auc_t_0_5    = read.table( 
-        paste0( anchor, "auc_0_5.tsv" ), 
+        paste0( anchor, "auc_0.5.tsv" ), 
         header = T, stringsAsFactors = F, sep = "\t", col.names = c("P_values","Should_be_found")
     )
     auc_t_1    = read.table( 
@@ -84,14 +84,29 @@ x_val_1 = 100 - ( as.double(unlist(perf_1@x.values ) ) ) * 100
 x_val_2 = 100 - ( as.double(unlist(perf_2@x.values ) ) ) * 100
 x_val_3 = 100 - ( as.double(unlist(perf_3@x.values ) ) ) * 100
 x_val_4 = 100 - ( as.double(unlist(perf_4@x.values ) ) ) * 100
-#x_val_1[1] = 0
-#x_val_1[length(x_val_1)] = 100
-#x_val_2[1] = 0
-#x_val_2[length(x_val_2)] = 100
-#x_val_3[1] = 0
-#x_val_3[length(x_val_3)] = 100
-#x_val_4[1] = 0
-#x_val_4[length(x_val_4)] = 100
+
+y_val_1 = 100 - ( as.double( unlist(perf_1@y.values) ) ) * 100
+y_val_2 = 100 - ( as.double( unlist(perf_2@y.values) ) ) * 100
+y_val_3 = 100 - ( as.double( unlist(perf_3@y.values) ) ) * 100
+y_val_4 = 100 - ( as.double( unlist(perf_4@y.values) ) ) * 100
+
+#x_val_1 = as.double(unlist(perf_1@x.values ) )
+#x_val_2 = as.double(unlist(perf_2@x.values ) )
+#x_val_3 = as.double(unlist(perf_3@x.values ) )
+#x_val_4 = as.double(unlist(perf_4@x.values ) )
+
+#y_val_1 = as.double( unlist(perf_1@y.values) )
+#y_val_2 = as.double( unlist(perf_2@y.values) )
+#y_val_3 = as.double( unlist(perf_3@y.values) )
+#y_val_4 = as.double( unlist(perf_4@y.values) )
+
+plot( x= (x_val_1), y = (y_val_1))
+
+min_min = min(c(length(x_val_1),length(x_val_2),length(x_val_3),length(x_val_4)))
+
+x_val_1 = x_val_1[1:min_min];x_val_2 = x_val_2[1:min_min];x_val_3 = x_val_3[1:min_min];x_val_4 = x_val_4[1:min_min];
+y_val_1 = y_val_1[1:min_min];y_val_2 = y_val_2[1:min_min];y_val_3 = y_val_3[1:min_min];y_val_4 = y_val_4[1:min_min];
+
 
 weights = as.factor( 
   c( 
@@ -101,13 +116,6 @@ weights = as.factor(
     rep("1.0",length(x_val_4) )
   )
 )
-
-y_val_1 = 100 - ( as.double( unlist(perf_1@y.values) ) ) * 100
-y_val_2 = 100 - ( as.double( unlist(perf_2@y.values) ) ) * 100
-y_val_3 = 100 - ( as.double( unlist(perf_3@y.values) ) ) * 100
-y_val_4 = 100 - ( as.double( unlist(perf_4@y.values) ) ) * 100
-
-plot( x= (x_val_2), y = (y_val_2), xlim = c(0,.1))
 
 plots_frame = data.frame( 
   "X" = c(
@@ -129,7 +137,7 @@ q_bird = ggplot(
   data = plots_frame, 
   aes( x = X, y = Y )
 ) + geom_line( size = 2, aes( linetype = Weight, color = Weight) )
-q_bird  = q_bird + xlim( 0, 0.0025)
+q_bird  = q_bird + xlim( 0, 0.02)
 q_bird  = q_bird + xlab( "" ) + ylab( "" )
 q_bird = q_bird + theme( 
   panel.background = element_blank(),
@@ -214,3 +222,6 @@ h = cbind(
         unlist( pred_obj@fp )
     )
 )
+
+###
+
