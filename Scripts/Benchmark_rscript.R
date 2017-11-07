@@ -6,7 +6,7 @@ load_all()
 
 parser = ArgumentParser()
 parser$add_argument('-iw', "--inclusion_weight", type="double")
-parser$add_argument('-p', "--panel", action="store_true", default = "FALSE")
+parser$add_argument('-p', "--panel_mode", action="store_true", default = "FALSE")
 parser$add_argument('-r', "--robust_mode", action="store_true", default = "FALSE")
 parser$add_argument('-nt', "--number_threads", type="integer", default = "1")
 args = parser$parse_args()
