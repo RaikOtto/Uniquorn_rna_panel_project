@@ -73,11 +73,11 @@ identify_vcf_file = function(
     ){
   
     if ( exist( confidence_score) ){
-        message(paste(c
+        message(paste(c(
             "Confidence score has been set to ",
             as.character(confidence_score),
             ", ignoring the p_value"
-        ))
+        )))
         confidence_score[confidence_score < 0 ] = 0
         confidence_score[confidence_score > 100 ] = 100
         p_value = exp(-1 * confidence_score)
