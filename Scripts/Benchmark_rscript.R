@@ -8,7 +8,7 @@ parser = ArgumentParser()
 parser$add_argument('-iw', "--inclusion_weight", type="double")
 parser$add_argument('-p', "--panel_mode", action="store_true", default = "FALSE")
 parser$add_argument('-r', "--robust_mode", action="store_true", default = "FALSE")
-parser$add_argument('-pv', "--p_value", type="double", default = "0.05")
+parser$add_argument('-cs', "--confidence_score", type="integer", default = "40")
 args = parser$parse_args()
 
 only_first           = FALSE
@@ -17,7 +17,7 @@ exclude_self         = FALSE
 minimum_matching_mutations = args$inclusion_weight
 panel_mode                 = args$panel_mode
 robust_mode                = args$robust_mode
-p_value                    = args$p_value
+confidence_score           = args$confidence_score
 
 run_identification   = F
 auc_mode             = FALSE
@@ -121,5 +121,5 @@ run_identification(
     ref_gen = ref_gen,
     panel_mode = panel_mode,
     robust_mode = robust_mode,
-    p_value = p_value
+    confidence_score = confidence_score
 )

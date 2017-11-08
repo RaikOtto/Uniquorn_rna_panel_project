@@ -270,6 +270,6 @@ d4 = read.table("~/Uniquorn_data/benchmark_vcf_files/AUC/auc_0.tsv",sep="\t", he
 calc_cutoff(d4)
 
 # d1 37
-# d2 41
+# d2 45
 # d3 44
-# d4 16
+# d4 17
