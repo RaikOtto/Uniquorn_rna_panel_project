@@ -100,6 +100,7 @@ run_identification = function(
         #    saveRDS(seen_obj, file = seen_obj_path)
         #}
         
+        inclusion_weight = str_replace( inclusion_weight, pattern = "_", "\\." )
         if( !file.exists(out_path_ident_file) ){
             
             file.create(out_path_ident_file)
