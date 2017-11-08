@@ -15,7 +15,7 @@ output_bed_file = FALSE,
 robust_mode = FALSE,
 manual_identifier_bed_file = "",
 verbose = TRUE,
-q_value = .05,
+p_value = .05,
 n_threads = 1)
 }
 \arguments{
@@ -50,9 +50,9 @@ them passing the detection threshold}
 
 \item{verbose}{Print additional information}
 
-\item{n_threads}{Number of threads to be used}
+\item{p_value}{Required q-value for identification}
 
-\item{q_value}{Required q-value for identification}
+\item{n_threads}{Number of threads to be used}
 }
 \value{
 R table with a statistic of the identification result

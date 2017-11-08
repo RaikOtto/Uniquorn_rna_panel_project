@@ -2,13 +2,15 @@
 % Please edit documentation in R/Add_custom_vcfs.R
 \name{parse_vcf_query_into_db}
 \alias{parse_vcf_query_into_db}
-\title{write_vcf_file_to_monet_db
+\title{parse_vcf_query_into_db
 This function adds the variants of parsed custom CCLs to a monet DB instance}
 \usage{
-write_vcf_file_to_monet_db(vcf_input_files, ref_gen = "GRCH37", library_name = "CUSTOM",
- cl_id, n_threads = 1, test_mode = FALSE)
+parse_vcf_query_into_db(g_query, ref_gen = "GRCH37", library_name,
+  test_mode = FALSE)
 }
 \arguments{
+\item{g_query}{a GenomicRanges object}
+
 \item{ref_gen}{a character string specifying the reference genome version.
 All training sets are associated with a reference genome version.
 Default is \code{"GRCH37"}.}
@@ -18,25 +20,11 @@ cancer cell lines to. Default is \code{"CUSTOM"}.
 Library name will be automatically added as a suffix to the identifier.}
 
 \item{test_mode}{Is this a test? Just for internal use}
-
-\item{vcf_input_files}{a character vector containing the input vcf files.
-This may be one or many vcf files.}
-
-\item{n_threads}{an integer specifying the number of threads to be used.}
 }
 \value{
 Message wheather the adding was successful
 }
 \description{
-write_vcf_file_to_monet_db
+parse_vcf_query_into_db
 This function adds the variants of parsed custom CCLs to a monet DB instance
-}
-\examples{
-HT29_vcf_file = system.file("extdata/HT29.vcf.gz", package = "Uniquorn");
-write_vcf_file_to_monet_db(vcf_input_files = HT29_vcf_file,
-                           library_name = "CUSTOM",
-                           ref_gen = "GRCH37",
-                           cl_id = "Test_id"
-                           n_threads = 1,
-                           test_mode = TRUE)
 }

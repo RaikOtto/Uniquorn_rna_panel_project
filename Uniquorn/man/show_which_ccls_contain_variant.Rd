@@ -38,7 +38,6 @@ This function displays all cancer cell lines in the database which
 contain a specified variant. Utilizes closed interval coordinates.
 }
 \examples{
- chromosome = 8, start = 92030762,  end = 92030762
 show_which_ccls_contain_variant(
 start = 92030762,
 end = 92030762,

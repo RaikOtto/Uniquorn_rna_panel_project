@@ -109,7 +109,7 @@ parse_vcf_query_into_db = function(
     cl_id = str_replace_all( cl_id, 
         pattern = paste("_",library_name,sep = ""),"" )
     
-    cl_data =  show_contained_cls( verbose = FALSE)
+    cl_data =  show_contained_ccls( verbose = FALSE)
     if (cl_id %in% cl_data$CCL[ cl_data$Library == library_name  ] ){
         print(
             paste(c("CCL ", cl_id, " already contained in DB ",library_name,

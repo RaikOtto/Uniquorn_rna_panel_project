@@ -6,8 +6,6 @@ library("ggplot2")
 library(devtools)
 setwd("~/Uniquorn_rna_panel_project/Uniquorn/")
 load_all()
-
-perf_vec <<- c()
 anchor = "~/Uniquorn_data/benchmark_vcf_files/AUC/"
 
 run_rocr = function( anchor ){
@@ -39,7 +37,7 @@ run_rocr = function( anchor ){
           text = input_t
         )
       )
-      print(nrow(auc_t))
+      print(round(nrow(auc_t)* 10**-6, 1))
       
       many_labs = as.character( auc_t$Should_be_found )
       many_labs[ many_labs != "TRUE" ] = 0.0
@@ -75,14 +73,12 @@ run_rocr = function( anchor ){
       }
 }
 
+perf_vec <<- c()
 run_rocr( anchor )
 
 # graphics
 
-perf_1 = unlist(perf_vec)[[1]]
-perf_2 = unlist(perf_vec)[[2]]
-perf_3 = unlist(perf_vec)[[3]]
-perf_4 = unlist(perf_vec)[[4]]
+perf_1 = unlist(perf_vec)[[1]];perf_2 = unlist(perf_vec)[[2]];perf_3 = unlist(perf_vec)[[3]];perf_4 = unlist(perf_vec)[[4]]
 
 x_val_1 = as.double(unlist(perf_1@x.values ) )
 x_val_2 = as.double(unlist(perf_2@x.values ) )
@@ -131,8 +127,8 @@ q_bird = ggplot(
   data = plots_frame, 
   aes( x = X, y = Y )
 ) + geom_line( size = 2, aes( linetype = Weight, color = Weight) )
-q_bird  = q_bird + xlim( 0, 0.0002)
 q_bird  = q_bird + xlab( "" ) + ylab( "" )
+q_bird  = q_bird + xlim( 0, 0.1)
 q_bird
 
 
@@ -221,3 +217,59 @@ h = cbind(
 
 ###
 
+calc_cutoff = function(d){
+  many_labs = as.character( d$Should_be_found )
+  many_labs[ many_labs != "TRUE" ] = 0.0
+  many_labs[ many_labs == "TRUE" ] = 1.0
+  
+  score = -1 * log(as.double(d$P_values+exp(-1*100)))
+  score[score> 100] = 100
+  pred_obj = ROCR::prediction(
+    predictions = score,
+    labels = many_labs 
+  )
+  pred_obj_2 <<- pred_obj
+  
+  rocr_auc = as.character(
+    round(
+      as.double(
+        unclass(
+          performance(
+            pred_obj,
+            "auc"
+          )
+        )@"y.values"
+      ),
+      2 )
+  )
+  
+  print( paste0( c( "AUC:", rocr_auc) ), collapse = " " )
+  perf = ROCR::performance(
+    prediction.obj = pred_obj,
+    measure = "tpr",
+    x.measure = "fpr"
+  )
+  
+  opt.cut = function(perf, pred){
+    cut.ind = mapply(FUN=function(x, y, p){
+      d = (x - 0)^2 + (y-1)^2
+      ind = which(d == min(d))
+      c(sensitivity = y[[ind]], specificity = 1-x[[ind]], 
+        cutoff = p[[ind]])
+    }, perf@x.values, perf@y.values, pred@cutoffs)
+  }
+  print(opt.cut(perf, pred_obj))
+  
+}
+
+d1 = read.table("~/Uniquorn_data/benchmark_vcf_files/AUC/auc_1.tsv",sep="\t", header = T)
+d2 = read.table("~/Uniquorn_data/benchmark_vcf_files/AUC/auc_0.5.tsv",sep="\t", header = T)
+d3 = read.table("~/Uniquorn_data/benchmark_vcf_files/AUC/auc_0.25.tsv",sep="\t", header = T)
+d4 = read.table("~/Uniquorn_data/benchmark_vcf_files/AUC/auc_0.tsv",sep="\t", header = T)
+
+calc_cutoff(d4)
+
+# d1 37
+# d2 41
+# d3 44
+# d4 16

@@ -27,7 +27,13 @@
 #' @param output_bed_file If BED files for IGV visualization should be 
 #' created for the Cancer Cell lines that pass the threshold
 #' @param verbose Print additional information
-#' @param q_value Required q-value for identification
+#' @param p_value Required p-value for identification.
+#' Note that if you set the confidence score, the confidence score
+#' overrides the p-value
+#' @param confidence_score Cutoff for positive prediction between 0 and 100.
+#' Is calculated by transforming the p-value by -1 * log(p-value)
+#' Note that if you set the confidence score, the confidence score
+#' overrides the p-value
 #' @param n_threads Number of threads to be used
 #' @import WriteXLS stats
 #' @usage 
@@ -42,7 +48,7 @@
 #' robust_mode = FALSE,
 #' manual_identifier_bed_file = "",
 #' verbose = TRUE,
-#' q_value = .05,
+#' p_value = .05,
 #' n_threads = 1)
 #' @examples 
 #' HT29_vcf_file = system.file("extdata/HT29.vcf.gz", package="Uniquorn");
@@ -62,8 +68,20 @@ identify_vcf_file = function(
     manual_identifier_bed_file = "",
     verbose = TRUE,
     p_value = .05,
+    confidence_score,
     n_threads = 1
     ){
+  
+    if ( exist( confidence_score) ){
+        message(paste(c
+            "Confidence score has been set to ",
+            as.character(confidence_score),
+            ", ignoring the p_value"
+        ))
+        confidence_score[confidence_score < 0 ] = 0
+        confidence_score[confidence_score > 100 ] = 100
+        p_value = exp(-1 * confidence_score)
+    }
   
     g_query = parse_vcf_file(vcf_file,ref_gen = ref_gen)
     

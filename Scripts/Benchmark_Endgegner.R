@@ -21,7 +21,7 @@ run_small_statistics = function(
   inclusion_weight = inclusion_weight, 
   panel_mode
 ){
-  
+    inclusion_weight = str_replace(inclusion_weight, pattern = "\\.", "_")
     source("~//Uniquorn_rna_panel_project//Scripts/utility.R")
     
     build_path_variables( 

@@ -2,11 +2,16 @@
 % Please edit documentation in R/Add_custom_vcfs.R
 \name{add_custom_vcf_to_database}
 \alias{add_custom_vcf_to_database}
-\title{add_new_ccls_to_ccl_library
+\title{add_custom_vcf_to_database
 This function adds the variants of parsed custom CCLs to a monet DB instance}
 \usage{
-add_new_ccls_to_ccl_library(vcf_input_files, ref_gen = "GRCH37", library = "CUSTOM",
-                           n_threads = 1, test_mode = FALSE)
+add_custom_vcf_to_database(
+  vcf_input_files,
+  ref_gen = "GRCH37",
+  library = "CUSTOM",
+  n_threads = 1,
+  test_mode = FALSE
+)
 }
 \arguments{
 \item{vcf_input_files}{a character vector containing the input vcf files.
@@ -28,14 +33,16 @@ Library name will be automatically added as a suffix to the identifier.}
 Message wheather the adding was successful
 }
 \description{
-add_new_ccls_to_ccl_library
+add_custom_vcf_to_database
 This function adds the variants of parsed custom CCLs to a monet DB instance
 }
 \examples{
 HT29_vcf_file = system.file("extdata/HT29.vcf.gz", package = "Uniquorn");
-add_new_ccls_to_ccl_library(vcf_input_files = HT29_vcf_file,
-                           library = "CUSTOM",
-                           ref_gen = "GRCH37",
-                           n_threads = 1,
-                           test_mode = TRUE)
+add_custom_vcf_to_database(
+  vcf_input_files = HT29_vcf_file,
+  library = "CUSTOM",
+  ref_gen = "GRCH37",
+  n_threads = 1,
+  test_mode = TRUE
+)
 }

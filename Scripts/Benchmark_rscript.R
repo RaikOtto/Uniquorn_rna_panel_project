@@ -8,16 +8,16 @@ parser = ArgumentParser()
 parser$add_argument('-iw', "--inclusion_weight", type="double")
 parser$add_argument('-p', "--panel_mode", action="store_true", default = "FALSE")
 parser$add_argument('-r', "--robust_mode", action="store_true", default = "FALSE")
-parser$add_argument('-nt', "--number_threads", type="integer", default = "1")
+parser$add_argument('-pv', "--p_value", type="double", default = "0.05")
 args = parser$parse_args()
 
 only_first           = FALSE
 exclude_self         = FALSE
-p_value = .05
 
 minimum_matching_mutations = args$inclusion_weight
 panel_mode                 = args$panel_mode
 robust_mode                = args$robust_mode
+p_value                    = args$p_value
 
 run_identification   = F
 auc_mode             = FALSE
@@ -31,7 +31,7 @@ run_identification = function(
     ref_gen,
     panel_mode,
     robust_mode,
-    number_threads
+    p_value
 ){
   
     source("~/Uniquorn_rna_panel_project/Scripts/utility.R")
@@ -58,6 +58,8 @@ run_identification = function(
     ### !!! ###
     
     raw_files_path = "~/Uniquorn_data/benchmark_vcf_files/raw_files/"
+    
+    inclusion_weight = str_replace(inclusion_weight, pattern = "\\.", "_")
     
     build_path_variables( 
         inclusion_weight = inclusion_weight,
@@ -105,7 +107,8 @@ run_identification = function(
                 i_file,
                 mutational_weight_inclusion_threshold = inclusion_weight,
                 output_file = out_path_ident_file,
-                robust_mode = robust_mode
+                robust_mode = robust_mode,
+                p_value = p_value
             )
         }
     }
@@ -118,5 +121,5 @@ run_identification(
     ref_gen = ref_gen,
     panel_mode = panel_mode,
     robust_mode = robust_mode,
-    number_threads = args$number_threads
+    p_value = p_value
 )

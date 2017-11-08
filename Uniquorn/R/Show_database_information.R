@@ -8,13 +8,10 @@
 #' @return R table which contains the identifiers of all cancer cell line samples
 #'  which match the specified parameters (reference genome and library).
 #' @usage 
-#' show_contained_ccls(ref_gen, library = NULL)
+#' show_contained_ccls(ref_gen, verbose)
 #' @examples
 #' ##Show all contained cancer cell lines for reference GRCH37
 #' show_contained_ccls(ref_gen = "GRCH37", verbose = TRUE)
-#' 
-#' ##Show just cancer cell lines contained in library CELLMINER
-#' show_contained_ccls(ref_gen = "GRCH37", library = "CELLMINER")
 #' @import GenomicRanges stringr
 #' @export
 show_contained_ccls = function(
