@@ -68,11 +68,11 @@ identify_vcf_file = function(
     manual_identifier_bed_file = "",
     verbose = TRUE,
     p_value = .05,
-    confidence_score,
+    confidence_score = NA,
     n_threads = 1
     ){
   
-    if ( exists( "confidence_score") ){
+    if ( ! is.na(confidence_score) ){
         message(paste(c(
             "Confidence score has been set to ",
             as.character(confidence_score),
