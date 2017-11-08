@@ -31,7 +31,7 @@
 #' Note that if you set the confidence score, the confidence score
 #' overrides the p-value
 #' @param confidence_score Cutoff for positive prediction between 0 and 100.
-#' Is calculated by transforming the p-value by -1 * log(p-value)
+#' Calculated by transforming the p-value by -1 * log(p-value)
 #' Note that if you set the confidence score, the confidence score
 #' overrides the p-value
 #' @param n_threads Number of threads to be used
@@ -72,7 +72,7 @@ identify_vcf_file = function(
     n_threads = 1
     ){
   
-    if ( exist( confidence_score) ){
+    if ( exists( "confidence_score") ){
         message(paste(c(
             "Confidence score has been set to ",
             as.character(confidence_score),
