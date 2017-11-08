@@ -31,7 +31,7 @@ run_identification = function(
     ref_gen,
     panel_mode,
     robust_mode,
-    p_value
+    confidence_score
 ){
   
     source("~/Uniquorn_rna_panel_project/Scripts/utility.R")
@@ -108,7 +108,7 @@ run_identification = function(
                 mutational_weight_inclusion_threshold = inclusion_weight,
                 output_file = out_path_ident_file,
                 robust_mode = robust_mode,
-                p_value = p_value
+                confidence_score = confidence_score
             )
         }
     }
