@@ -50,7 +50,14 @@ them passing the detection threshold}
 
 \item{verbose}{Print additional information}
 
-\item{p_value}{Required q-value for identification}
+\item{p_value}{Required p-value for identification.
+Note that if you set the confidence score, the confidence score
+overrides the p-value}
+
+\item{confidence_score}{Cutoff for positive prediction between 0 and 100.
+Is calculated by transforming the p-value by -1 * log(p-value)
+Note that if you set the confidence score, the confidence score
+overrides the p-value}
 
 \item{n_threads}{Number of threads to be used}
 }

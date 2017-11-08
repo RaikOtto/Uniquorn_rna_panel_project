@@ -4,7 +4,7 @@
 \alias{show_contained_ccls}
 \title{show_contained_ccls}
 \usage{
-show_contained_ccls(ref_gen, library = NULL)
+show_contained_ccls(ref_gen, verbose)
 }
 \arguments{
 \item{ref_gen}{a character vector specifying the reference genome version. All training sets are associated with a reference genome version. Default is \code{"GRCH37"}.}
@@ -22,7 +22,4 @@ for a chosen reference genome and optional library.
 \examples{
 ##Show all contained cancer cell lines for reference GRCH37
 show_contained_ccls(ref_gen = "GRCH37", verbose = TRUE)
-
-##Show just cancer cell lines contained in library CELLMINER
-show_contained_ccls(ref_gen = "GRCH37", library = "CELLMINER")
 }
