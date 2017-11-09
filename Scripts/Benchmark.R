@@ -44,7 +44,7 @@ run_benchmark = function(
     )
     gold_t <<- read.table( file = "~//Uniquorn_rna_panel_project/Misc/Goldstandard.tsv",sep="\t", header = TRUE)
     
-    seen_obj_path = str_replace(out_path_ident, pattern = "_Benchmark_identification_result.tab", ".seen_obj.RDS")
+    seen_obj_path <<- str_replace(out_path_ident, pattern = "_Benchmark_identification_result.tab", ".seen_obj.RDS")
     
     if (panel_mode){
         ident_result_files_path <<- str_replace(ident_result_files_path,pattern = "ident_files","panel_ident_files")
@@ -69,15 +69,11 @@ run_benchmark = function(
     
     for (b_file in b_files){
       
-        identifier = str_replace( tail( as.character(unlist(str_split(b_file, pattern = "/"))), 1 ), pattern =".ident.tsv", "" )
+        identifier_seen_obj <<- str_replace( tail( as.character(unlist(str_split(b_file, pattern = "/"))), 1 ), pattern =".ident.tsv", "" )
     
-        if (identifier %in% seen_obj){
+        if (identifier_seen_obj %in% seen_obj)
             next()
-        } else {
-            seen_obj <<- c(seen_obj, identifier)
-            saveRDS(seen_obj, file = seen_obj_path)
-        }
-      
+        
         parse_identification_data(b_file)
     }
     
@@ -115,7 +111,7 @@ parse_identification_data = function( b_file ){
     ### new
     
     gold_cls = str_to_upper(as.character(gold_t$CL_plane))
-    gold_cls = str_replace_all( gold_cls, pattern = "\\(|\\)", "")
+    gold_cls = str_replace_all( gold_cls, pattern = "\\(|\\)|\\,", "")
     
     ident_cls = str_to_upper(as.character(b_name_plane))
     ident_cls = str_replace_all(ident_cls, pattern = "\\.","")
@@ -193,7 +189,7 @@ parse_identification_data = function( b_file ){
     false_neg_ident_cls = concat_me( false_neg_ident )
     found_cls           = concat_me( found  )
     
-    res_ident_table <<- data.frame( 
+    res_ident_table <<- data.frame(
       "Query"                     = c( as.character( res_ident_table$Query ),                    as.character( b_name_full ) ),
       "Expected"                  = c( as.character( res_ident_table$Expected ),                 as.character( to_be_found_cls  ) ),
       "Found"                     = c( as.character( res_ident_table$Found ),                    as.character( found_cls ) ),
@@ -202,6 +198,9 @@ parse_identification_data = function( b_file ){
       "False_positive"            = c( as.character( res_ident_table$False_positive ),           as.character( false_pos_ident_cls   )),
       stringsAsFactors = F
     )
+    
+    seen_obj <<- c(seen_obj, identifier_seen_obj)
+    saveRDS(seen_obj, file = seen_obj_path)
     
     #auc_table$False_neg[ index ] = as.character( as.integer( auc_table$False_neg[ index ] ) + length( tmp_false_neg ) )
     write.table( res_ident_table, benchmark_ident_file_path, sep ="\t", quote = F, row.names = F  )
