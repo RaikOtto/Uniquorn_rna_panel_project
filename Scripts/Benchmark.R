@@ -7,21 +7,16 @@ load_all()
 parser = ArgumentParser()
 parser$add_argument('-iw', "--inclusion_weight", type="double")
 parser$add_argument('-p', "--panel_mode", action="store_true", default = "FALSE")
-parser$add_argument('-nt', "--number_threads", type="integer", default = "1")
 args = parser$parse_args()
 
 inclusion_weight     = args$inclusion_weight
 panel_mode           = args$panel_mode
-
-p_value               = .05
-minimum_matching_mutations = 0
-run_identification   = F
-auc_mode             = FALSE
 regex_term = "\\(|\\*|\\-|\\-|\\_|\\+|\\-|\\)|\\-|\\:|\\[|\\]|\\."
 
 run_benchmark = function(
-    inclusion_weight = inclusion_weight, 
-    minimum_matching_mutations = minimum_matching_mutations
+    inclusion_weight,
+    minimum_matching_mutations,
+    panel_mode
 ){
   
     source("~/Uniquorn_rna_panel_project/Scripts/utility.R")
@@ -53,7 +48,8 @@ run_benchmark = function(
     }
     
     b_files <<- list.files(ident_result_files_path , pattern = ".ident.tsv", full.names = T, ignore.case = T )
-    
+    print(ident_result_files_path)
+
     ## benchmark results positive predictions
     
     if (file.exists(seen_obj_path)) {seen_obj <<- readRDS(seen_obj_path)
@@ -208,10 +204,8 @@ parse_identification_data = function( b_file ){
   
 }
 
-#inclusion_weight      = 0.0
-#panel_mode            = FALSE
-
 run_benchmark(
-    inclusion_weight,
-    minimum_matching_mutations = minimum_matching_mutations
+    inclusion_weight = inclusion_weight,
+    minimum_matching_mutations = 0,
+    panel_mode = panel_mode
 )
