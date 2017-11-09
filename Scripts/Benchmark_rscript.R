@@ -7,7 +7,7 @@ load_all()
 parser = ArgumentParser()
 parser$add_argument('-iw', "--inclusion_weight", type="double")
 parser$add_argument('-p', "--panel_mode", action="store_true", default = "FALSE")
-parser$add_argument('-top', "--top_hits_per_library", action="integer", default = "3")
+parser$add_argument('-top', "--top_hits_per_library", type="integer", default = "3")
 parser$add_argument('-cs', "--confidence_score", type="integer", default = "40")
 args = parser$parse_args()
 
