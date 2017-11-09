@@ -98,17 +98,14 @@ y_val_4 = rev(as.double( unlist(perf_4@y.values) )[-1]) * 100
 #x_val_1 = x_val_1[1:min_min];x_val_2 = x_val_2[1:min_min];x_val_3 = x_val_3[1:min_min];x_val_4 = x_val_4[1:min_min];
 #y_val_1 = y_val_1[1:min_min];y_val_2 = y_val_2[1:min_min];y_val_3 = y_val_3[1:min_min];y_val_4 = y_val_4[1:min_min];
 
-indices = sample(length(x_val_1), 10)
-x_val_1 = x_val_1[indices]
-y_val_1 = y_val_1[indices]
+#indices = sample(length(x_val_1), 10)
+#x_val_1 = x_val_1[indices]
+#y_val_1 = y_val_1[indices]
+#x_val_1 = rev(x_val_1)
+#y_val_1 = rev(y_val_1)
+#r = cbind(x_val_1,y_val_1)
 
-
-x_val_1 = rev(x_val_1)
-y_val_1 = rev(y_val_1)
-
-r = cbind(x_val_1,y_val_1)
-
-plot( x= (x_val_1), y = (y_val_1) )
+#plot( x= (x_val_1), y = (y_val_1) )
 
 weights = as.factor( 
   c( 
