@@ -18,9 +18,9 @@
 #' ~0 = found in many CL samples. 
 #' @param minimum_matching_mutations The minimum amount of mutations that 
 #' has to match between query and training sample for a positive prediction
-#' @param robust_mode Improves specificity at the cost of sensitivity when
-#' reference and query CCL are based on heterogeneous technologies, in 
-#' particular with respect to the amount of variants available.
+#' @param top_hits_per_library Limit the number of significant similarities
+#' per library to n (default 3) many hits. Is particularrly used in contexts
+#' when heterogeneous query and reference CCLs are being compared.
 #' @param manual_identifier_bed_file Manually enter a vector of CL 
 #' name(s) whose bed files should be created, independently from 
 #' them passing the detection threshold
@@ -45,7 +45,7 @@
 #' mutational_weight_inclusion_threshold = 0.5,
 #' write_xls = FALSE,
 #' output_bed_file = FALSE,
-#' robust_mode = FALSE,
+#' top_hits_per_library = 3,
 #' manual_identifier_bed_file = "",
 #' verbose = TRUE,
 #' p_value = .05,
@@ -64,7 +64,7 @@ identify_vcf_file = function(
     mutational_weight_inclusion_threshold = 0.5,
     write_xls = FALSE,
     output_bed_file = FALSE,
-    robust_mode = FALSE,
+    top_hits_per_library = 3,
     manual_identifier_bed_file = "",
     verbose = TRUE,
     p_value = .05,
@@ -76,7 +76,7 @@ identify_vcf_file = function(
         message(paste(c(
             "Confidence score has been set to ",
             as.character(confidence_score),
-            ", ignoring the p_value"
+            ", overriding the p_value"
         )))
         confidence_score[confidence_score < 0 ] = 0
         confidence_score[confidence_score > 100 ] = 100
@@ -92,8 +92,13 @@ identify_vcf_file = function(
         Library = as.character()
     )
     
-    if (robust_mode)
-        message("Using robust identification mode")
+    message(paste( c(
+        "Limiting out to top ",
+        as.character(top_hits_per_library),
+        " hits per library."
+        ), sep ="", collapse= ""
+        )
+    )
     
     for( library_name in library_names ){
         
@@ -126,7 +131,7 @@ identify_vcf_file = function(
         p_value,
         ref_gen = ref_gen,
         minimum_matching_mutations = minimum_matching_mutations,
-        robust_mode
+        top_hits_per_library
     )
     match_t = add_penality_statistics(match_t,minimum_matching_mutations)
     match_t$Identification_sig = match_t$P_value_sig & match_t$Above_Penality

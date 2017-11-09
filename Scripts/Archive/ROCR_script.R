@@ -105,7 +105,21 @@ weights = as.factor(
     rep("0.5",length(x_val_3)),
     rep("1.0",length(x_val_4) )
   )
-)
+)/home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_0.5.RDS
+/home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_0.5.tsv
+/home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_0.25.RDS
+/home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_0.25.tsv
+/home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_0.RDS
+/home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_0.tsv
+/home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_1.RDS
+/home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_1.tsv/home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_0.5.RDS
+/home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_0.5.tsv
+/home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_0.25.RDS
+/home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_0.25.tsv
+/home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_0.RDS
+/home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_0.tsv
+/home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_1.RDS
+/home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_1.tsv
 
 plots_frame = data.frame( 
   "X" = c(
@@ -218,7 +232,14 @@ h = cbind(
 ###
 
 calc_cutoff = function(d){
-  many_labs = as.character( d$Should_be_found )
+  many_labs = as.cha/home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_0.5.RDS
+  /home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_0.5.tsv
+  /home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_0.25.RDS
+  /home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_0.25.tsv
+  /home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_0.RDS
+  /home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_0.tsv
+  /home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_1.RDS
+  /home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_1.tsvracter( d$Should_be_found )
   many_labs[ many_labs != "TRUE" ] = 0.0
   many_labs[ many_labs == "TRUE" ] = 1.0
   
@@ -262,14 +283,17 @@ calc_cutoff = function(d){
   
 }
 
-d1 = read.table("~/Uniquorn_data/benchmark_vcf_files/AUC/auc_1.tsv",sep="\t", header = T)
-d2 = read.table("~/Uniquorn_data/benchmark_vcf_files/AUC/auc_0.5.tsv",sep="\t", header = T)
-d3 = read.table("~/Uniquorn_data/benchmark_vcf_files/AUC/auc_0.25.tsv",sep="\t", header = T)
-d4 = read.table("~/Uniquorn_data/benchmark_vcf_files/AUC/auc_0.tsv",sep="\t", header = T)
+d1 = read.table("~/Uniquorn_data/benchmark_vcf_files/Finished/auc//auc_1.tsv",sep="\t", header = T)
+d2 = read.table("~/Uniquorn_data/benchmark_vcf_files/Finished/auc//auc_0.5.tsv",sep="\t", header = T)
+d3 = read.table("~/Uniquorn_data/benchmark_vcf_files/Finished/auc//auc_0.25.tsv",sep="\t", header = T)
+d4 = read.table("~/Uniquorn_data/benchmark_vcf_files/Finished/auc//auc_0.tsv",sep="\t", header = T)
 
+calc_cutoff(d1)
+calc_cutoff(d2)
+calc_cutoff(d3)
 calc_cutoff(d4)
 
-# d1 37
-# d2 45
-# d3 44
-# d4 17
+# d1 33.2
+# d2 35.4
+# d3 38.9
+# d4 18.1

@@ -12,8 +12,8 @@
 #' @param minimum_matching_mutations Manual lower amount of matching
 #' mutations require for a significant match between a query and a 
 #' reference
-#' @param robust_mode Logical variable to indicate whether the
-#' robust statistical formula should be utilized or not
+#' @param top_hits_per_library limits significant similarities to the first 
+#' n hits
 #' @import stringr
 #' @return R table with a statistic 
 add_p_q_values_statistics = function(
@@ -22,12 +22,13 @@ add_p_q_values_statistics = function(
     p_value,
     ref_gen,
     minimum_matching_mutations,
-    robust_mode
+    top_hits_per_library
 ){
   
     library_names = read_library_names(ref_gen = ref_gen)
     p_values = rep(1.0, nrow(match_t))
     balls_in_query = length(g_query$Member_CCLs)
+    sig_vec <<- c()
   
     for (library_name in library_names){
         
@@ -47,15 +48,11 @@ add_p_q_values_statistics = function(
         
         background_cls_traces = sum(white_balls_found >= mean(white_balls_found))
         
-        if ( robust_mode ) {
-            
-            likelihood_found = ( white_balls_possible / 
-                  sum(white_balls_possible) ) **
-                (white_balls_found / sum(white_balls_found))
-        } else {
-            likelihood_found = white_balls_possible / sum(white_balls_possible)
-        }
-        
+        #likelihood_found = ( white_balls_possible / 
+        #    sum(white_balls_possible) ) **
+        #    (white_balls_found / sum(white_balls_found))
+        likelihood_found = white_balls_possible / sum(white_balls_possible)
+
         q = white_balls_found - 1
         q[q < 0]   = 0
         
@@ -73,10 +70,17 @@ add_p_q_values_statistics = function(
         p_values_panel[white_balls_found < minimum_matching_mutations] = 1.0
         
         p_values[index_library] = p_values_panel
+        n_hits_vec = order( as.double( p_values[index_library] ) )
+        n_hits_vec[ as.integer(n_hits_vec) > as.integer( top_hits_per_library )] = FALSE
+        n_hits_vec[ as.integer(n_hits_vec) > 0 ] = TRUE
+        n_hits_vec = as.logical(n_hits_vec)
       
+        sig_vec <<- c(sig_vec, n_hits_vec)
     }
+    
     match_t$P_values = p_values
     match_t$P_value_sig = match_t$P_values <= p_value
+    match_t$P_value_sig = match_t$P_value_sig & sig_vec
 
     return(match_t)
 }

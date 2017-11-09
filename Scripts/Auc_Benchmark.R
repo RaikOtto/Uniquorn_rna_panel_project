@@ -127,6 +127,7 @@ run_benchmark = function(
         pattern = ".ident.tsv",
         full.names = T
     )
+    b_files[sapply(b_files, file.size) > 300000]
     
     if (file.exists(seen_obj_path)) {
         seen_obj <<- readRDS(seen_obj_path)

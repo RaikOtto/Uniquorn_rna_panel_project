@@ -53,7 +53,7 @@ run_benchmark = function(
     }
     
     b_files <<- list.files(ident_result_files_path , pattern = ".ident.tsv", full.names = T, ignore.case = T )
-    
+    b_files[sapply(b_files, file.size) > 300000]
     ## benchmark results positive predictions
     
     if (file.exists(seen_obj_path)) {seen_obj <<- readRDS(seen_obj_path)
