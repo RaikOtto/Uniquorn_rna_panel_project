@@ -7,7 +7,7 @@ load_all()
 parser = ArgumentParser()
 parser$add_argument('-iw', "--inclusion_weight", type="double")
 parser$add_argument('-p', "--panel_mode", action="store_true", default = "FALSE")
-parser$add_argument('-r', "--robust_mode", action="store_true", default = "FALSE")
+parser$add_argument('-top', "--top_hits_per_library", action="integer", default = "3")
 parser$add_argument('-cs', "--confidence_score", type="integer", default = "40")
 args = parser$parse_args()
 
@@ -16,7 +16,7 @@ exclude_self         = FALSE
 
 minimum_matching_mutations = args$inclusion_weight
 panel_mode                 = args$panel_mode
-robust_mode                = args$robust_mode
+top_hits_per_library       = args$top_hits_per_library
 confidence_score           = args$confidence_score
 
 run_identification   = F
@@ -30,7 +30,7 @@ run_identification = function(
     type_benchmark = type_benchmark,
     ref_gen,
     panel_mode,
-    robust_mode,
+    top_hits_per_library,
     confidence_score
 ){
   
@@ -108,7 +108,7 @@ run_identification = function(
                 i_file,
                 mutational_weight_inclusion_threshold = inclusion_weight,
                 output_file = out_path_ident_file,
-                robust_mode = robust_mode,
+                top_hits_per_library = top_hits_per_library,
                 confidence_score = confidence_score
             )
         }
@@ -121,6 +121,6 @@ run_identification(
     type_benchmark = type_benchmark,
     ref_gen = ref_gen,
     panel_mode = panel_mode,
-    robust_mode = robust_mode,
+    top_hits_per_library = top_hits_per_library,
     confidence_score = confidence_score
 )

@@ -6,7 +6,7 @@ library("ggplot2")
 library(devtools)
 setwd("~/Uniquorn_rna_panel_project/Uniquorn/")
 load_all()
-anchor = "~/Uniquorn_data/benchmark_vcf_files/AUC/"
+anchor = "~/Uniquorn_data/benchmark_vcf_files/Finished/auc/"
 
 run_rocr = function( anchor ){
   
@@ -30,7 +30,7 @@ run_rocr = function( anchor ){
     )
 
   for (input_t in c( "auc_t_0", "auc_t_0_25", "auc_t_0_5", "auc_t_1" )){
-  
+
       print(input_t)
       auc_t = eval(
         parse(
@@ -43,8 +43,10 @@ run_rocr = function( anchor ){
       many_labs[ many_labs != "TRUE" ] = 0.0
       many_labs[ many_labs == "TRUE" ] = 1.0
       
+      score = -1 * log(as.double(auc_t$P_values+exp(-1*100)))
+      score[score> 100] = 100
       pred_obj = ROCR::prediction(
-        predictions = 1-as.double( auc_t$P_values  ), ####
+        predictions = score, ####
         labels = many_labs 
       )
       pred_obj_2 <<- pred_obj
@@ -80,23 +82,25 @@ run_rocr( anchor )
 
 perf_1 = unlist(perf_vec)[[1]];perf_2 = unlist(perf_vec)[[2]];perf_3 = unlist(perf_vec)[[3]];perf_4 = unlist(perf_vec)[[4]]
 
-x_val_1 = as.double(unlist(perf_1@x.values ) )
-x_val_2 = as.double(unlist(perf_2@x.values ) )
-x_val_3 = as.double(unlist(perf_3@x.values ) )
-x_val_4 = as.double(unlist(perf_4@x.values ) )
-y_val_1 = as.double( unlist(perf_1@y.values) ) * 100
-y_val_2 = as.double( unlist(perf_2@y.values) ) * 100
-y_val_3 = as.double( unlist(perf_3@y.values) ) * 100
-y_val_4 = as.double( unlist(perf_4@y.values) ) * 100
+x_val_1 = rev(as.double(unlist(perf_1@alpha.values ) )[-1])
+x_val_2 = rev(as.double(unlist(perf_2@alpha.values ) )[-1])
+x_val_3 = rev(as.double(unlist(perf_3@alpha.values ) )[-1])
+x_val_4 = rev(as.double(unlist(perf_4@alpha.values ) )[-1])
+y_val_1 = rev(as.double( unlist(perf_1@y.values) )[-1]) * 100
+y_val_2 = rev(as.double( unlist(perf_2@y.values) )[-1]) * 100
+y_val_3 = rev(as.double( unlist(perf_3@y.values) )[-1]) * 100
+y_val_4 = rev(as.double( unlist(perf_4@y.values) )[-1]) * 100
 
-min_min_x = min(c(length(x_val_1),length(x_val_2),length(x_val_3),length(x_val_4)))
-min_min_y = min(c(length(y_val_1),length(y_val_2),length(y_val_3),length(y_val_4)))
-min_min = min(min_min_x, min_min_y)
+#min_min_x = min(c(length(x_val_1),length(x_val_2),length(x_val_3),length(x_val_4)))
+#min_min_y = min(c(length(y_val_1),length(y_val_2),length(y_val_3),length(y_val_4)))
+#min_min = min(min_min_x, min_min_y)
 
-x_val_1 = x_val_1[1:min_min];x_val_2 = x_val_2[1:min_min];x_val_3 = x_val_3[1:min_min];x_val_4 = x_val_4[1:min_min];
-y_val_1 = y_val_1[1:min_min];y_val_2 = y_val_2[1:min_min];y_val_3 = y_val_3[1:min_min];y_val_4 = y_val_4[1:min_min];
+#x_val_1 = x_val_1[1:min_min];x_val_2 = x_val_2[1:min_min];x_val_3 = x_val_3[1:min_min];x_val_4 = x_val_4[1:min_min];
+#y_val_1 = y_val_1[1:min_min];y_val_2 = y_val_2[1:min_min];y_val_3 = y_val_3[1:min_min];y_val_4 = y_val_4[1:min_min];
 
-plot( x= (x_val_2), y = (y_val_2))
+plot( x= (x_val_1), y = (y_val_1))
+x_val_1 = x_val_1[indices]
+y_val_1 = y_val_1[indices]
 
 weights = as.factor( 
   c( 
@@ -105,21 +109,7 @@ weights = as.factor(
     rep("0.5",length(x_val_3)),
     rep("1.0",length(x_val_4) )
   )
-)/home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_0.5.RDS
-/home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_0.5.tsv
-/home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_0.25.RDS
-/home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_0.25.tsv
-/home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_0.RDS
-/home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_0.tsv
-/home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_1.RDS
-/home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_1.tsv/home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_0.5.RDS
-/home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_0.5.tsv
-/home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_0.25.RDS
-/home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_0.25.tsv
-/home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_0.RDS
-/home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_0.tsv
-/home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_1.RDS
-/home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_1.tsv
+)
 
 plots_frame = data.frame( 
   "X" = c(
@@ -142,7 +132,7 @@ q_bird = ggplot(
   aes( x = X, y = Y )
 ) + geom_line( size = 2, aes( linetype = Weight, color = Weight) )
 q_bird  = q_bird + xlab( "" ) + ylab( "" )
-q_bird  = q_bird + xlim( 0, 0.1)
+q_bird  = q_bird + xlim( 0, 100)
 q_bird
 
 
@@ -195,9 +185,9 @@ opt.cut = function( perf, pred ){
   }, perf@x.values, perf@y.values, pred@cutoffs)
 }
 
-
+auc_t_save = auc_t
 auc_t = read.table( 
-    paste0( anchor, "auc_1_relaxed.tab" ), 
+    paste0( anchor, "auc_1.tsv" ), 
     header = T,
     stringsAsFactors = F,
     sep = "\t",
@@ -232,14 +222,7 @@ h = cbind(
 ###
 
 calc_cutoff = function(d){
-  many_labs = as.cha/home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_0.5.RDS
-  /home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_0.5.tsv
-  /home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_0.25.RDS
-  /home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_0.25.tsv
-  /home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_0.RDS
-  /home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_0.tsv
-  /home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_1.RDS
-  /home/ottoraik/Uniquorn_data/benchmark_vcf_files/Finished/auc/auc_1.tsvracter( d$Should_be_found )
+  many_labs = as.character( d$Should_be_found )
   many_labs[ many_labs != "TRUE" ] = 0.0
   many_labs[ many_labs == "TRUE" ] = 1.0
   
@@ -297,3 +280,5 @@ calc_cutoff(d4)
 # d2 35.4
 # d3 38.9
 # d4 18.1
+
+d1
