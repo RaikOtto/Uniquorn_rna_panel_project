@@ -54,8 +54,8 @@ run_benchmark = function(
   
   if (file.exists(seen_obj_path)) {seen_obj <<- readRDS(seen_obj_path)
   seen_obj <<- readRDS(seen_obj_path)
-  res_ident_table <<- read.table( benchmark_ident_file_path, sep ="\t", header = T )
-  res_table <<- read.table( benchmark_res_file_path, sep ="\t", header = T )
+  res_ident_table <<- read.table( benchmark_ident_file_path, sep ="\t", header = T, stringsAsFactors = F )
+  res_table <<- read.table( benchmark_res_file_path, sep ="\t", header = T, stringsAsFactors = F )
   
   } else {
     seen_obj <<- c()

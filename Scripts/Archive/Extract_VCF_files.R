@@ -19,7 +19,7 @@ header_row =  c("CHROM","POS","ID","REF","ALT","QUAL","FILTER","INFO","FORMAT","
 ###
 
 library_names = Uniquorn:::read_library_names(ref_gen = "GRCH37")
-library_names = c("CELLMINER")
+library_names = c("EGA")
 
 for (library_name in library_names){
     
