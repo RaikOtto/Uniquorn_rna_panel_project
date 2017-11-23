@@ -45,6 +45,7 @@ run_benchmark = function(
     ident_result_files_path <<- str_replace(ident_result_files_path,pattern = "ident_files","panel_ident_files")
     benchmark_ident_file_path <<- str_replace(benchmark_ident_file_path,pattern = "Benchmark_results","panel_Benchmark_results")
     benchmark_res_file_path <<- str_replace(benchmark_res_file_path,pattern = "Benchmark_results","panel_Benchmark_results")
+    seen_obj_path <<- str_replace(seen_obj_path, pattern = "Benchmark_results_regularized", "panel_Benchmark_results_regularized")
   }
   
   b_files <<- list.files(ident_result_files_path , pattern = ".ident.tsv", full.names = T, ignore.case = T )
@@ -53,9 +54,9 @@ run_benchmark = function(
   ## benchmark results positive predictions
   
   if (file.exists(seen_obj_path)) {seen_obj <<- readRDS(seen_obj_path)
-  seen_obj <<- readRDS(seen_obj_path)
-  res_ident_table <<- read.table( benchmark_ident_file_path, sep ="\t", header = T, stringsAsFactors = F )
-  res_table <<- read.table( benchmark_res_file_path, sep ="\t", header = T, stringsAsFactors = F )
+      seen_obj <<- readRDS(seen_obj_path)
+      res_ident_table <<- read.table( benchmark_ident_file_path, sep ="\t", header = T, stringsAsFactors = F )
+      res_table <<- read.table( benchmark_res_file_path, sep ="\t", header = T, stringsAsFactors = F )
   
   } else {
     seen_obj <<- c()
