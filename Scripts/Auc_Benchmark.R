@@ -12,7 +12,6 @@ args = parser$parse_args()
 
 inclusion_weight     = args$inclusion_weight
 panel_mode           = args$panel_mode
-robust_mode          = args$robust_mode
 
 regex_term = "\\(|\\*|\\-|\\-|\\_|\\+|\\-|\\)|\\-|\\:|\\[|\\]|\\."
 
@@ -97,8 +96,7 @@ parse_identification_data = function( b_file, gold_t,auc_file_path,ident_result_
 
 run_benchmark = function(
     inclusion_weight,
-    panel_mode,
-    robust_mode
+    panel_mode
 ){
   
     source("~/Uniquorn_rna_panel_project//Scripts/utility.R")
@@ -119,6 +117,13 @@ run_benchmark = function(
         c("~/Uniquorn_data/benchmark_vcf_files/AUC/auc_",as.character(inclusion_weight),".RDS" ),
         collapse = ""
     )
+    
+    if (panel_mode){
+      ident_result_files_path <<- str_replace(ident_result_files_path,pattern = "ident_files","panel_ident_files")
+      benchmark_ident_file_path <<- str_replace(benchmark_ident_file_path,pattern = "Benchmark_results","panel_Benchmark_results")
+      benchmark_res_file_path <<- str_replace(benchmark_res_file_path,pattern = "Benchmark_results","panel_Benchmark_results")
+      seen_obj_path <<- str_replace(seen_obj_path, pattern = "Benchmark_results_regularized", "panel_Benchmark_results_regularized")
+    }
         
     # pre process
     
