@@ -7,7 +7,6 @@ load_all()
 parser = ArgumentParser()
 parser$add_argument('-iw', "--inclusion_weight", type="double")
 parser$add_argument('-p', "--panel_mode", action="store_true", default = "FALSE")
-parser$add_argument('-r', "--robust_mode", action="store_true", default = "FALSE")
 args = parser$parse_args()
 
 inclusion_weight     = args$inclusion_weight
@@ -120,9 +119,8 @@ run_benchmark = function(
     
     if (panel_mode){
       ident_result_files_path <<- str_replace(ident_result_files_path,pattern = "ident_files","panel_ident_files")
-      benchmark_ident_file_path <<- str_replace(benchmark_ident_file_path,pattern = "Benchmark_results","panel_Benchmark_results")
-      benchmark_res_file_path <<- str_replace(benchmark_res_file_path,pattern = "Benchmark_results","panel_Benchmark_results")
-      seen_obj_path <<- str_replace(seen_obj_path, pattern = "Benchmark_results_regularized", "panel_Benchmark_results_regularized")
+      auc_file_path <<- str_replace(auc_file_path,pattern = "auc_","panel_auc_")
+      seen_obj_path <<- str_replace(seen_obj_path, pattern = "auc_", "panel_auc_")
     }
         
     # pre process
@@ -144,7 +142,7 @@ run_benchmark = function(
     ## benchmark results positive predictions
   
     build_tables()
- 
+    print(b_files)
     for (b_file in b_files){
         
         identifier = str_replace( tail( as.character(unlist(str_split(b_file, pattern = "/"))), 1 ), pattern =".ident.tsv", "" )
@@ -168,6 +166,5 @@ run_benchmark = function(
 
 run_benchmark(
     inclusion_weight = inclusion_weight,
-    panel_mode = panel_mode,
-    robust_mode = robust_mode
+    panel_mode = panel_mode
 )
