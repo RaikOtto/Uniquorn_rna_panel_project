@@ -93,10 +93,11 @@ identify_vcf_file = function(
     )
     
     message(paste( c(
-        "Limiting out to top ",
-        as.character(top_hits_per_library),
-        " hits per library."
-        ), sep ="", collapse= ""
+            "Limiting positive identifications to top ",
+            as.character(top_hits_per_library),
+            " hits per library."
+          ),
+          sep ="", collapse= ""
         )
     )
     
@@ -141,6 +142,7 @@ identify_vcf_file = function(
     
     if(output_file == ""){
         output_file = str_replace(vcf_file,pattern = "(\\.vcf)|(\\.VCF)", ".ident.tsv" )
+        output_file = str_replace(vcf_file,pattern = "(\\.gz$)|(\\.GZ$)", "" )
     }
     
     if ( verbose ){
