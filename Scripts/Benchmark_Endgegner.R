@@ -8,18 +8,20 @@ parser = ArgumentParser()
 parser$add_argument('-iw', "--inclusion_weight", type="double")
 parser$add_argument('-p', "--panel_mode", action="store_true", default = "FALSE")
 parser$add_argument('-nt', "--number_threads", type="integer", default = "1")
+parser$add_argument('-mp', "--manual_path", type="character", default = "")
 args = parser$parse_args()
 
 #args$inclusion_weight = .5
 inclusion_weight = args$inclusion_weight
 panel_mode = args$panel_mode
-#inclusion_weight = 0.25
+manual_path = args$manual_path
 #panel_mode = FALSE
 
 run_small_statistics = function( 
   input_path_comparison = input_path_comparison,
   inclusion_weight = inclusion_weight, 
-  panel_mode
+  panel_mode,
+  manual_path = ""
 ){
     inclusion_weight = str_replace(inclusion_weight, pattern = "\\.", "_")
     source("~//Uniquorn_rna_panel_project//Scripts/utility.R")
@@ -36,28 +38,31 @@ run_small_statistics = function(
     print( paste( c("Inclusion weight: ", inclusion_weight ), sep = "", collapse = "" ) )
     
     input_path_comparison = paste(c(
-      "~/Uniquorn_data/benchmark_vcf_files/Benchmark_results_regularized/",
-      inclusion_weight
-      ,"_Benchmark_comparisons_result.tab"), sep ="", collapse = "")
+        "~/Uniquorn_data/benchmark_vcf_files/Benchmark_results_regularized/",
+        inclusion_weight
+        ,"_Benchmark_comparisons_result.tab"), sep ="", collapse = "")
     input_path_identification = paste( c(
-      "~/Uniquorn_data/benchmark_vcf_files/Benchmark_results_regularized/",
-      inclusion_weight,
-      "_Benchmark_identification_result.tab"), sep ="", collapse = ""
+        "~/Uniquorn_data/benchmark_vcf_files/Benchmark_results_regularized/",
+        inclusion_weight,
+        "_Benchmark_identification_result.tab"), sep ="", collapse = ""
     )
     
     output_table_path = str_replace( 
-      input_path_comparison, 
-      pattern = "_Benchmark_comparisons_result.tab",
-      "_Benchmark_identification_result_aggregated.tab"
+        input_path_comparison, 
+        pattern = "_Benchmark_comparisons_result.tab",
+        "_Benchmark_identification_result_aggregated.tab"
     )
     
     if (panel_mode){
-      ident_result_files_path = str_replace(ident_result_files_path,pattern = "ident_files","panel_ident_files")
-      benchmark_ident_file_path = str_replace(benchmark_ident_file_path,pattern = "Benchmark_results","panel_Benchmark_results")
-      benchmark_res_file_path = str_replace(benchmark_res_file_path,pattern = "Benchmark_results","panel_Benchmark_results")
-      output_table_path = str_replace(output_table_path,pattern = "Benchmark_results","panel_Benchmark_results")
-      input_path_identification = str_replace(input_path_identification,pattern = "Benchmark_results","panel_Benchmark_results")
+        ident_result_files_path = str_replace(ident_result_files_path,pattern = "ident_files","panel_ident_files")
+        benchmark_ident_file_path = str_replace(benchmark_ident_file_path,pattern = "Benchmark_results","panel_Benchmark_results")
+        benchmark_res_file_path = str_replace(benchmark_res_file_path,pattern = "Benchmark_results","panel_Benchmark_results")
+        output_table_path = str_replace(output_table_path,pattern = "Benchmark_results","panel_Benchmark_results")
+        input_path_identification = str_replace(input_path_identification,pattern = "Benchmark_results","panel_Benchmark_results")
     }
+    
+    if (manual_path != "")
+        input_path_identification = manual_path
     
     t_rel = read.table( input_path_identification, sep ="\t", header = T)
     print(paste(c("Number cases: ", nrow(t_rel) ), sep ="", collapse=""))
@@ -97,5 +102,6 @@ run_small_statistics = function(
 #inclusion_weight = 0.5
 run_small_statistics(
     inclusion_weight = inclusion_weight,
-    panel_mode = panel_mode
+    panel_mode = panel_mode,
+    manual_path = manual_path
 )

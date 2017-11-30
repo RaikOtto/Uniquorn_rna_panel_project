@@ -103,26 +103,27 @@ run_benchmark = function(
   
     inclusion_weight_path = as.character( inclusion_weight )
     inclusion_weight_path = str_replace( as.character( inclusion_weight_path ), pattern ="\\.", "_" )
-    ident_result_files_path = paste( 
+    ident_result_files_path <<- paste( 
         "~/Uniquorn_data//benchmark_vcf_files/ident_files_regularized/",
         paste( as.character( inclusion_weight_path ), "", sep ="/" ), sep = "/"
     )
-    auc_file_path = paste0(
+    
+    auc_file_path <<- paste0(
         c("~/Uniquorn_data/benchmark_vcf_files/AUC/auc_",as.character(inclusion_weight),".tsv" ),
         collapse = ""
     )
     
-    seen_obj_path = paste0(
+    seen_obj_path <<- paste0(
         c("~/Uniquorn_data/benchmark_vcf_files/AUC/auc_",as.character(inclusion_weight),".RDS" ),
         collapse = ""
     )
     
     if (panel_mode){
-      ident_result_files_path <<- str_replace(ident_result_files_path,pattern = "ident_files","panel_ident_files")
-      auc_file_path <<- str_replace(auc_file_path,pattern = "auc_","panel_auc_")
-      seen_obj_path <<- str_replace(seen_obj_path, pattern = "auc_", "panel_auc_")
+        ident_result_files_path <<- str_replace(ident_result_files_path,pattern = "ident_files","panel_ident_files")
+        auc_file_path <<- str_replace(auc_file_path,pattern = "auc_","panel_auc_")
+        seen_obj_path <<- str_replace(seen_obj_path, pattern = "auc_", "panel_auc_")
     }
-        
+    print(ident_result_files_path)
     # pre process
     
     b_files =  list.files(
@@ -142,7 +143,7 @@ run_benchmark = function(
     ## benchmark results positive predictions
   
     build_tables()
-    print(b_files)
+    #print(b_files)
     for (b_file in b_files){
         
         identifier = str_replace( tail( as.character(unlist(str_split(b_file, pattern = "/"))), 1 ), pattern =".ident.tsv", "" )
