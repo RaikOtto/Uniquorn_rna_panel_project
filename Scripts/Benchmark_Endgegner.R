@@ -52,7 +52,7 @@ run_small_statistics = function(
         pattern = "_Benchmark_comparisons_result.tab",
         "_Benchmark_identification_result_aggregated.tab"
     )
-    
+
     if (panel_mode){
         ident_result_files_path = str_replace(ident_result_files_path,pattern = "ident_files","panel_ident_files")
         benchmark_ident_file_path = str_replace(benchmark_ident_file_path,pattern = "Benchmark_results","panel_Benchmark_results")
@@ -60,7 +60,7 @@ run_small_statistics = function(
         output_table_path = str_replace(output_table_path,pattern = "Benchmark_results","panel_Benchmark_results")
         input_path_identification = str_replace(input_path_identification,pattern = "Benchmark_results","panel_Benchmark_results")
     }
-    
+
     if (manual_path != "")
         input_path_identification = manual_path
     
