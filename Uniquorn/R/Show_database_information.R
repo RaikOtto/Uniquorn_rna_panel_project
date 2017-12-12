@@ -1,16 +1,19 @@
 #' show_contained_ccls
 #' 
-#' This function displays the names, amount of mutations/variations and the overall weight of the mutations of all contained cancer cell line fingerprints 
+#' This function displays the names, amount of mutations and the overall 
+#' weight of the mutations of all contained cancer cell line fingerprints 
 #' for a chosen reference genome and optional library.
 #' 
-#' @param ref_gen a character vector specifying the reference genome version. All training sets are associated with a reference genome version. Default is \code{"GRCH37"}.
-#' @param verbose Should DB informations be printed
-#' @return R table which contains the identifiers of all cancer cell line samples
+#' @param ref_gen a character vector specifying the reference genome version.
+#'  All training sets are associated with a reference genome version.
+#'  Default is \code{"GRCH37"}.
+#' @param verbose Should DB informations be printed?
+#' @return R table which contains identifiers of all cancer cell line samples
 #'  which match the specified parameters (reference genome and library).
 #' @usage 
 #' show_contained_ccls(ref_gen, verbose)
 #' @examples
-#' ##Show all contained cancer cell lines for reference GRCH37
+#' ## Show all contained cancer cell lines for reference GRCH37:
 #' show_contained_ccls(ref_gen = "GRCH37", verbose = TRUE)
 #' @import GenomicRanges stringr
 #' @export
@@ -22,7 +25,7 @@ show_contained_ccls = function(
     package_path = system.file("", package = "Uniquorn")
     library_path =  paste( c( package_path,"/Libraries/",ref_gen),
         sep ="", collapse= "")
-  
+    
     if ( ! dir.exists( library_path ))
         stop("No libraries found!")
     
@@ -39,7 +42,7 @@ show_contained_ccls = function(
     )
     
     for (library_name in libraries){
-       
+        
         stats_path = paste( c( library_path,"/",library_name,
             "/CCL_List_Uniquorn_DB.RData"), sep ="", collapse= "")
         g_library = readRDS(stats_path)
@@ -47,11 +50,10 @@ show_contained_ccls = function(
             paste("_",library_name,sep = ""),"" )
         g_library$CCL = cl_id_no_library
         
-        if (verbose)
-            print(paste(
-                c(library_name," amount CCLs: ", as.character(nrow(g_library))),
-                sep = "", collapse = "")
-        )
+        if (verbose) {
+            message(library_name," amount CCLs: ",
+                as.character(nrow(g_library)))
+        }
         g_library$Library = rep(library_name, nrow(g_library))
         g_library = g_library[c("CCL","Library","W0","W25","W05","W1")]
         ccls_all <<- rbind(ccls_all, g_library )
@@ -63,19 +65,20 @@ show_contained_ccls = function(
 #' 
 #' This function shows all variants contained in a reference library
 #' for a given inclusion weight. Default inclusion weight is 0 
-#' (all variants)
+#' (all variants).
 #' 
 #' @param ref_gen a character vector specifying the reference genome 
 #' version. All training sets are associated with a reference genome version. 
 #' Default is \code{"GRCH37"}.
-#' @param library_name Name of the reference library
+#' @param library_name Name of the reference library.
 #' @param mutational_weight_inclusion_threshold Include only mutations 
-#' with a weight of at least x. Range: 0.0 to 1.0. 1= unique to CL. 
+#' with a weight of at least x. Range: 0.0 to 1.0. 1 = unique to CL. 
 #' ~0 = found in many CL samples. 
-#' @usage 
+#' @usage
 #' show_contained_variants_in_library(ref_gen)
 #' @import stringr
 #' @examples
+#' ## Show all variants contained in reference library CELLMINER
 #' show_contained_variants_in_library(
 #' ref_gen = "GRCH37",
 #' library_name = "CELLMINER",
@@ -87,33 +90,31 @@ show_contained_variants_in_library = function(
     library_name,
     mutational_weight_inclusion_threshold = 0
 ){
-  
-    message(paste( 
-      c("Entered reference genome: ", ref_gen, 
-        " entered library name: ", library_name),
-        collapse= "",
-        sep = "")
-    )
+    
+    message("Entered reference genome: ", ref_gen, 
+        ". Entered library name: ", library_name)
     
     package_path = system.file("", package = "Uniquorn")
-    library_path =  paste( c( package_path,"/Libraries/",ref_gen), sep ="", collapse= "")
-  
+    library_path =  paste(
+        c(package_path, "/Libraries/", ref_gen), sep = "", collapse= ""
+    )
+    
     if ( ! dir.exists( library_path ))
         stop("No libraries found!")
-  
+    
     libraries = list.dirs(library_path,full.names = FALSE)
     libraries = libraries[ libraries != ""]
     
     if (! (library_name %in% libraries ))
-        stop("Could not find library")
+        stop("Could not find library!")
     
     g_mat = read_mutation_grange_objects(
         library_name = library_name,
         ref_gen = ref_gen,
         mutational_weight_inclusion_threshold = 
-          mutational_weight_inclusion_threshold
+            mutational_weight_inclusion_threshold
     )
-  
+    
     return(g_mat)
 }
 
@@ -138,6 +139,7 @@ show_contained_variants_in_library = function(
 #' library_name,
 #' mutational_weight_inclusion_threshold)
 #' @examples 
+#' ## Show all mutations for Cancer Cell Line 'SK_OV_3'
 #' show_contained_variants_for_ccl(
 #' name_ccl = "SK_OV_3",
 #' ref_gen = "GRCH37",
@@ -151,33 +153,29 @@ show_contained_variants_for_ccl = function(
     library_name,
     mutational_weight_inclusion_threshold = 0
 ){
-  
-    message(paste( 
-      c("Entered reference genome: ", ref_gen, 
-        " entered library name: ", library_name,
-        " entered name of ccl: ", name_ccl
-      ),
-      collapse= "",
-      sep = "")
-    )
     
+    message("Entered reference genome: ", ref_gen, 
+        ". Entered library name: ", library_name,
+        ". Entered name of ccl: ", name_ccl)
+        
     package_path = system.file("", package = "Uniquorn")
-    library_path =  paste( c( package_path,"/Libraries/",ref_gen), sep ="", collapse= "")
+    library_path =  paste(c(package_path, "/Libraries/", ref_gen),
+                            sep ="", collapse= "")
     
     if ( ! dir.exists( library_path ))
-      stop("No libraries found!")
+        stop("No libraries found!")
     
     libraries = list.dirs(library_path,full.names = FALSE)
     libraries = libraries[ libraries != ""]
     
     if (! (library_name %in% libraries ))
-      stop("Could not find library")
+        stop("Could not find library!")
     
     g_mat = read_mutation_grange_objects(
-      library_name = library_name,
-      ref_gen = ref_gen,
-      mutational_weight_inclusion_threshold = 
-        mutational_weight_inclusion_threshold
+        library_name = library_name,
+        ref_gen = ref_gen,
+        mutational_weight_inclusion_threshold = 
+            mutational_weight_inclusion_threshold
     )
     
     g_query_index = stringr::str_detect(g_mat$Member_CCLs, pattern = name_ccl)
@@ -186,7 +184,7 @@ show_contained_variants_for_ccl = function(
     return(g_query)
 }
 
-#' Cancer cell cines with specific variant
+#' Cancer cell lines with specific variant
 #' 
 #' This function displays all cancer cell lines in the database which 
 #' contain a specified variant. Utilizes closed interval coordinates.
@@ -202,6 +200,8 @@ show_contained_variants_for_ccl = function(
 #' with a weight of at least x. Range: 0.0 to 1.0. 1= unique to CL. 
 #' ~0 = found in many CCL samples. 
 #' @import stringr
+#' @importFrom IRanges IRanges
+#' @importFrom IRanges subsetByOverlaps
 #' @usage 
 #' show_which_cls_contain_variant(
 #' start,
@@ -229,16 +229,14 @@ show_which_ccls_contain_variant = function(
     library_name,
     mutational_weight_inclusion_threshold = 0
 ){
-  
-    message(paste( 
-        c("Entered reference genome: ", ref_gen, 
-          " entered library name: ", library_name),
-        collapse= "",
-        sep = "")
-    )
+    
+    message("Entered reference genome: ", ref_gen, 
+        ". Entered library name: ", library_name)
     
     package_path = system.file("", package = "Uniquorn")
-    library_path =  paste( c( package_path,"/Libraries/",ref_gen), sep ="", collapse= "")
+    library_path = paste(
+        c(package_path, "/Libraries/", ref_gen), sep ="", collapse= ""
+    )
     
     if ( ! dir.exists( library_path ))
         stop("No libraries found!")
@@ -247,7 +245,7 @@ show_which_ccls_contain_variant = function(
     libraries = libraries[ libraries != ""]
     
     if (! (library_name %in% libraries ))
-        stop("Could not find library")
+        stop("Could not find library!")
     
     g_mat = read_mutation_grange_objects(
         library_name = library_name,
@@ -262,8 +260,8 @@ show_which_ccls_contain_variant = function(
     g_query = GenomicRanges::GRanges(
         seqnames = c( chroms ),
         IRanges::IRanges(
-          start = as.integer( c(start) ),
-          end = as.integer( c(end) )
+            start = as.integer( c(start) ),
+            end = as.integer( c(end) )
         )
     )
     
@@ -289,10 +287,10 @@ show_which_ccls_contain_variant = function(
 read_library_names = function(
     ref_gen
 ){
-  
+    
     package_path = system.file("", package = "Uniquorn")
-    library_path =  paste( c( package_path,"/Libraries/",ref_gen,"/"), 
-          sep ="", collapse= "")
+    library_path =  paste(c(package_path, "/Libraries/", ref_gen, "/"), 
+        sep ="", collapse= "")
     
     library_names = list.dirs(library_path, full.names = FALSE)
     library_names = library_names[library_names!= ""]

@@ -1,23 +1,25 @@
 #' Remove Cancer Cell Line
 #'
-#' This function removes a cancer cell line training fingerprint (VCF file) from 
-#' the database. The names of all training sets can 
-#' be seen by using the function \code{show_contained_cls}.
+#' This function removes a cancer cell line training fingerprint (VCF file)
+#'  from the database. The names of all training sets can 
+#'  be seen by using the function \code{show_contained_cls}.
 #' 
 #' @param ccl_names A character vector giving the names of the cancer cell line
 #'  identifiers to be removed. Can be one or many
 #' @param ref_gen A character vector specifying the reference genome version.
 #'  All training sets are associated with a reference genome version. 
 #'  Default is \code{"GRCH37"}.
-#' @param library_name Name of the library from which the ccls are to be removed
+#' @param library_name Name of the library from which ccls are to be removed
 #' @param test_mode Signifies if this is a test run
-#' @import GenomicRanges stringr IRanges
+#' @import GenomicRanges stringr
 #' @usage 
 #' remove_ccls_from_database(ccl_names, ref_gen = "GRCH37", test_mode = FALSE)
 #' @examples 
-#' remove_ccls_from_database(ccl_names = c("HT29_CELLMINER"),
-#'                                 ref_gen = "GRCH37",
-#'                                 test_mode = TRUE)
+#' remove_ccls_from_database(
+#'    ccl_names = c("HT29"),
+#'    ref_gen = "GRCH37",
+#'    test_mode = TRUE
+#' )
 #' @return Message that indicates whether the removal was succesful.
 #' @export
 remove_ccls_from_database = function( 
@@ -27,12 +29,12 @@ remove_ccls_from_database = function(
     test_mode = FALSE
 ){
     message("Reference genome: ", ref_gen)
-  
+    
     package_path = system.file("", package = "Uniquorn")
-    library_path =  paste( c( package_path,"/Libraries/",ref_gen),
-                         sep ="", collapse= "")
-  
-    if (length(library_name)> 1)
+    library_path = paste(c(package_path, "/Libraries/", ref_gen),
+                            sep ="", collapse= "")
+    
+    if (length(library_name) > 1)
         stop("Cannot process more than one library per run, please 
             provide single libraries.")
     
@@ -43,14 +45,14 @@ remove_ccls_from_database = function(
     )
     
     for (ccl_id in ccl_names){
-      
+        
         ccl_lib = paste(ccl_id, library_name, sep = "_")
-        message(paste("Deleting ", ccl_id))
+        message("Deleting ", ccl_id)
         search_term = paste(c(
             paste( "(",ccl_lib,",",")", sep = "" ),
             paste( "(",ccl_lib,")", sep = "" ),
             "(.*,$)"
-        ),collapse= "|")
+        ), collapse= "|")
         
         member_ccls <<- as.character( sapply(
             as.character(GenomicRanges::mcols(g_mat)$Member_CCLs),
@@ -59,21 +61,20 @@ remove_ccls_from_database = function(
             replacement = ""
         ) )
         member_ccls = str_replace_all(member_ccls,pattern = ",$","")
-
+        
         non_empty_vec = member_ccls != ""
         g_mat = g_mat[non_empty_vec,]
         member_ccls = member_ccls[ non_empty_vec ]
-        GenomicRanges::mcols(g_mat)$Member_CCLs = as.character( member_ccls )
+        GenomicRanges::mcols(g_mat)$Member_CCLs = as.character(member_ccls)
         
-        message(paste(
-          c( "Excluded ",
-             as.character(sum(non_empty_vec == FALSE)),
-             " variant entries after removal."),
-          collapse = "", sep ="" )
+        message(
+            "Excluded ",
+            as.character(sum(non_empty_vec == FALSE)),
+            " variant entries after removal."
         )
         
         if( test_mode == FALSE ){
-          
+            
             stats_path = paste( c( library_path,"/",library_name,
                 "/CCL_List_Uniquorn_DB.RData"), sep ="", collapse= "")
             g_library = readRDS(stats_path)
@@ -86,10 +87,10 @@ remove_ccls_from_database = function(
     }
     
     #member_ccls = str_replace(member_ccls, pattern = ",$","")
-    message(paste0("Finished removing all ccls. Recalculating DB"))
+    message("Finished removing all ccls. Recalculating DB")
     
     if( test_mode == FALSE){
-      
+        
         write_w0_and_split_w0_into_lower_weights(
             g_mat = g_mat,
             ref_gen = ref_gen,
@@ -97,7 +98,7 @@ remove_ccls_from_database = function(
         )
     }
     
-    message(paste0("Finished removing all cancer cell lines"))
+    message("Finished removing all cancer cell lines")
 }
 
 
@@ -122,14 +123,11 @@ remove_ccls_from_database = function(
 #' @return Message that indicates whether the removal was succesful.
 #' @export
 remove_library_from_database = function( 
-  library,
-  ref_gen = "GRCH37",
-  test_mode = FALSE
+    library,
+    ref_gen = "GRCH37",
+    test_mode = FALSE
 ){
-  message("Reference genome: ", ref_gen)
-  
-  ###
-  
-  message("Removing library ", library, " and all associated",
-          " cancer cell lines done.")
+    message("Reference genome: ", ref_gen)
+    message("Removing library ", library, " and all associated",
+        " cancer cell lines done.")
 }

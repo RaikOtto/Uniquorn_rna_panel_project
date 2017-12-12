@@ -13,23 +13,23 @@
 #' @param n_threads an integer specifying the number of threads to be used.
 #' @param test_mode Is this a test? Just for internal use
 #' @return Message wheather the adding was successful
-#' @import doParallel GenomicRanges IRanges
+#' @import GenomicRanges foreach
 #' @usage 
 #' add_custom_vcf_to_database(
-#'   vcf_input_files,
-#'   ref_gen = "GRCH37",
-#'   library = "CUSTOM",
-#'   n_threads = 1,
-#'   test_mode = FALSE
+#'     vcf_input_files,
+#'     ref_gen = "GRCH37",
+#'     library = "CUSTOM",
+#'     n_threads = 1,
+#'     test_mode = FALSE
 #' )
 #' @examples 
 #' HT29_vcf_file = system.file("extdata/HT29.vcf.gz", package = "Uniquorn");
 #' add_custom_vcf_to_database(
-#'   vcf_input_files = HT29_vcf_file,
-#'   library = "CUSTOM",
-#'   ref_gen = "GRCH37",
-#'   n_threads = 1,
-#'   test_mode = TRUE
+#'     vcf_input_files = HT29_vcf_file,
+#'     library = "CUSTOM",
+#'     ref_gen = "GRCH37",
+#'     n_threads = 1,
+#'     test_mode = TRUE
 #' )
 #' @export
 add_custom_vcf_to_database = function(
@@ -41,17 +41,18 @@ add_custom_vcf_to_database = function(
 {
     
     #ccl_list = read_ccl_list(ref_gen = ref_gen, library_name = library_name)
-  
+    
     if (n_threads > 1){
-      
+        
         doParallel::registerDoParallel(n_threads)
-      
+        
         foreach::foreach(
             vcf_input_file = vcf_input_files
         ) %dopar% {
             g_query = parse_vcf_file(
                 vcf_input_file,
-                ref_gen = ref_gen
+                ref_gen = ref_gen,
+                library_name = library_name
             )
             
             parse_vcf_query_into_db(
@@ -65,12 +66,13 @@ add_custom_vcf_to_database = function(
         doParallel::stopImplicitCluster()
         
     } else {
-      
+        
         for (vcf_input_file in vcf_input_files){
             
             g_query = parse_vcf_file(
                 vcf_input_file,
-                ref_gen = ref_gen
+                ref_gen = ref_gen,
+                library_name = library_name
             )
             
             parse_vcf_query_into_db(
@@ -81,7 +83,7 @@ add_custom_vcf_to_database = function(
             )
         }
     }
-    print("Finished")
+    message("Finished")
 }
 
 #' parse_vcf_query_into_db
@@ -92,12 +94,13 @@ add_custom_vcf_to_database = function(
 #' @param ref_gen a character string specifying the reference genome version.
 #'  All training sets are associated with a reference genome version.
 #'  Default is \code{"GRCH37"}. 
-#' @param library_name a character string giving the name of the library to add the
-#'  cancer cell lines to. Default is \code{"CUSTOM"}. 
+#' @param library_name a character string giving the name of the library to add
+#'  the cancer cell lines to. Default is \code{"CUSTOM"}. 
 #'  Library name will be automatically added as a suffix to the identifier.
 #' @param test_mode Is this a test? Just for internal use
 #' @return Message wheather the adding was successful
-#' @import GenomicRanges stringr IRanges
+#' @import GenomicRanges stringr
+#' @importFrom IRanges findOverlaps
 parse_vcf_query_into_db = function(
     g_query,
     ref_gen = "GRCH37",
@@ -111,15 +114,11 @@ parse_vcf_query_into_db = function(
     
     cl_data =  show_contained_ccls( verbose = FALSE)
     if (cl_id %in% cl_data$CCL[ cl_data$Library == library_name  ] ){
-        print(
-            paste(c("CCL ", cl_id, " already contained in DB ",library_name,
-                    ". Remove first or change name"),
-            sep="",collapse = "")
-        )
-        return()
+        stop("CCL ", cl_id, " already contained in DB ", library_name,
+            ". Remove first or change name")
     }
     
-    message(paste(c("Sample: ",cl_id,", Library: ",library_name),collapse = "", sep =""))
+    message("Sample: ", cl_id,", Library: ", library_name)
     
     g_mat = read_mutation_grange_objects(
         library_name = library_name,
@@ -128,12 +127,12 @@ parse_vcf_query_into_db = function(
     )
     
     if ( "Member_CCLs" %in% names(mcols(g_mat))  ){
-      
+        
         g_mat_new = unique(c(
             GenomicRanges::GRanges(g_mat),
             GenomicRanges::GRanges(g_query)
         ))
-        fo_g_mat = IRanges::findOverlaps(
+        fo_g_mat = findOverlaps(
             query = g_mat,
             subject = g_mat_new,
             select = "arbitrary",
@@ -148,7 +147,7 @@ parse_vcf_query_into_db = function(
     GenomicRanges::mcols(g_mat_new)$Member_CCLs = 
         rep("",nrow(GenomicRanges::mcols(g_mat_new)))
     
-    fo_query = IRanges::findOverlaps(
+    fo_query = findOverlaps(
         query = g_query,
         subject = g_mat_new,
         select = "arbitrary",
@@ -156,23 +155,25 @@ parse_vcf_query_into_db = function(
     )
     
     old_members = as.character( 
-        sapply( as.character(elementMetadata(g_query)$Member_CCLs), function(vec){
+        sapply(as.character(elementMetadata(g_query)$Member_CCLs), 
+            function(vec){
                 ccl_ids = as.character(unlist(str_split(vec,pattern = ",")))
                 ccl_ids = unique(ccl_ids)
                 ccl_ids = paste(ccl_ids, collapse = ",", sep ="")
-            return(ccl_ids)
-    }))
-      
+                return(ccl_ids)
+            }
+        )
+    )
+    
     GenomicRanges::mcols( g_mat_new )$Member_CCLs[fo_query] = old_members
     
     if ( "Member_CCLs" %in% names(mcols(g_mat)) )
-    
-          GenomicRanges::mcols( g_mat_new )$Member_CCLs[fo_g_mat]   =
-          paste( 
-              mcols( g_mat_new )$Member_CCLs[fo_g_mat],
-              elementMetadata(g_mat)$Member_CCLs, sep = ","
-          )
-    
+        
+        GenomicRanges::mcols( g_mat_new )$Member_CCLs[fo_g_mat]   =
+            paste( 
+                mcols( g_mat_new )$Member_CCLs[fo_g_mat],
+                elementMetadata(g_mat)$Member_CCLs, sep = ","
+            )
     
     GenomicRanges::mcols( g_mat_new )$Member_CCLs = stringr::str_replace( 
         GenomicRanges::mcols( g_mat_new )$Member_CCLs,
@@ -186,6 +187,5 @@ parse_vcf_query_into_db = function(
         library_name = library_name
     )
     
-    print(paste(c("Finished parsing ",cl_id,", library: ",library_name),sep="",collapse= ""))
-  }
-    
+    message("Finished parsing ", cl_id, ", library: ", library_name)
+}

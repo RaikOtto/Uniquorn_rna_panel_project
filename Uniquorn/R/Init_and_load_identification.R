@@ -41,7 +41,7 @@ init_and_load_identification = function(
             sep = "/"
         ) 
     }
-    output_file_xls = base::gsub(".tab$", ".xls", output_file) 
+    output_file_xls = base::gsub(".tab$", ".xls", output_file)
     
     res_list = list( 
         "output_file"     = output_file,

@@ -5,9 +5,9 @@ write_mutation_grange_objects = function(
     ref_gen,
     type = ""
 ){
-  
+    
     package_path = system.file("", package = "Uniquorn")
-  
+    
     rdata_path =  paste( c(
         package_path,"/Libraries/",
         ref_gen,"/",library_name,
@@ -21,7 +21,7 @@ write_mutation_grange_objects = function(
             paste( c( ".",type,"_Uniquorn_DB.RData"), sep = "",collapse = "" )
         )
     }
-  
+    
     dir.create(
         paste( 
             c(package_path,"/Libraries/",ref_gen,"/"),
@@ -40,12 +40,23 @@ write_mutation_grange_objects = function(
     saveRDS(g_mat,rdata_path)
 }
 
+#' read_mutation_grange_objects
+#' 
+#' Read the GRange object for a specific library
+#' 
+#' @param library_name a character string giving the name of the library
+#' @param mutational_weight_inclusion_threshold a numerical giving the
+#'  lower bound for mutational weight to be included
+#' @param ref_gen Reference genome version. All training sets are 
+#'  associated with a reference genome version. Default: GRCH37
+#' @importFrom IRanges IRanges
+#' @return The R Table sim_list which contains the CoSMIC CLP fingerprints 
 read_mutation_grange_objects = function(
     library_name,
     mutational_weight_inclusion_threshold,
     ref_gen
 ){
-  
+    
     package_path = system.file("", package = "Uniquorn")
     
     rdata_path =  paste( c(
@@ -68,12 +79,12 @@ read_mutation_grange_objects = function(
             )
         )
         dir.create(
-          paste( 
-            c(package_path,"/Libraries/"),
-            collapse = "",
-            sep =""
-          ),
-          showWarnings = FALSE
+            paste( 
+                c(package_path,"/Libraries/"),
+                collapse = "",
+                sep =""
+            ),
+            showWarnings = FALSE
         )
         dir.create(
             paste( 
@@ -81,14 +92,16 @@ read_mutation_grange_objects = function(
                 collapse = "",
                 sep =""
             ),
-        showWarnings = FALSE)
+            showWarnings = FALSE
+        )
         dir.create(
             paste( 
                 c(package_path,"/Libraries/",ref_gen,"/",library_name),
                 collapse = "",
                 sep =""
             ),
-        showWarnings = FALSE)
+            showWarnings = FALSE
+        )
     } else {
         g_mat = readRDS(rdata_path)
     }

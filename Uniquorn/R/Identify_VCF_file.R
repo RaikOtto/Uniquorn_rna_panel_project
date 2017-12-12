@@ -35,7 +35,7 @@
 #' Note that if you set the confidence score, the confidence score
 #' overrides the p-value
 #' @param n_threads Number of threads to be used
-#' @import WriteXLS stats
+#' @import WriteXLS
 #' @usage 
 #' identify_vcf_files( 
 #' vcf_file,
@@ -70,20 +70,24 @@ identify_vcf_file = function(
     p_value = .05,
     confidence_score = NA,
     n_threads = 1
-    ){
-  
+){
+    
     if ( ! is.na(confidence_score) ){
-        message(paste(c(
+        message(
             "Confidence score has been set to ",
             as.character(confidence_score),
             ", overriding the p_value"
-        )))
+        )
         confidence_score[confidence_score < 0 ] = 0
         confidence_score[confidence_score > 100 ] = 100
         p_value = exp(-1 * confidence_score)
     }
-  
-    g_query = parse_vcf_file(vcf_file,ref_gen = ref_gen)
+    
+    g_query = parse_vcf_file(
+        vcf_file,
+        ref_gen = ref_gen,
+        library_name = library_name
+    )
     
     library_names = read_library_names(ref_gen = ref_gen)
     match_t <<- data.frame(
@@ -92,13 +96,10 @@ identify_vcf_file = function(
         Library = as.character()
     )
     
-    message(paste( c(
-            "Limiting positive identifications to top ",
-            as.character(top_hits_per_library),
-            " hits per library."
-          ),
-          sep ="", collapse= ""
-        )
+    message(
+        "Limiting out to top ",
+        as.character(top_hits_per_library),
+        " hits per library."
     )
     
     for( library_name in library_names ){
@@ -115,13 +116,12 @@ identify_vcf_file = function(
         #assign("match_t", rbind(match_t,hit_list),envir = parent.frame())
         match_t = rbind(match_t,hit_list)
         
-        print(paste(c(
-            library_name,": ",
+        message(
+            library_name, ": ",
             as.character(hit_list$CCL[1]),
             ", matching variants: ",
-            as.character(hit_list$Matches[1])),
-            sep ="",
-            collapse= ""))
+            as.character(hit_list$Matches[1])
+        )
     }
     
     # statistics
@@ -141,17 +141,16 @@ identify_vcf_file = function(
     ### io stuff
     
     if(output_file == ""){
-        output_file = str_replace(vcf_file,pattern = "(\\.vcf)|(\\.VCF)", ".ident.tsv" )
-        output_file = str_replace(vcf_file,pattern = "(\\.gz$)|(\\.GZ$)", "" )
+        output_file = str_replace(
+            vcf_file,pattern = "(\\.vcf)|(\\.VCF)", ".ident.tsv" )
     }
     
-    if ( verbose ){
+    if (verbose){
         
-        print( paste0( "Candidate(s): ", paste0( ( unique( 
-              as.character( match_t$CCL )[ match_t$Identification_sig  ]) ), 
-              collapse = ", " ) )
+        message("Candidate(s): ", paste0(unique( 
+            as.character( match_t$CCL )[ match_t$Identification_sig  ]))
         )
-        print( paste0("Storing information in table: ",output_file ) )
+        message("Storing information in table: ", output_file)
     }
         
     utils::write.table( 
@@ -163,13 +162,13 @@ identify_vcf_file = function(
     )
     
     if (output_bed_file & ( sum( as.logical(match_t$Q_value_sig) ) > 0 ))
-         create_bed_file( 
-             match_t, 
-             vcf_fingerprint, 
-             res_table, 
-             output_file, 
-             ref_gen, 
-             manual_identifier_bed_file
+        create_bed_file( 
+            match_t, 
+            vcf_fingerprint, 
+            res_table, 
+            output_file, 
+            ref_gen, 
+            manual_identifier_bed_file
         )
     
     if ( !verbose )

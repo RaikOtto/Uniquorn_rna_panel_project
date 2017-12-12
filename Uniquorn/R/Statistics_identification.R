@@ -15,6 +15,7 @@
 #' @param top_hits_per_library limits significant similarities to the first 
 #' n hits
 #' @import stringr
+#' @importFrom stats pbinom
 #' @return R table with a statistic 
 add_p_q_values_statistics = function(
     g_query,
@@ -24,12 +25,12 @@ add_p_q_values_statistics = function(
     minimum_matching_mutations,
     top_hits_per_library
 ){
-  
+    
     library_names = read_library_names(ref_gen = ref_gen)
     p_values = rep(1.0, nrow(match_t))
     balls_in_query = length(g_query$Member_CCLs)
     sig_vec <<- c()
-  
+    
     for (library_name in library_names){
         
         index_library = which( match_t$Library == library_name  )
@@ -37,16 +38,19 @@ add_p_q_values_statistics = function(
             match_t$All_variants))[index_library]
         
         if( length(white_balls_possible) == 0){
-            stop("There is only one CL in the custom set. 
-                  A confidence scoere calculation is only 
-                  possible with more than one sample!")
+            stop("There is only one CL in the custom set.",  
+                "A confidence score calculation is only ", 
+                "possible with more than one sample!")
         }
         
-        white_balls_found = as.integer(as.character(match_t$Matches))[index_library]
+        white_balls_found = as.integer(
+            as.character(match_t$Matches))[index_library]
         white_balls_found_least_one = sum(white_balls_found > 0)
         black_balls = sum(white_balls_possible) - white_balls_possible
         
-        background_cls_traces = sum(white_balls_found >= mean(white_balls_found))
+        background_cls_traces = sum(
+            white_balls_found >= mean(white_balls_found)
+        )
         
         #likelihood_found = ( white_balls_possible / 
         #    sum(white_balls_possible) ) **
@@ -71,10 +75,11 @@ add_p_q_values_statistics = function(
         
         p_values[index_library] = p_values_panel
         n_hits_vec = order( as.double( p_values[index_library] ) )
-        n_hits_vec[ as.integer(n_hits_vec) > as.integer( top_hits_per_library )] = FALSE
-        n_hits_vec[ as.integer(n_hits_vec) > 0 ] = TRUE
+        n_hits_vec[as.integer(n_hits_vec) >
+            as.integer(top_hits_per_library)] = FALSE
+        n_hits_vec[as.integer(n_hits_vec) > 0 ] = TRUE
         n_hits_vec = as.logical(n_hits_vec)
-      
+        
         sig_vec <<- c(sig_vec, n_hits_vec)
     }
     
@@ -85,19 +90,30 @@ add_p_q_values_statistics = function(
     return(match_t)
 }
 
-add_penality_statistics = function( match_t, minimum_matching_mutations  ){
+#' add_penalty_statistics
+#' 
+#' Add penalty statistics to results
+#' 
+#' @param match_t object that contains the matching variants
+#' @param minimum_matching_mutations a numerical giving the minimum amount of
+#'  mutations that has to match between query and training sample for a 
+#'  positive prediction
+#' @importFrom stats integrate
+#' @importFrom stats pbeta
+#' @return The updated statistics
+add_penality_statistics = function(match_t, minimum_matching_mutations){
 
     matching_variants = as.integer(match_t$Matches)
     minimum_matching_mutations = min(matching_variants)
     matching_variants = matching_variants[ matching_variants > 0]
-  
+    
     if ( length(matching_variants) == 0 ){
-      
+        
         penalty = 0
         penalty_mutations = 0
-      
+        
     } else{ 
-      
+        
         mean_match = mean( matching_variants )
         max_match  = max( matching_variants )
         
@@ -109,26 +125,22 @@ add_penality_statistics = function( match_t, minimum_matching_mutations  ){
             max_match/ mean_match,
             stop.on.error = FALSE
             )$value
-          
-        penalty_mutations = 
-            ceiling(
-            mean_match + 
-              ( max_match * penalty ) / 
-              ( 1 - penalty )
+            
+        penalty_mutations = ceiling(
+            mean_match + (max_match * penalty) / (1 - penalty)
         )
     }
-    
     
     if ( ( minimum_matching_mutations == 0 ) & ( penalty != 0.0) ){
-      
-        message( paste0( collapse = "", c( 
-            "Correcting the background due to traces of random, scale-freeness amounts of matches, 
-            requiring at least ", 
-            as.character( penalty_mutations ), " variants to match." ) )
+        
+        message(
+            "Correcting the background due to traces of random, ", 
+            "scale-freeness amounts of matches, requiring at least ", 
+            as.character(penalty_mutations), " variants to match."
         )
     }
-    match_t$Above_Penality = as.integer(as.character(match_t$Matches)) > 
-        penalty
+    match_t$Above_Penality = 
+        as.integer(as.character(match_t$Matches)) > penalty
     
     return(match_t)
 }
