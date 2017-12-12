@@ -86,7 +86,7 @@ identify_vcf_file = function(
     g_query = parse_vcf_file(
         vcf_file,
         ref_gen = ref_gen,
-        library_name = library_name
+        library_name = ""
     )
     
     library_names = read_library_names(ref_gen = ref_gen)
