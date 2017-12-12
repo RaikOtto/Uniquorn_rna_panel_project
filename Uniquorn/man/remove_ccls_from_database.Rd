@@ -14,7 +14,7 @@ identifiers to be removed. Can be one or many}
 All training sets are associated with a reference genome version. 
 Default is \code{"GRCH37"}.}
 
-\item{library_name}{Name of the library from which the ccls are to be removed}
+\item{library_name}{Name of the library from which ccls are to be removed}
 
 \item{test_mode}{Signifies if this is a test run}
 }
@@ -22,12 +22,14 @@ Default is \code{"GRCH37"}.}
 Message that indicates whether the removal was succesful.
 }
 \description{
-This function removes a cancer cell line training fingerprint (VCF file) from 
-the database. The names of all training sets can 
-be seen by using the function \code{show_contained_cls}.
+This function removes a cancer cell line training fingerprint (VCF file)
+ from the database. The names of all training sets can 
+ be seen by using the function \code{show_contained_cls}.
 }
 \examples{
-remove_ccls_from_database(ccl_names = c("HT29_CELLMINER"),
-                                ref_gen = "GRCH37",
-                                test_mode = TRUE)
+remove_ccls_from_database(
+   ccl_names = c("HT29"),
+   ref_gen = "GRCH37",
+   test_mode = TRUE
+)
 }

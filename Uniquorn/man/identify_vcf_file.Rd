@@ -12,7 +12,7 @@ minimum_matching_mutations = 0,
 mutational_weight_inclusion_threshold = 0.5,
 write_xls = FALSE,
 output_bed_file = FALSE,
-robust_mode = FALSE,
+top_hits_per_library = 3,
 manual_identifier_bed_file = "",
 verbose = TRUE,
 p_value = .05,
@@ -40,9 +40,9 @@ as xls file for easier reading}
 \item{output_bed_file}{If BED files for IGV visualization should be 
 created for the Cancer Cell lines that pass the threshold}
 
-\item{robust_mode}{Improves specificity at the cost of sensitivity when
-reference and query CCL are based on heterogeneous technologies, in 
-particular with respect to the amount of variants available.}
+\item{top_hits_per_library}{Limit the number of significant similarities
+per library to n (default 3) many hits. Is particularrly used in contexts
+when heterogeneous query and reference CCLs are being compared.}
 
 \item{manual_identifier_bed_file}{Manually enter a vector of CL 
 name(s) whose bed files should be created, independently from 
@@ -55,7 +55,7 @@ Note that if you set the confidence score, the confidence score
 overrides the p-value}
 
 \item{confidence_score}{Cutoff for positive prediction between 0 and 100.
-Is calculated by transforming the p-value by -1 * log(p-value)
+Calculated by transforming the p-value by -1 * log(p-value)
 Note that if you set the confidence score, the confidence score
 overrides the p-value}
 

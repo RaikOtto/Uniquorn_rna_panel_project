@@ -15,8 +15,8 @@ parse_vcf_query_into_db(g_query, ref_gen = "GRCH37", library_name,
 All training sets are associated with a reference genome version.
 Default is \code{"GRCH37"}.}
 
-\item{library_name}{a character string giving the name of the library to add the
-cancer cell lines to. Default is \code{"CUSTOM"}. 
+\item{library_name}{a character string giving the name of the library to add
+the cancer cell lines to. Default is \code{"CUSTOM"}. 
 Library name will be automatically added as a suffix to the identifier.}
 
 \item{test_mode}{Is this a test? Just for internal use}

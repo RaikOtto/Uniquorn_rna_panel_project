@@ -7,19 +7,22 @@
 show_contained_ccls(ref_gen, verbose)
 }
 \arguments{
-\item{ref_gen}{a character vector specifying the reference genome version. All training sets are associated with a reference genome version. Default is \code{"GRCH37"}.}
+\item{ref_gen}{a character vector specifying the reference genome version.
+All training sets are associated with a reference genome version.
+Default is \code{"GRCH37"}.}
 
-\item{verbose}{Should DB informations be printed}
+\item{verbose}{Should DB informations be printed?}
 }
 \value{
-R table which contains the identifiers of all cancer cell line samples
+R table which contains identifiers of all cancer cell line samples
  which match the specified parameters (reference genome and library).
 }
 \description{
-This function displays the names, amount of mutations/variations and the overall weight of the mutations of all contained cancer cell line fingerprints 
+This function displays the names, amount of mutations and the overall 
+weight of the mutations of all contained cancer cell line fingerprints 
 for a chosen reference genome and optional library.
 }
 \examples{
-##Show all contained cancer cell lines for reference GRCH37
+## Show all contained cancer cell lines for reference GRCH37:
 show_contained_ccls(ref_gen = "GRCH37", verbose = TRUE)
 }

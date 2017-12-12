@@ -31,6 +31,7 @@ This function shows all mutations present in the database
 for a selected cancer cell line and reference genome.
 }
 \examples{
+## Show all mutations for Cancer Cell Line 'SK_OV_3'
 show_contained_variants_for_ccl(
 name_ccl = "SK_OV_3",
 ref_gen = "GRCH37",

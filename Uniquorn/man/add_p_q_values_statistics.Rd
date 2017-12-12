@@ -5,7 +5,7 @@
 \title{add_p_q_values_statistics}
 \usage{
 add_p_q_values_statistics(g_query, match_t, p_value, ref_gen,
-  minimum_matching_mutations, robust_mode)
+  minimum_matching_mutations, top_hits_per_library)
 }
 \arguments{
 \item{g_query}{IRanges object that contains the query variants}
@@ -20,8 +20,8 @@ add_p_q_values_statistics(g_query, match_t, p_value, ref_gen,
 mutations require for a significant match between a query and a 
 reference}
 
-\item{robust_mode}{Logical variable to indicate whether the
-robust statistical formula should be utilized or not}
+\item{top_hits_per_library}{limits significant similarities to the first 
+n hits}
 }
 \value{
 R table with a statistic

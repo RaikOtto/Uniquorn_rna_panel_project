@@ -2,7 +2,7 @@
 % Please edit documentation in R/Show_database_information.R
 \name{show_which_ccls_contain_variant}
 \alias{show_which_ccls_contain_variant}
-\title{Cancer cell cines with specific variant}
+\title{Cancer cell lines with specific variant}
 \usage{
 show_which_cls_contain_variant(
 start,

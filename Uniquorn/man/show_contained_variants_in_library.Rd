@@ -11,10 +11,10 @@ show_contained_variants_in_library(ref_gen)
 version. All training sets are associated with a reference genome version. 
 Default is \code{"GRCH37"}.}
 
-\item{library_name}{Name of the reference library}
+\item{library_name}{Name of the reference library.}
 
 \item{mutational_weight_inclusion_threshold}{Include only mutations 
-with a weight of at least x. Range: 0.0 to 1.0. 1= unique to CL. 
+with a weight of at least x. Range: 0.0 to 1.0. 1 = unique to CL. 
 ~0 = found in many CL samples.}
 }
 \value{
@@ -23,9 +23,10 @@ Returns a GenomicRanges object that contains the variants
 \description{
 This function shows all variants contained in a reference library
 for a given inclusion weight. Default inclusion weight is 0 
-(all variants)
+(all variants).
 }
 \examples{
+## Show all variants contained in reference library CELLMINER
 show_contained_variants_in_library(
 ref_gen = "GRCH37",
 library_name = "CELLMINER",
