@@ -94,3 +94,34 @@ HS294T	A101D	Synonym	https://www.lgcstandards-atcc.org/products/all/HTB-140.aspx
 HCT116	ATRFLOX	Related	http://www.cell.com/cms/attachment/2021799129/2041762755/mmc1.pdf		
 C2BBE1	CACO2	Related	https://www.lgcstandards-atcc.org/Products/All/CRL-2102.aspx?geo_country=de		
 HS695T	HS69ST	Synonym	http://web.expasy.org/cellosaurus/CVCL_0851		
+Ishikawa__Heraklio__02_ER	ISHIKAWAHERAKLIO02ER	Synonym			
+HEC1a	HEC1b	Related			
+HCT15	HCT8	Related	http://www.sciencedirect.com/science/article/pii/S0165460898000818?via%3Dihub		
+HCT15	DLD1	Related	http://www.sciencedirect.com/science/article/pii/S0165460898000818?via%3Dihub		
+DLD1	HCT8	Related	http://www.sciencedirect.com/science/article/pii/S0165460898000818?via%3Dihub		
+HRT18	DLD1	Related	http://www.sciencedirect.com/science/article/pii/S0165460898000818?via%3Dihub		
+HRT18	HCT15	Related	http://www.sciencedirect.com/science/article/pii/S0165460898000818?via%3Dihub		
+HRT18	HCT8	Related	http://www.sciencedirect.com/science/article/pii/S0165460898000818?via%3Dihub		
+widr	ht29	Related	https://www.ncbi.nlm.nih.gov/pubmed/3472642		
+LNCAPFGC	LNCAP	Synonym			
+HCC60	NCIH23	Synonym	http://www.cell.com/cms/attachment/2085214068/2073774895/mmc4.xlsx		
+H2369	NCIH2369	Synonym			
+H2722	NCIH2722	Synonym			
+H2810	NCIH2810	Synonym			
+H2804	NCIH2804	Synonym			
+H2803	NCIH2803	Synonym			
+H2795	NCIH2795	Synonym			
+H2373	NCIH2373	Synonym			
+H2461	NCIH2461	Synonym			
+H2595	NCIH2595	Synonym			
+NCIH322M	NCIH322	Related			
+NCIH322M	NCIH322T	Related			
+H322T	NCIH322M	Related			
+NIHOVCAR3	OVCAR3	Synonym			
+OVCAR433	OVCA433	Synonym			
+JIYOYEP2003	JIYOYE	Synonym			
+U251	U251MG	Synonym			
+YMB1	YMB1E	Synonym			
+SNB19	U251	Related	http://www.sciencedirect.com/science/article/pii/S037811191400242X		
+PLCPRF5	ALEXANDERCELLS	Related	https://www.google.de/url?sa=t&rct=j&q=&esrc=s&source=web&cd=3&cad=rja&uact=8&ved=0ahUKEwiX-c6J0anXAhVHIewKHbGZDbgQFgg4MAI&url=http%3A%2F%2Fbioinformatics.hsanmartino.it%2Fcldb%2Fcl3914.html&usg=AOvVaw2QYs3fr9Y50v7MnsDxSeTx		
+COLO320DM	COLO320	Synonym			
