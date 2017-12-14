@@ -13,12 +13,14 @@
 #' @param test_mode Signifies if this is a test run
 #' @import GenomicRanges stringr
 #' @usage 
-#' remove_ccls_from_database(ccl_names, ref_gen = "GRCH37", test_mode = FALSE)
+#' remove_ccls_from_database(ccl_names, ref_gen = "GRCH37",
+#'     library_name, test_mode = FALSE)
 #' @examples 
 #' remove_ccls_from_database(
-#'    ccl_names = c("HT29"),
-#'    ref_gen = "GRCH37",
-#'    test_mode = TRUE
+#'     ccl_names = "HT29",
+#'     ref_gen = "GRCH37",
+#'     library_name = "CUSTOM",
+#'     test_mode = TRUE
 #' )
 #' @return Message that indicates whether the removal was succesful.
 #' @export
@@ -54,18 +56,14 @@ remove_ccls_from_database = function(
             "(.*,$)"
         ), collapse= "|")
         
-        member_ccls <<- as.character( sapply(
-            as.character(GenomicRanges::mcols(g_mat)$Member_CCLs),
-            FUN = str_replace_all,
-            pattern = search_term,
-            replacement = ""
-        ) )
-        member_ccls = str_replace_all(member_ccls,pattern = ",$","")
+        member_ccls = str_replace_all(mcols(g_mat)$Member_CCLs,
+                pattern = search_term, replacement = "")
+        member_ccls = str_replace_all(member_ccls, pattern = ",$", "")
         
         non_empty_vec = member_ccls != ""
         g_mat = g_mat[non_empty_vec,]
         member_ccls = member_ccls[ non_empty_vec ]
-        GenomicRanges::mcols(g_mat)$Member_CCLs = as.character(member_ccls)
+        mcols(g_mat)$Member_CCLs = as.character(member_ccls)
         
         message(
             "Excluded ",
@@ -74,7 +72,6 @@ remove_ccls_from_database = function(
         )
         
         if( test_mode == FALSE ){
-            
             stats_path = paste( c( library_path,"/",library_name,
                 "/CCL_List_Uniquorn_DB.RData"), sep ="", collapse= "")
             g_library = readRDS(stats_path)
@@ -82,7 +79,7 @@ remove_ccls_from_database = function(
             g_library = g_library[ g_library$CCL!= "",]
             g_library = g_library[!is.na(g_library$CCL),]
             g_library = g_library[g_library$CCL != ccl_id,]
-            saveRDS(g_library,file = stats_path)
+            saveRDS(g_library, file = stats_path)
         }
     }
     
@@ -90,14 +87,12 @@ remove_ccls_from_database = function(
     message("Finished removing all ccls. Recalculating DB")
     
     if( test_mode == FALSE){
-        
         write_w0_and_split_w0_into_lower_weights(
             g_mat = g_mat,
             ref_gen = ref_gen,
             library_name = library_name
         )
     }
-    
     message("Finished removing all cancer cell lines")
 }
 

@@ -4,7 +4,8 @@
 \alias{remove_ccls_from_database}
 \title{Remove Cancer Cell Line}
 \usage{
-remove_ccls_from_database(ccl_names, ref_gen = "GRCH37", test_mode = FALSE)
+remove_ccls_from_database(ccl_names, ref_gen = "GRCH37",
+    library_name, test_mode = FALSE)
 }
 \arguments{
 \item{ccl_names}{A character vector giving the names of the cancer cell line
@@ -28,8 +29,9 @@ This function removes a cancer cell line training fingerprint (VCF file)
 }
 \examples{
 remove_ccls_from_database(
-   ccl_names = c("HT29"),
-   ref_gen = "GRCH37",
-   test_mode = TRUE
+    ccl_names = "HT29",
+    ref_gen = "GRCH37",
+    library_name = "CUSTOM",
+    test_mode = TRUE
 )
 }
