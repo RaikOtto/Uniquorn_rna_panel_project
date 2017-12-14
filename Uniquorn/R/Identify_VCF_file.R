@@ -104,7 +104,7 @@ identify_vcf_file = function(
     
     for( library_name in library_names ){
         
-        options(warn=-1)
+        options(warn = -1)
         hit_list = match_query_ccl_to_database(
             g_query,
             ref_gen = ref_gen,
@@ -112,9 +112,9 @@ identify_vcf_file = function(
             mutational_weight_inclusion_threshold =
                 mutational_weight_inclusion_threshold
         )
-        options(warn=0)
+        options(warn = 0)
         #assign("match_t", rbind(match_t,hit_list),envir = parent.frame())
-        match_t = rbind(match_t,hit_list)
+        match_t = rbind(match_t, hit_list)
         
         message(
             library_name, ": ",

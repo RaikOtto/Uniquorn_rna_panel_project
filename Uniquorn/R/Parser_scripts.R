@@ -7,7 +7,7 @@
 #'  on the operating system.
 #' @usage 
 #' parse_vcf_file(vcf_file)
-#' @import GenomicRanges
+#' @import GenomicRanges stringr
 #' @importFrom IRanges IRanges
 #' @return Loci-based DNA-mutational fingerprint of the cancer cell line
 #'  as found in the input VCF file.identify_vcf_files
@@ -25,38 +25,31 @@ parse_vcf_file = function(
     g_query = VariantAnnotation::readVcf(file = vcf_file)
     
     # process variants
-    chroms = as.character(unlist(str_replace(
-        as.character(unlist(g_query@rowRanges@seqnames)), 
-            pattern = "chr|CHR","")))
-    start_var = as.integer(
-        as.character(unlist(g_query@rowRanges@ranges@start)))
-    end_var = start_var + as.integer(as.character(unlist(
-        g_query@rowRanges@ranges@width))) -1
+    chroms = str_replace(as.character(seqnames(g_query)),
+                         pattern = "chr|CHR", "")
+    start_var = start(g_query)
+    end_var = start_var + width(g_query) - 1
     
     chroms_pure = grep(chroms, pattern = "_", invert = TRUE)
-    chroms      = chroms[ chroms_pure ]
-    chroms      = str_replace(chroms,pattern = "^chr","")
+    chroms      = chroms[chroms_pure]
+    chroms      = str_replace(chroms, pattern = "^chr", "")
     start_var   = start_var[chroms_pure]
     end_var     = end_var[chroms_pure]
-    
-    # build fingerprint and return
-    g_query = GenomicRanges::GRanges(
-        seqnames = chroms,
-        IRanges::IRanges(
-            start = start_var,
-            end = end_var
-        )
-    )
     
     cl_id = gsub("^.*/", "", vcf_file)
     cl_id = gsub(".vcf", "", cl_id, fixed = TRUE)
     cl_id = gsub(".hg19", "", cl_id, fixed = TRUE)
     cl_id = toupper(cl_id)
-    cl_id = stringr::str_replace_all(cl_id, pattern = "\\.", "_")
+    cl_id = str_replace_all(cl_id, pattern = "\\.", "_")
     cl_id = paste0(cl_id, "_", library_name)
-    GenomicRanges::mcols( g_query )$Member_CCLs = 
-        rep(cl_id,length(g_query@seqnames ))
     
+    # build fingerprint and return
+    g_query = GenomicRanges::GRanges(
+        seqnames = chroms,
+        ranges = IRanges(start = start_var, end = end_var),
+        Member_CCLs = rep(cl_id, length(g_query))
+    )
+
     return(g_query)
 }
 

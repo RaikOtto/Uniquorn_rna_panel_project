@@ -64,8 +64,8 @@ read_mutation_grange_objects = function(
         ref_gen,"/",library_name,
         "/W",as.character(mutational_weight_inclusion_threshold),
         "_Uniquorn_DB.RData"),
-        sep ="",
-        collapse= ""
+        sep = "",
+        collapse = ""
     )
     
     if (! file.exists( rdata_path )){
@@ -82,7 +82,7 @@ read_mutation_grange_objects = function(
             paste( 
                 c(package_path,"/Libraries/"),
                 collapse = "",
-                sep =""
+                sep = ""
             ),
             showWarnings = FALSE
         )
@@ -90,7 +90,7 @@ read_mutation_grange_objects = function(
             paste( 
                 c(package_path,"/Libraries/",ref_gen,"/"),
                 collapse = "",
-                sep =""
+                sep = ""
             ),
             showWarnings = FALSE
         )
@@ -98,7 +98,7 @@ read_mutation_grange_objects = function(
             paste( 
                 c(package_path,"/Libraries/",ref_gen,"/",library_name),
                 collapse = "",
-                sep =""
+                sep = ""
             ),
             showWarnings = FALSE
         )

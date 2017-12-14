@@ -108,11 +108,10 @@ parse_vcf_query_into_db = function(
     test_mode = FALSE
 ){
     
-    cl_id = GenomicRanges::mcols( g_query )$Member_CCLs[1]
-    cl_id = str_replace_all( cl_id, 
-        pattern = paste("_",library_name,sep = ""),"" )
+    cl_id = mcols( g_query )$Member_CCLs[1]
+    cl_id = str_replace( cl_id, pattern = paste0("_", library_name), "")
     
-    cl_data =  show_contained_ccls( verbose = FALSE)
+    cl_data =  show_contained_ccls(verbose = FALSE)
     if (cl_id %in% cl_data$CCL[ cl_data$Library == library_name  ] ){
         stop("CCL ", cl_id, " already contained in DB ", library_name,
             ". Remove first or change name")
@@ -126,7 +125,7 @@ parse_vcf_query_into_db = function(
         mutational_weight_inclusion_threshold = 0
     )
     
-    if ( "Member_CCLs" %in% names(mcols(g_mat))  ){
+    if ( "Member_CCLs" %in% names(mcols(g_mat)) ){
         
         g_mat_new = unique(c(
             GenomicRanges::GRanges(g_mat),
@@ -145,7 +144,7 @@ parse_vcf_query_into_db = function(
         fo_g_mat = GenomicRanges::GenomicRangesList()
     }
     GenomicRanges::mcols(g_mat_new)$Member_CCLs = 
-        rep("",nrow(GenomicRanges::mcols(g_mat_new)))
+        rep("", length(g_mat_new))
     
     fo_query = findOverlaps(
         query = g_query,
@@ -157,7 +156,7 @@ parse_vcf_query_into_db = function(
     old_members = as.character( 
         sapply(as.character(elementMetadata(g_query)$Member_CCLs), 
             function(vec){
-                ccl_ids = as.character(unlist(str_split(vec,pattern = ",")))
+                ccl_ids = as.character(unlist(str_split(vec, pattern = ",")))
                 ccl_ids = unique(ccl_ids)
                 ccl_ids = paste(ccl_ids, collapse = ",", sep ="")
                 return(ccl_ids)
@@ -165,7 +164,7 @@ parse_vcf_query_into_db = function(
         )
     )
     
-    GenomicRanges::mcols( g_mat_new )$Member_CCLs[fo_query] = old_members
+    mcols( g_mat_new )$Member_CCLs[fo_query] = old_members
     
     if ( "Member_CCLs" %in% names(mcols(g_mat)) )
         
