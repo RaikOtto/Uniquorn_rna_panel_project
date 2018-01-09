@@ -1,6 +1,8 @@
 .Rproj.user
+.DS_Store
 .Rhistory
 .RData
 Uniquorn.Rproj
 .Rbuildignore
 inst/doc
+Uniquorn/tests/.DS_Store
