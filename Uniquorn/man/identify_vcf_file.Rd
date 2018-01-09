@@ -4,20 +4,18 @@
 \alias{identify_vcf_file}
 \title{identify_VCF_file}
 \usage{
-identify_vcf_file( 
+identify_vcf_files( 
 vcf_file,
 output_file = "",
 ref_gen = "GRCH37",
 minimum_matching_mutations = 0,
 mutational_weight_inclusion_threshold = 0.5,
-only_first_candidate = FALSE,
 write_xls = FALSE,
 output_bed_file = FALSE,
+top_hits_per_library = 3,
 manual_identifier_bed_file = "",
-verbose = FALSE,
+verbose = TRUE,
 p_value = .05,
-q_value = .05,
-confidence_score = 10.0,
 n_threads = 1)
 }
 \arguments{
@@ -36,14 +34,15 @@ has to match between query and training sample for a positive prediction}
 with a weight of at least x. Range: 0.0 to 1.0. 1= unique to CL. 
 ~0 = found in many CL samples.}
 
-\item{only_first_candidate}{Only the CL identifier with highest 
-score is predicted to be present in the sample}
-
 \item{write_xls}{Create identification results additionally 
 as xls file for easier reading}
 
 \item{output_bed_file}{If BED files for IGV visualization should be 
 created for the Cancer Cell lines that pass the threshold}
+
+\item{top_hits_per_library}{Limit the number of significant similarities
+per library to n (default 3) many hits. Is particularrly used in contexts
+when heterogeneous query and reference CCLs are being compared.}
 
 \item{manual_identifier_bed_file}{Manually enter a vector of CL 
 name(s) whose bed files should be created, independently from 
@@ -51,12 +50,14 @@ them passing the detection threshold}
 
 \item{verbose}{Print additional information}
 
-\item{p_value}{Required p-value for identification}
+\item{p_value}{Required p-value for identification.
+Note that if you set the confidence score, the confidence score
+overrides the p-value}
 
-\item{q_value}{Required q-value for identification}
-
-\item{confidence_score}{Threshold above which a positive prediction occurs
-default 10.0}
+\item{confidence_score}{Cutoff for positive prediction between 0 and 100.
+Calculated by transforming the p-value by -1 * log(p-value)
+Note that if you set the confidence score, the confidence score
+overrides the p-value}
 
 \item{n_threads}{Number of threads to be used}
 }
@@ -74,5 +75,5 @@ the identity of the sample
 \examples{
 HT29_vcf_file = system.file("extdata/HT29.vcf.gz", package="Uniquorn");
 
-identification = identify_vcf_file( HT29_vcf_file )
+identification = identify_vcf_files(HT29_vcf_file)
 }
