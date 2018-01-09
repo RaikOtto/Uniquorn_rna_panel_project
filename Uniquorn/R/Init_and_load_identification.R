@@ -9,6 +9,7 @@
 #' @param ref_gen Reference genome version. All training sets are 
 #' associated with a reference genome version. Default: GRCH37
 #' @param vcf_file Path to vcf_file
+#' @param output_dir Output directory for identification results
 #' @usage 
 #' init_and_load_identification( 
 #'     verbose,

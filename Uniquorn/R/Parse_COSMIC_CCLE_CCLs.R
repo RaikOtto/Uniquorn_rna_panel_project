@@ -11,14 +11,16 @@
 #' @import R.utils stringr
 #' @usage 
 #' initiate_canonical_databases(
-#' cosmic_file = "CosmicCLP_MutantExport.tsv",
-#' ccle_file = "CCLE_hybrid_capture1650_hg19_NoCommonSNPs_CDS_2012.05.07.maf",
-#' ref_gen = "GRCH37")
+#'     cosmic_file = "CosmicCLP_MutantExport.tsv",
+#'     ccle_file = "CCLE_hybrid_capture1650_hg19_NoCommonSNPs_CDS_2012.05.07.maf",
+#'     ref_gen = "GRCH37"
+#' )
 #' @examples 
 #' initiate_canonical_databases(
-#' cosmic_file = "CosmicCLP_MutantExport.tsv",
-#' ccle_file = "CCLE_hybrid_capture1650_hg19_NoCommonSNPs_CDS_2012.05.07.maf",
-#' ref_gen = "GRCH37")
+#'     cosmic_file = "CosmicCLP_MutantExport.tsv",
+#'     ccle_file = "CCLE_hybrid_capture1650_hg19_NoCommonSNPs_CDS_2012.05.07.maf",
+#'     ref_gen = "GRCH37"
+#' )
 #' @export
 initiate_canonical_databases = function(
     cosmic_file = "CosmicCLP_MutantExport.tsv",
@@ -63,6 +65,7 @@ initiate_canonical_databases = function(
 #' Parses cosmic genotype data
 #' 
 #' @param cosmic_file Path to cosmic clp file in hard disk
+#' @param ref_gen Reference genome version
 #' @importFrom IRanges IRanges
 #' @importFrom stats aggregate
 #' @return The R Table sim_list which contains the CoSMIC CLP fingerprints 
@@ -142,6 +145,7 @@ parse_cosmic_genotype_data = function(cosmic_file, ref_gen = "GRCH37"){
 #' Parses ccle genotype data
 #' 
 #' @param ccle_file Path to CCLE file on hard disk
+#' @param ref_gen Reference genome version
 #' @importFrom IRanges IRanges
 #' @importFrom stats aggregate
 #' @return The R Table sim_list which contains the CCLE fingerprints

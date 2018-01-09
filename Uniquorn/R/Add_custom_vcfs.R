@@ -7,7 +7,7 @@
 #' @param ref_gen a character string specifying the reference genome version.
 #'  All training sets are associated with a reference genome version.
 #'  Default is \code{"GRCH37"}. 
-#' @param library a character string giving the name of the library to add the
+#' @param library_name a character string giving the name of the library to add the
 #'  cancer cell lines to. Default is \code{"CUSTOM"}. 
 #'  Library name will be automatically added as a suffix to the identifier.
 #' @param n_threads an integer specifying the number of threads to be used.

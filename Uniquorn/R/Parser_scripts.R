@@ -5,6 +5,8 @@
 #' 
 #' @param vcf_file character string giving the path to the vcf file
 #'  on the operating system.
+#' @param ref_gen Reference genome version
+#' @param library_name 
 #' @usage 
 #' parse_vcf_file(
 #'     vcf_file,

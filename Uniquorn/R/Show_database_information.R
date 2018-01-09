@@ -149,10 +149,11 @@ show_contained_variants_in_library = function(
 #' @examples 
 #' ## Show all mutations for Cancer Cell Line 'SK_OV_3'
 #' show_contained_variants_for_ccl(
-#' name_ccl = "SK_OV_3",
-#' ref_gen = "GRCH37",
-#' library_name = "CELLMINER",
-#' mutational_weight_inclusion_threshold = 0)
+#'     name_ccl = "SK_OV_3",
+#'     ref_gen = "GRCH37",
+#'     library_name = "CELLMINER",
+#'     mutational_weight_inclusion_threshold = 0
+#' )
 #' @return GenomicRanges object that contains the ccl's variants
 #' @export
 show_contained_variants_for_ccl = function(
@@ -213,7 +214,7 @@ show_contained_variants_for_ccl = function(
 #' @usage 
 #' show_which_ccls_contain_variant(
 #'     start,
-#'     stop,
+#'     end,
 #'     chromosome,
 #'     ref_gen,
 #'     library_name,
@@ -221,12 +222,13 @@ show_contained_variants_for_ccl = function(
 #' )
 #' @examples
 #' show_which_ccls_contain_variant(
-#' start = 92030762,
-#' end = 92030762,
-#' chromosome = 8,
-#' ref_gen = "GRCH37",
-#' library_name = "CELLMINER",
-#' mutational_weight_inclusion_threshold = 0)
+#'     start = 92030762,
+#'     end = 92030762,
+#'     chromosome = 8,
+#'     ref_gen = "GRCH37",
+#'     library_name = "CELLMINER",
+#'     mutational_weight_inclusion_threshold = 0
+#' )
 #' @return Returns a GenomicRanges object that contains the variant if present.
 #' Member ccls can be found in the $Member_ccl vector
 #' @export
