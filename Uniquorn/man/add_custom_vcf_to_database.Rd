@@ -21,13 +21,13 @@ This may be one or many vcf files.}
 All training sets are associated with a reference genome version.
 Default is \code{"GRCH37"}.}
 
+\item{library_name}{a character string giving the name of the library to add the
+cancer cell lines to. Default is \code{"CUSTOM"}. 
+Library name will be automatically added as a suffix to the identifier.}
+
 \item{n_threads}{an integer specifying the number of threads to be used.}
 
 \item{test_mode}{Is this a test? Just for internal use}
-
-\item{library}{a character string giving the name of the library to add the
-cancer cell lines to. Default is \code{"CUSTOM"}. 
-Library name will be automatically added as a suffix to the identifier.}
 }
 \value{
 Message wheather the adding was successful
@@ -35,14 +35,4 @@ Message wheather the adding was successful
 \description{
 add_custom_vcf_to_database
 This function adds the variants of parsed custom CCLs to a monet DB instance
-}
-\examples{
-HT29_vcf_file = system.file("extdata/HT29.vcf.gz", package = "Uniquorn");
-add_custom_vcf_to_database(
-    vcf_input_files = HT29_vcf_file,
-    library_name = "CUSTOM",
-    ref_gen = "GRCH37",
-    n_threads = 1,
-    test_mode = TRUE
-)
 }

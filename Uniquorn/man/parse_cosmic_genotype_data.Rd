@@ -8,6 +8,8 @@ parse_cosmic_genotype_data(cosmic_file, ref_gen = "GRCH37")
 }
 \arguments{
 \item{cosmic_file}{Path to cosmic clp file in hard disk}
+
+\item{ref_gen}{Reference genome version}
 }
 \value{
 The R Table sim_list which contains the CoSMIC CLP fingerprints

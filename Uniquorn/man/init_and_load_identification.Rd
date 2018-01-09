@@ -18,6 +18,8 @@ init_and_load_identification(
 associated with a reference genome version. Default: GRCH37}
 
 \item{vcf_file}{Path to vcf_file}
+
+\item{output_dir}{Output directory for identification results}
 }
 \value{
 Three file path instances and the fingerprint

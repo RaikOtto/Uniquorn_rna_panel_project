@@ -53,9 +53,9 @@
 #'     n_threads
 #' )
 #' @examples 
-#' HT29_vcf_file = system.file("extdata/HT29.vcf.gz", package="Uniquorn");
+#' HT29_vcf_file = system.file("extdata/HT29.vcf.gz", package = "Uniquorn");
 #' 
-#' identification = identify_vcf_files(HT29_vcf_file)
+#' identification = identify_vcf_file(HT29_vcf_file)
 #' @return R table with a statistic of the identification result
 #' @export
 identify_vcf_file = function(

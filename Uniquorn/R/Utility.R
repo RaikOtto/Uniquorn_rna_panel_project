@@ -49,12 +49,14 @@ write_mutation_grange_objects = function(
 #'  lower bound for mutational weight to be included
 #' @param ref_gen Reference genome version. All training sets are 
 #'  associated with a reference genome version. Default: GRCH37
+#' @param test_mode Is this a test? Just for internal use
 #' @importFrom IRanges IRanges
 #' @return The R Table sim_list which contains the CoSMIC CLP fingerprints 
 read_mutation_grange_objects = function(
     library_name,
     mutational_weight_inclusion_threshold,
-    ref_gen
+    ref_gen,
+    test_mode
 ){
     
     package_path = system.file("", package = "Uniquorn")
@@ -78,30 +80,33 @@ read_mutation_grange_objects = function(
                 end = NULL
             )
         )
-        dir.create(
-            paste( 
-                c(package_path,"/Libraries/"),
-                collapse = "",
-                sep = ""
-            ),
-            showWarnings = FALSE
-        )
-        dir.create(
-            paste( 
-                c(package_path,"/Libraries/",ref_gen,"/"),
-                collapse = "",
-                sep = ""
-            ),
-            showWarnings = FALSE
-        )
-        dir.create(
-            paste( 
-                c(package_path,"/Libraries/",ref_gen,"/",library_name),
-                collapse = "",
-                sep = ""
-            ),
-            showWarnings = FALSE
-        )
+        
+        if (test_mode == FALSE){
+            dir.create(
+                paste( 
+                    c(package_path,"/Libraries/"),
+                    collapse = "",
+                    sep = ""
+                ),
+                showWarnings = FALSE
+            )
+            dir.create(
+                paste( 
+                    c(package_path,"/Libraries/",ref_gen,"/"),
+                    collapse = "",
+                    sep = ""
+                ),
+                showWarnings = FALSE
+            )
+            dir.create(
+                paste( 
+                    c(package_path,"/Libraries/",ref_gen,"/",library_name),
+                    collapse = "",
+                    sep = ""
+                ),
+                showWarnings = FALSE
+            )
+        }
     } else {
         g_mat = readRDS(rdata_path)
     }

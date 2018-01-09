@@ -8,6 +8,8 @@ parse_ccle_genotype_data(ccle_file, ref_gen = "GRCH37")
 }
 \arguments{
 \item{ccle_file}{Path to CCLE file on hard disk}
+
+\item{ref_gen}{Reference genome version}
 }
 \value{
 The R Table sim_list which contains the CCLE fingerprints

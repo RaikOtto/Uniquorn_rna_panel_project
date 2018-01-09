@@ -5,7 +5,7 @@
 \title{read_mutation_grange_objects}
 \usage{
 read_mutation_grange_objects(library_name,
-  mutational_weight_inclusion_threshold, ref_gen)
+  mutational_weight_inclusion_threshold, ref_gen, test_mode)
 }
 \arguments{
 \item{library_name}{a character string giving the name of the library}
@@ -15,6 +15,8 @@ lower bound for mutational weight to be included}
 
 \item{ref_gen}{Reference genome version. All training sets are 
 associated with a reference genome version. Default: GRCH37}
+
+\item{test_mode}{Is this a test? Just for internal use}
 }
 \value{
 The R Table sim_list which contains the CoSMIC CLP fingerprints

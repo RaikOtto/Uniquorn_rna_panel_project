@@ -43,7 +43,8 @@ remove_ccls_from_database = function(
     g_mat = read_mutation_grange_objects(
         library_name = library_name,
         ref_gen = ref_gen,
-        mutational_weight_inclusion_threshold = 0
+        mutational_weight_inclusion_threshold = 0,
+        test_mode = test_mode
     )
     
     for (ccl_id in ccl_names){
@@ -109,14 +110,7 @@ remove_ccls_from_database = function(
 #'  Default is \code{"GRCH37"}.
 #' @param test_mode is this a test? Just for internal use.
 #' @import stringr
-#' @usage 
-#' remove_library_from_database(library, ref_gen = "GRCH37", test_mode = FALSE)
-#' @examples 
-#' remove_custom_vcf_from_database(library = "CELLMINER",
-#'                                 ref_gen = "GRCH37",
-#'                                 test_mode = FALSE)
 #' @return Message that indicates whether the removal was succesful.
-#' @export
 remove_library_from_database = function( 
     library,
     ref_gen = "GRCH37",

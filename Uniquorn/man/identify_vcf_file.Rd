@@ -5,18 +5,20 @@
 \title{identify_VCF_file}
 \usage{
 identify_vcf_file( 
-vcf_file,
-output_file = "",
-ref_gen = "GRCH37",
-minimum_matching_mutations = 0,
-mutational_weight_inclusion_threshold = 0.5,
-write_xls = FALSE,
-output_bed_file = FALSE,
-top_hits_per_library = 3,
-manual_identifier_bed_file = "",
-verbose = TRUE,
-p_value = .05,
-n_threads = 1)
+    vcf_file,
+    output_file,
+    ref_gen,
+    minimum_matching_mutations,
+    mutational_weight_inclusion_threshold,
+    write_xls,
+    output_bed_file,
+    top_hits_per_library,
+    manual_identifier_bed_file,
+    verbose,
+    p_value,
+    confidence_score,
+    n_threads
+)
 }
 \arguments{
 \item{vcf_file}{Input vcf file. Only one sample column allowed.}
@@ -73,7 +75,7 @@ on the pattern (start & length) of all contained mutations/ variations.
 the identity of the sample
 }
 \examples{
-HT29_vcf_file = system.file("extdata/HT29.vcf.gz", package="Uniquorn");
+HT29_vcf_file = system.file("extdata/HT29.vcf.gz", package = "Uniquorn");
 
-identification = identify_vcf_files(HT29_vcf_file)
+identification = identify_vcf_file(HT29_vcf_file)
 }

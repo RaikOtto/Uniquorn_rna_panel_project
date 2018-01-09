@@ -6,7 +6,7 @@
 \usage{
 show_which_ccls_contain_variant(
     start,
-    stop,
+    end,
     chromosome,
     ref_gen,
     library_name,
@@ -15,6 +15,8 @@ show_which_ccls_contain_variant(
 }
 \arguments{
 \item{start}{Start coordinate}
+
+\item{end}{Stop coordinate}
 
 \item{chromosome}{Chromosome, 'chr' prefixes are ignored}
 
@@ -27,8 +29,6 @@ version. Default is \code{"GRCH37"}.}
 \item{mutational_weight_inclusion_threshold}{Include only mutations 
 with a weight of at least x. Range: 0.0 to 1.0. 1= unique to CL. 
 ~0 = found in many CCL samples.}
-
-\item{stop}{Stop coordinate}
 }
 \value{
 Returns a GenomicRanges object that contains the variant if present.
@@ -40,10 +40,11 @@ contain a specified variant. Utilizes closed interval coordinates.
 }
 \examples{
 show_which_ccls_contain_variant(
-start = 92030762,
-end = 92030762,
-chromosome = 8,
-ref_gen = "GRCH37",
-library_name = "CELLMINER",
-mutational_weight_inclusion_threshold = 0)
+    start = 92030762,
+    end = 92030762,
+    chromosome = 8,
+    ref_gen = "GRCH37",
+    library_name = "CELLMINER",
+    mutational_weight_inclusion_threshold = 0
+)
 }

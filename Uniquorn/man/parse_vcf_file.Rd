@@ -13,10 +13,14 @@ parse_vcf_file(
 \arguments{
 \item{vcf_file}{character string giving the path to the vcf file
 on the operating system.}
+
+\item{ref_gen}{Reference genome version}
+
+\item{library_name}{Name of the reference library}
 }
 \value{
 Loci-based DNA-mutational fingerprint of the cancer cell line
- as found in the input VCF file.identify_vcf_files
+ as found in the input VCF file.
 }
 \description{
 Intern utility function. Filters the parsed VCF file for all informations

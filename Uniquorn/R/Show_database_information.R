@@ -29,7 +29,7 @@ show_contained_ccls = function(
     if ( ! dir.exists( library_path ))
         stop("No libraries found!")
     
-    libraries = list.dirs(library_path,full.names = FALSE)
+    libraries = list.dirs(library_path, full.names = FALSE)
     libraries = libraries[ libraries != ""]
     
     ccls_all <<- data.frame(
@@ -47,7 +47,7 @@ show_contained_ccls = function(
             "/CCL_List_Uniquorn_DB.RData"), sep ="", collapse= "")
         g_library = readRDS(stats_path)
         cl_id_no_library = str_replace_all( g_library$CCL, pattern = 
-            paste("_",library_name,sep = ""),"" )
+            paste("_", library_name, sep = ""), "" )
         g_library$CCL = cl_id_no_library
         
         if (verbose) {
@@ -118,7 +118,8 @@ show_contained_variants_in_library = function(
         library_name = library_name,
         ref_gen = ref_gen,
         mutational_weight_inclusion_threshold = 
-            mutational_weight_inclusion_threshold
+            mutational_weight_inclusion_threshold,
+        test_mode = FALSE
     )
     
     return(g_mat)
@@ -184,7 +185,8 @@ show_contained_variants_for_ccl = function(
         library_name = library_name,
         ref_gen = ref_gen,
         mutational_weight_inclusion_threshold = 
-            mutational_weight_inclusion_threshold
+            mutational_weight_inclusion_threshold,
+        test_mode = FALSE
     )
     
     g_query_index = stringr::str_detect(g_mat$Member_CCLs, pattern = name_ccl)
@@ -199,7 +201,7 @@ show_contained_variants_for_ccl = function(
 #' contain a specified variant. Utilizes closed interval coordinates.
 #' 
 #' @param start Start coordinate
-#' @param stop Stop coordinate
+#' @param end Stop coordinate
 #' @param chromosome Chromosome, 'chr' prefixes are ignored
 #' @param ref_gen a character vector specifying the reference genome 
 #' version. All training sets are associated with a reference genome 
@@ -262,7 +264,8 @@ show_which_ccls_contain_variant = function(
         library_name = library_name,
         ref_gen = ref_gen,
         mutational_weight_inclusion_threshold = 
-        mutational_weight_inclusion_threshold
+        mutational_weight_inclusion_threshold,
+        test_mode = FALSE
     )
     
     chromosome = stringr::str_to_upper(chromosome)
@@ -293,6 +296,7 @@ show_which_ccls_contain_variant = function(
 #' @examples
 #' read_library_names(ref_gen = "GRCH37")
 #' @return Returns a character vector of the contained libraries
+#' @export
 read_library_names = function(
     ref_gen
 ){

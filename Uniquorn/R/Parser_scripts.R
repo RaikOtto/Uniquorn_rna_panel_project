@@ -6,7 +6,7 @@
 #' @param vcf_file character string giving the path to the vcf file
 #'  on the operating system.
 #' @param ref_gen Reference genome version
-#' @param library_name 
+#' @param library_name Name of the reference library
 #' @usage 
 #' parse_vcf_file(
 #'     vcf_file,
@@ -16,7 +16,7 @@
 #' @import GenomicRanges stringr
 #' @importFrom IRanges IRanges
 #' @return Loci-based DNA-mutational fingerprint of the cancer cell line
-#'  as found in the input VCF file.identify_vcf_files
+#'  as found in the input VCF file.
 parse_vcf_file = function(
     vcf_file,
     ref_gen,
@@ -28,7 +28,7 @@ parse_vcf_file = function(
     #seq_obj = VariantAnnotation::seqinfo(
     #    VariantAnnotation::scanVcfHeader(vcf_file)
     #)
-    g_query = VariantAnnotation::readVcf(file = vcf_file)
+    g_query =  VariantAnnotation::readVcf(file = vcf_file)
     
     # process variants
     chroms = str_replace(as.character(seqnames(g_query)),

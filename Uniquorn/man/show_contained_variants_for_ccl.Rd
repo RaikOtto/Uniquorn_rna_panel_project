@@ -35,8 +35,9 @@ for a selected cancer cell line and reference genome.
 \examples{
 ## Show all mutations for Cancer Cell Line 'SK_OV_3'
 show_contained_variants_for_ccl(
-name_ccl = "SK_OV_3",
-ref_gen = "GRCH37",
-library_name = "CELLMINER",
-mutational_weight_inclusion_threshold = 0)
+    name_ccl = "SK_OV_3",
+    ref_gen = "GRCH37",
+    library_name = "CELLMINER",
+    mutational_weight_inclusion_threshold = 0
+)
 }
