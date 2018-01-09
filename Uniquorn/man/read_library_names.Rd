@@ -4,8 +4,7 @@
 \alias{read_library_names}
 \title{Library Name Reader}
 \usage{
-read_library_names(
-ref_gen)
+read_library_names(ref_gen)
 }
 \arguments{
 \item{ref_gen}{a character vector specifying the reference genome 
@@ -19,6 +18,5 @@ Returns a character vector of the contained libraries
 This function procides information on the reference library names
 }
 \examples{
-read_library_names(
-ref_gen = "GRCH37")
+read_library_names(ref_gen = "GRCH37")
 }

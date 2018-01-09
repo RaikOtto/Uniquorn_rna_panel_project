@@ -11,11 +11,11 @@
 #' @param vcf_file Path to vcf_file
 #' @usage 
 #' init_and_load_identification( 
-#' verbose,
-#' ref_gen,
-#' vcf_file,
-#' output_file,
-#' n_threads)
+#'     verbose,
+#'     ref_gen,
+#'     vcf_file,
+#'     output_dir
+#' )
 #' @return Three file path instances and the fingerprint
 init_and_load_identification = function(
     verbose,

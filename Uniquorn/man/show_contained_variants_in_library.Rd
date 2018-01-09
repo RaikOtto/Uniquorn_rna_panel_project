@@ -4,7 +4,11 @@
 \alias{show_contained_variants_in_library}
 \title{All variants contained in reference library}
 \usage{
-show_contained_variants_in_library(ref_gen)
+show_contained_variants_in_library(
+    ref_gen,
+    library_name,
+    mutational_weight_inclusion_threshold
+)
 }
 \arguments{
 \item{ref_gen}{a character vector specifying the reference genome 
@@ -28,7 +32,8 @@ for a given inclusion weight. Default inclusion weight is 0
 \examples{
 ## Show all variants contained in reference library CELLMINER
 show_contained_variants_in_library(
-ref_gen = "GRCH37",
-library_name = "CELLMINER",
-mutational_weight_inclusion_threshold = 0)
+    ref_gen = "GRCH37",
+    library_name = "CELLMINER",
+    mutational_weight_inclusion_threshold = 0
+)
 }

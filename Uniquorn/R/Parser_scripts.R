@@ -6,7 +6,11 @@
 #' @param vcf_file character string giving the path to the vcf file
 #'  on the operating system.
 #' @usage 
-#' parse_vcf_file(vcf_file)
+#' parse_vcf_file(
+#'     vcf_file,
+#'     ref_gen,
+#'     library_name
+#' )
 #' @import GenomicRanges stringr
 #' @importFrom IRanges IRanges
 #' @return Loci-based DNA-mutational fingerprint of the cancer cell line

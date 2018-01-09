@@ -4,10 +4,12 @@
 \alias{show_contained_variants_for_ccl}
 \title{Variants In Cancer Cell Line}
 \usage{
-show_contained_variants_for_ccl(name_ccl, 
-ref_gen,
-library_name,
-mutational_weight_inclusion_threshold)
+show_contained_variants_for_ccl(
+    name_ccl, 
+    ref_gen,
+    library_name,
+    mutational_weight_inclusion_threshold
+)
 }
 \arguments{
 \item{name_ccl}{a character vector giving the identifier 

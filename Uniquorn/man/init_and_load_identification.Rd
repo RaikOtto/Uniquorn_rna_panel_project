@@ -5,11 +5,11 @@
 \title{init_and_load_identification}
 \usage{
 init_and_load_identification( 
-verbose,
-ref_gen,
-vcf_file,
-output_file,
-n_threads)
+    verbose,
+    ref_gen,
+    vcf_file,
+    output_dir
+)
 }
 \arguments{
 \item{verbose}{Print additional information}

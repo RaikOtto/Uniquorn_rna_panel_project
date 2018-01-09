@@ -4,7 +4,11 @@
 \alias{parse_vcf_file}
 \title{Filter Parsed VCF Files}
 \usage{
-parse_vcf_file(vcf_file)
+parse_vcf_file(
+    vcf_file,
+    ref_gen,
+    library_name
+)
 }
 \arguments{
 \item{vcf_file}{character string giving the path to the vcf file

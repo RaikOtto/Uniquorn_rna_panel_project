@@ -4,7 +4,7 @@
 \alias{identify_vcf_file}
 \title{identify_VCF_file}
 \usage{
-identify_vcf_files( 
+identify_vcf_file( 
 vcf_file,
 output_file = "",
 ref_gen = "GRCH37",

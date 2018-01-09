@@ -37,7 +37,7 @@
 #' @param n_threads Number of threads to be used
 #' @import WriteXLS
 #' @usage 
-#' identify_vcf_files( 
+#' identify_vcf_file( 
 #' vcf_file,
 #' output_file = "",
 #' ref_gen = "GRCH37",

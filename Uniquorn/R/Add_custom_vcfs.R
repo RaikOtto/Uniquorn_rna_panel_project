@@ -18,7 +18,7 @@
 #' add_custom_vcf_to_database(
 #'     vcf_input_files,
 #'     ref_gen = "GRCH37",
-#'     library = "CUSTOM",
+#'     library_name = "CUSTOM",
 #'     n_threads = 1,
 #'     test_mode = FALSE
 #' )
@@ -26,7 +26,7 @@
 #' HT29_vcf_file = system.file("extdata/HT29.vcf.gz", package = "Uniquorn");
 #' add_custom_vcf_to_database(
 #'     vcf_input_files = HT29_vcf_file,
-#'     library = "CUSTOM",
+#'     library_name = "CUSTOM",
 #'     ref_gen = "GRCH37",
 #'     n_threads = 1,
 #'     test_mode = TRUE

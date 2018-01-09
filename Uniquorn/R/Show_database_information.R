@@ -61,6 +61,7 @@ show_contained_ccls = function(
     return(ccls_all)
 }
 
+
 #' All variants contained in reference library
 #' 
 #' This function shows all variants contained in a reference library
@@ -75,14 +76,19 @@ show_contained_ccls = function(
 #' with a weight of at least x. Range: 0.0 to 1.0. 1 = unique to CL. 
 #' ~0 = found in many CL samples. 
 #' @usage
-#' show_contained_variants_in_library(ref_gen)
+#' show_contained_variants_in_library(
+#'     ref_gen,
+#'     library_name,
+#'     mutational_weight_inclusion_threshold
+#' )
 #' @import stringr
 #' @examples
 #' ## Show all variants contained in reference library CELLMINER
 #' show_contained_variants_in_library(
-#' ref_gen = "GRCH37",
-#' library_name = "CELLMINER",
-#' mutational_weight_inclusion_threshold = 0)
+#'     ref_gen = "GRCH37",
+#'     library_name = "CELLMINER",
+#'     mutational_weight_inclusion_threshold = 0
+#' )
 #' @return Returns a GenomicRanges object that contains the variants
 #' @export
 show_contained_variants_in_library = function(
@@ -134,10 +140,12 @@ show_contained_variants_in_library = function(
 #' ~0 = found in many CCL samples. 
 #' @import stringr
 #' @usage 
-#' show_contained_variants_for_ccl(name_ccl, 
-#' ref_gen,
-#' library_name,
-#' mutational_weight_inclusion_threshold)
+#' show_contained_variants_for_ccl(
+#'     name_ccl, 
+#'     ref_gen,
+#'     library_name,
+#'     mutational_weight_inclusion_threshold
+#' )
 #' @examples 
 #' ## Show all mutations for Cancer Cell Line 'SK_OV_3'
 #' show_contained_variants_for_ccl(
@@ -203,13 +211,14 @@ show_contained_variants_for_ccl = function(
 #' @importFrom IRanges IRanges
 #' @importFrom IRanges subsetByOverlaps
 #' @usage 
-#' show_which_cls_contain_variant(
-#' start,
-#' stop,
-#' chromosome,
-#' ref_gen,
-#' library_name,
-#' mutational_weight_inclusion_threshold)
+#' show_which_ccls_contain_variant(
+#'     start,
+#'     stop,
+#'     chromosome,
+#'     ref_gen,
+#'     library_name,
+#'     mutational_weight_inclusion_threshold
+#' )
 #' @examples
 #' show_which_ccls_contain_variant(
 #' start = 92030762,
@@ -278,11 +287,9 @@ show_which_ccls_contain_variant = function(
 #' version. Default is \code{"GRCH37"}.
 #' @import stringr
 #' @usage
-#' read_library_names(
-#' ref_gen)
+#' read_library_names(ref_gen)
 #' @examples
-#' read_library_names(
-#' ref_gen = "GRCH37")
+#' read_library_names(ref_gen = "GRCH37")
 #' @return Returns a character vector of the contained libraries
 read_library_names = function(
     ref_gen

@@ -4,13 +4,14 @@
 \alias{show_which_ccls_contain_variant}
 \title{Cancer cell lines with specific variant}
 \usage{
-show_which_cls_contain_variant(
-start,
-stop,
-chromosome,
-ref_gen,
-library_name,
-mutational_weight_inclusion_threshold)
+show_which_ccls_contain_variant(
+    start,
+    stop,
+    chromosome,
+    ref_gen,
+    library_name,
+    mutational_weight_inclusion_threshold
+)
 }
 \arguments{
 \item{start}{Start coordinate}
