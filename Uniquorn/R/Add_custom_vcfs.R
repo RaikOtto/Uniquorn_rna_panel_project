@@ -22,7 +22,7 @@
 #'     n_threads = 1,
 #'     test_mode = FALSE
 #' )
-#' @example
+#' @examples
 #' HT29_vcf_file = system.file("extdata/HT29_TEST.vcf", package = "Uniquorn");
 #' add_custom_vcf_to_database(
 #'     vcf_input_files = HT29_vcf_file,

@@ -36,3 +36,14 @@ Message wheather the adding was successful
 add_custom_vcf_to_database
 This function adds the variants of parsed custom CCLs to a monet DB instance
 }
+\examples{
+HT29_vcf_file = system.file("extdata/HT29_TEST.vcf", package = "Uniquorn");
+add_custom_vcf_to_database(
+    vcf_input_files = HT29_vcf_file,
+    library_name = "CELLMINER",
+    ref_gen = "GRCH37",
+    n_threads = 1,
+    test_mode = TRUE
+)
+
+}

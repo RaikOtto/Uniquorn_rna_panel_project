@@ -66,6 +66,7 @@ initiate_canonical_databases = function(
 #' 
 #' @param cosmic_file Path to cosmic clp file in hard disk
 #' @param ref_gen Reference genome version
+#' @import data.table
 #' @importFrom IRanges IRanges
 #' @importFrom stats aggregate
 #' @return The R Table sim_list which contains the CoSMIC CLP fingerprints 
@@ -84,13 +85,14 @@ parse_cosmic_genotype_data = function(cosmic_file, ref_gen = "GRCH37"){
         subset = c(5, 19)
     }
     
-    cosmic_genotype_tab = data.table::fread(cosmic_file, select = subset,
+    cosmic_genotype_tab = fread(cosmic_file, select = subset,
         sep = "\t", showProgress = FALSE)
     colnames(cosmic_genotype_tab) = c("sample", "position")
     
     # Extract and process coordinates and CL IDs
     message("Parsing Cosmic Coordinates, that might take some time")
     coords = cosmic_genotype_tab[, gsub(":|-", "_", position)]
+    seq_name2 = sub("_.*", "", coords)
     seq_name = as.character(sapply( coords, FUN = function(vec){
         return(as.character(unlist(str_split(vec,"_")))[1])}))
     starts = as.character(sapply( coords, FUN = function(vec){
