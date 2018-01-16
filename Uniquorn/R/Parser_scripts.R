@@ -15,6 +15,7 @@
 #' )
 #' @import GenomicRanges stringr
 #' @importFrom IRanges IRanges
+#' @importFrom VariantAnnotation readVcf
 #' @return Loci-based DNA-mutational fingerprint of the cancer cell line
 #'  as found in the input VCF file.
 parse_vcf_file = function(

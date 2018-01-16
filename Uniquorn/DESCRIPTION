@@ -20,7 +20,8 @@ Imports:
     doParallel,
     foreach,
     GenomicRanges,
-    IRanges
+    IRanges,
+    VariantAnnotation
 Depends: 
     R (>= 3.4)
 License: Artistic-2.0
