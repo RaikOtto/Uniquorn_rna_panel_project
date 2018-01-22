@@ -92,14 +92,10 @@ parse_cosmic_genotype_data = function(cosmic_file, ref_gen = "GRCH37"){
     # Extract and process coordinates and CL IDs
     message("Parsing Cosmic Coordinates, that might take some time")
     coords = cosmic_genotype_tab[, gsub(":|-", "_", position)]
-    seq_name2 = sub("_.*", "", coords)
-    seq_name = as.character(sapply( coords, FUN = function(vec){
-        return(as.character(unlist(str_split(vec,"_")))[1])}))
-    starts = as.character(sapply( coords, FUN = function(vec){
-        return(as.character(unlist(str_split(vec,"_")))[2])}))
-    ends = as.character(sapply( coords, FUN = function(vec){
-        return(as.character(unlist(str_split(vec,"_")))[3])}))
-    
+    seq_name = vapply(strsplit(coords, "_"), `[`, 1, FUN.VALUE = character(1))
+    starts = vapply(strsplit(coords, "_"), `[`, 2, FUN.VALUE = character(1))
+    ends = vapply(strsplit(coords, "_"), `[`, 3, FUN.VALUE = character(1))
+
     cls = cosmic_genotype_tab[
         ,gsub("/|(|])| ", "", sample, ignore.case = TRUE)]
     cls[cls == "KM-H2"] = "KMH2"
@@ -108,9 +104,11 @@ parse_cosmic_genotype_data = function(cosmic_file, ref_gen = "GRCH37"){
     c_matches = match(coords, unique(coords), nomatch = 0)
     
     message("Aggregating Cosmic CCL names")
-    new_cls = aggregate(
-        cls, by = list(c_matches), FUN= paste, sep = "", collapse= ","
+    new_cls = data.table(
+      "CLS" = cls,
+      "Index" = c_matches
     )
+    new_cls = new_cls[,lapply(.SD, paste, sep = "", collapse= ","), by = Index]
     
     # Extract and process coordinates and CL IDs
     g_mat = GenomicRanges::GRanges(
@@ -121,9 +119,9 @@ parse_cosmic_genotype_data = function(cosmic_file, ref_gen = "GRCH37"){
         )
     )
     g_mat = unique(g_mat)
-    mcols(g_mat)$Member_CCLs = new_cls$x
+    mcols(g_mat)$Member_CCLs = new_cls$CLS
     mcols(g_mat)$Member_CCLs = str_replace_all(mcols(g_mat)$Member_CCLs, 
-        pattern = paste( "_",library_name,sep =""), "")
+        pattern = paste( "_", library_name, sep =""), "")
     
     message("Normalizing CCL names")
     
@@ -148,6 +146,7 @@ parse_cosmic_genotype_data = function(cosmic_file, ref_gen = "GRCH37"){
 #' 
 #' @param ccle_file Path to CCLE file on hard disk
 #' @param ref_gen Reference genome version
+#' @import data.table
 #' @importFrom IRanges IRanges
 #' @importFrom stats aggregate
 #' @return The R Table sim_list which contains the CCLE fingerprints
@@ -165,7 +164,7 @@ parse_ccle_genotype_data = function(ccle_file, ref_gen = "GRCH37"){
     )
     
     cls = ccle_genotype_tab[, gsub("\\_.*", "", Tumor_Sample_Barcode)]
-    cls = str_replace(cls, paste( "_",library_name, sep = "" ), "")
+    cls = str_replace(cls, paste( "_", library_name, sep = "" ), "")
     
     coords = paste(
         str_replace(ccle_genotype_tab$Chromosome, pattern = "^chr", "" ),
@@ -173,13 +172,15 @@ parse_ccle_genotype_data = function(ccle_file, ref_gen = "GRCH37"){
         ccle_genotype_tab$End_position,
         sep = "_"
     )
-    c_matches = match(coords,unique(coords), nomatch = 0)
-    new_cls <<- c()
+    c_matches = match(coords, unique(coords), nomatch = 0)
+    #new_cls <<- c()
     
     message("Aggregating CCLE CCL names")
-    new_cls = aggregate(
-        cls, by = list(c_matches), FUN= paste, sep = "", collapse= ","
+    new_cls = data.table(
+      "CLS" = cls,
+      "Index" = c_matches
     )
+    new_cls = new_cls[,lapply(.SD, paste, sep = "", collapse= ","), by = Index]
     
     # Extract and process coordinates and CL IDs
     g_mat = GenomicRanges::GRanges(
@@ -191,7 +192,7 @@ parse_ccle_genotype_data = function(ccle_file, ref_gen = "GRCH37"){
         )
     )
     g_mat = unique(g_mat)
-    mcols(g_mat)$Member_CCLs = new_cls$x
+    mcols(g_mat)$Member_CCLs = new_cls$CLS
     
     # write the stats part
     write_w0_and_split_w0_into_lower_weights(
