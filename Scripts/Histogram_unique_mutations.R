@@ -1,4 +1,4 @@
-#source("~/Dropbox/PhD/Uniquorn_project/Scripts/calculations_vis.R")
+source("~/Uniquorn_rna_panel_project//Scripts/calculations_vis.R")
 library("tidyr")
 
 ##

@@ -29,4 +29,55 @@ for ( var_weight in c("W0","W25","W05","W1")){
     }
 }
 
+### load ods benchmark
 
+source("~/Uniquorn_rna_panel_project//Scripts/utility.R")
+library("readODS")
+avg_file   = read_ods("~/Dropbox/Uniquorn_project/Pub/Benchmarks.ods", sheet = 1)
+rna_file   = read_ods("~/Dropbox/Uniquorn_project/Pub/Benchmarks.ods", sheet = 2)
+TruSight   = read_ods("~/Dropbox/Uniquorn_project/Pub/Benchmarks.ods", sheet = 3)
+ClearSight = read_ods("~/Dropbox/Uniquorn_project/Pub/Benchmarks.ods", sheet = 4)
+Hotspot    = read_ods("~/Dropbox/Uniquorn_project/Pub/Benchmarks.ods", sheet = 5)
+
+seq_type = factor( 
+  c(rep("AVG",16),rep("RNA",16),rep("TruSight",16),rep("ClearSight",16),rep("Hotspot_v2",16)),
+  levels = c("AVG","RNA","ClearSight","TruSight","Hotspot_v2"))
+Weights = factor(
+  as.character( rep( c( rep(1.0,4),rep(0.5,4),rep(0.25,4),rep(0.0,4) ), 5 ) ),
+  levels = c("1","0.5","0.25","0")
+)
+TPs = as.double( c( avg_file[3,-1], rna_file[3,-1], TruSight[3,-1],ClearSight[3,-1],Hotspot[3,-1] ) )
+
+# Sensitivity
+
+Sensitivity = as.double( c( avg_file[6,-1], rna_file[6,-1], TruSight[6,-1],ClearSight[6,-1],Hotspot[6,-1] ) )
+seq_type = factor( 
+  c(rep("AVG",16),rep("RNA",16),rep("TruSight",16),rep("ClearSight",16),rep("Hotspot_v2",16)),
+  levels = c("AVG","RNA","ClearSight","TruSight","Hotspot_v2"))
+
+
+benchmark_Sensitivity = data.frame(
+  "Weight" = Weights,
+  "Sensitivity" = Sensitivity,
+  "Seq_Type" = seq_type
+)
+
+# F1
+
+F1s = as.double( c( avg_file[8,-1], rna_file[8,-1], TruSight[8,-1],ClearSight[8,-1],Hotspot[8,-1] ) )
+
+benchmark_F1 = data.frame(
+  "Weight" = Weights,
+  "F1" = F1s,
+  "Seq_Type" = seq_type
+)
+
+# PPV
+
+PPVs = as.double( c( avg_file[7,-1], rna_file[7,-1], TruSight[7,-1],ClearSight[7,-1],Hotspot[7,-1] ) )
+
+benchmark_PPV = data.frame(
+  "Weight" = Weights,
+  "PPV" = PPVs,
+  "Seq_Type" = seq_type
+)
