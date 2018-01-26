@@ -1,38 +1,13 @@
-library("ggplot2")
 library("stringr")
+source("~/Uniquorn_rna_panel_project//Scripts/utility.R")
+library("readODS")
 library("devtools")
-library("argparse")
 setwd("~/Uniquorn_rna_panel_project/Uniquorn/")
 load_all()
 
-library_names = Uniquorn::read_library_names(ref_gen = "GRCH37")
-mat_mat = show_contained_cls()
-
-variant_t <<- data.frame(
-    "Library" = as.character(),
-    "Weight" = as.character(),
-    "Count" = as.integer()
-)
-
-for ( var_weight in c("W0","W25","W05","W1")){
-    for (library_name in library_names){
-      
-        lib_mat = mat_mat[ mat_mat$Library == library_name,]
-        data_lib = as.integer( lib_mat[[var_weight]] )
-        
-        new_mat = data.frame(
-            "Library" = rep(library_name, length(data_lib)),
-            "Weight" = rep(var_weight, length(data_lib)),
-            "Count" = data_lib
-        )
-        variant_t = rbind(variant_t, new_mat)
-    }
-}
 
 ### load ods benchmark
 
-source("~/Uniquorn_rna_panel_project//Scripts/utility.R")
-library("readODS")
 avg_file   = read_ods("~/Dropbox/Uniquorn_project/Pub/Benchmarks.ods", sheet = 1)
 rna_file   = read_ods("~/Dropbox/Uniquorn_project/Pub/Benchmarks.ods", sheet = 2)
 TruSight   = read_ods("~/Dropbox/Uniquorn_project/Pub/Benchmarks.ods", sheet = 3)
@@ -80,4 +55,67 @@ benchmark_PPV = data.frame(
   "Weight" = Weights,
   "PPV" = PPVs,
   "Seq_Type" = seq_type
+)
+
+### abs_mat
+
+library_names = Uniquorn::read_library_names(ref_gen = "GRCH37")
+mat_mat = show_contained_ccls()
+
+abs_mat <<- data.frame(
+  "Library" = as.character(),
+  "Weight" = as.character(),
+  "Count" = as.integer(),
+  stringsAsFactors = F
+)
+
+for ( var_weight in c("W0","W25","W05","W1")){
+  for (library_name in library_names){
+    
+    lib_mat = mat_mat[ mat_mat$Library == library_name,]
+    data_lib = as.integer( lib_mat[[var_weight]] )
+
+    new_mat = data.frame(
+      "Library" = rep(library_name, length(data_lib)),
+      "Weight"  = rep(var_weight,   length(data_lib)),
+      "Count"   = data_lib
+    )
+    abs_mat   = rbind(abs_mat, new_mat)
+  }
+}
+abs_mat$Library = as.character(abs_mat$Library)
+abs_mat$Library[abs_mat$Library=="COSMIC"] = "CPG"
+abs_mat$Library[abs_mat$Library=="EGA"] = "Klijn"
+abs_mat$Library = factor(abs_mat$Library, levels = c("CCLE","CELLMINER","CPG","Klijn","GDC"))
+
+### mean mat
+
+mean_mat <<- data.frame(
+  "Library" = as.character(),
+  "Weight" = as.character(),
+  "Count" = as.double(),
+  stringsAsFactors = F
+)
+libraries = as.character( unique(as.character(abs_mat$Library ) ))
+
+for ( var_weight in c("W0","W25","W05","W1")){
+  for (library_name in libraries){
+    
+    lib_vec = abs_mat[ abs_mat$Library == library_name,]
+    lib_vec = lib_vec[ lib_vec$Weight == var_weight, ]
+    
+    mean_mat <<- data.frame(
+      "Library" = c( as.character( mean_mat$Library ), library_name ),
+      "Weight"  = c( as.character( mean_mat$Weight  ), var_weight   ),
+      "Count"   = as.double( c( as.double(mean_mat$Count), mean( as.double( lib_vec$Count)) ) )
+    )
+  }
+}
+
+### ccl_mat 
+
+ccl_mat = data.frame(
+  "Library" = libraries,
+  "CCLs" = as.integer(c(904, 60,1020,675,937)),
+  stringsAsFactors = F
 )

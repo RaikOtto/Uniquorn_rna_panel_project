@@ -5,6 +5,7 @@ require(grid)
 require(gridExtra)
 library("cowplot")
 library("scales")
+source("~/Uniquorn_rna_panel_project/Scripts/calculations_vis.R")
 
 # Sensitivity
 
@@ -96,8 +97,7 @@ jpeg("~/Dropbox/Uniquorn_project/Figures/performance.jpg", width = 1024,height =
     p
 dev.off()
 
-
-"
+#
 
 multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
   library(grid)
@@ -188,4 +188,6 @@ grid.arrange(
     ) - lheight
   )
 )
-"
+
+
+### Confusion matrices
