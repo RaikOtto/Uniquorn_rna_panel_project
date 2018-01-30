@@ -93,101 +93,115 @@ p = plot_grid(
 p
 
 
-jpeg("~/Dropbox/Uniquorn_project/Figures/performance.jpg", width = 1024,height = 512)
+#jpeg("~/Dropbox/Uniquorn_project/Figures/performance.jpg", width = 1024,height = 512)
     p
-dev.off()
-
-#
-
-multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
-  library(grid)
-  
-  # Make a list from the ... arguments and plotlist
-  plots <- c(list(...), plotlist)
-  
-  numPlots = length(plots)
-  
-  # If layout is NULL, then use 'cols' to determine layout
-  if (is.null(layout)) {
-    # Make the panel
-    # ncol: Number of columns of plots
-    # nrow: Number of rows needed, calculated from # of cols
-    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
-                     ncol = cols, nrow = ceiling(numPlots/cols))
-  }
-  
-  if (numPlots==1) {
-    print(plots[[1]])
-    
-  } else {
-    # Set up the page
-    grid.newpage()
-    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
-    
-    # Make each plot, in the correct location
-    for (i in 1:numPlots) {
-      # Get the i,j matrix positions of the regions that contain this subplot
-      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
-      
-      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
-                                      layout.pos.col = matchidx$col))
-    }
-  }
-}
-
-
-plots   = list( g_TP, g_FN, g_FP, g_TN, g_sens, g_F1, g_spec, g_PPV)
-#plots_poster = list( g_TP, g_sens, g_spec, g_PPV)
-plots_poster = plots
-layout_mat_poster = matrix(
-  seq( 1, 8 ),
-  ncol = 4, nrow = 2
-)
-
-g = ggplotGrob(
-    plots[[ 1 ]] + 
-    theme(
-      legend.position='top'
-    )
-)$grobs
-
-legend  = g[[ which( sapply( g, function( x ) x$name ) == 'guide-box' ) ]]
-lheight = sum( legend$height )
-  
-prepared_plots =  lapply(
-  plots_poster,
-  function( x ){
-        
-    x = x + theme( legend.position = 'none' )
-    return( x )
-  }
-)
-layout_mat = matrix(
-  seq( 1, 8 ),
-  ncol = 2, nrow = 4
-)
-
-AG = arrangeGrob( 
-  grobs = prepared_plots,
-  layout_matrix = layout_mat_poster,
-  nrow = 2,
-  ncol = 4
-)
-
-grid.arrange(
-  
-  legend,
-  AG,
-  ncol = 1,
-  #nrow = 4,
-  heights = unit.c(
-    lheight,
-    unit(
-      1,
-      'npc'
-    ) - lheight
-  )
-)
-
+#dev.off()
 
 ### Confusion matrices
+
+i_table = read.table("~/Uniquorn_data/benchmark_vcf_files/0_5_Benchmark_identification_result.tab",sep="\t", header = T)
+i_table[1:5,1:5]
+
+confusion_matrix <<- matrix(integer(), ncol= 5, nrow = 0)
+
+sapply(library_names, FUN = function(lib){
+    
+    index = grep(i_table$Query, pattern = lib)
+    false_neg = sapply( library_names , function(vec){
+        
+        return(
+          sum( str_count(i_table$False_negative[index], pattern = vec) )
+        )
+    })
+    
+    confusion_matrix <<- rbind( confusion_matrix, false_neg)
+})
+rownames(confusion_matrix) = library_names
+
+# gold mat
+
+
+gold_std = read.table("~/Dropbox/Uniquorn_project/Misc/Goldstandard.tsv",sep ="\t", header = T)
+gold_matrix <<- matrix(integer(), ncol= 5, nrow = 0)
+
+sapply(library_names, FUN = function(lib){
+  
+  index = grep(gold_std$CL, pattern = lib)
+  pos_TP = sapply( library_names , function(vec){
+    
+    return(
+      sum( str_count(gold_std$Merged[index], pattern = vec) )
+    )
+  })
+  
+  gold_matrix <<- rbind( gold_matrix, pos_TP)
+})
+rownames(gold_matrix) = library_names
+new_mat = confusion_matrix / gold_matrix
+
+#library_names[library_names=="EGA"] = "Klijn"
+#library_names[library_names=="COSMIC"] = "CGP"
+
+melted_cormat <- melt(confusion_matrix, na.rm = TRUE, as.is = T)
+melted_cormat$Var1[ melted_cormat$Var1 == "COSMIC" ] = "CGP" 
+melted_cormat$Var2[ melted_cormat$Var2 == "COSMIC" ] = "CGP"
+melted_cormat$Var1[ melted_cormat$Var1 == "EGA" ] = "Klijn"
+melted_cormat$Var2[ melted_cormat$Var2 == "EGA" ] = "Klijn"
+colnames(confusion_matrix)[colnames(confusion_matrix) == "COSMIC"] = "CGP"
+colnames(confusion_matrix)[colnames(confusion_matrix) == "EGA"] = "Klijn"
+rownames(confusion_matrix)[rownames(confusion_matrix) == "COSMIC"] = "CGP"
+rownames(confusion_matrix)[rownames(confusion_matrix) == "EGA"] = "Klijn"
+
+# reorder
+#pheatmap::pheatmap(confusion_matrix) + geom_text(aes(label = round(value, 1)))
+
+library("ggcorrplot")
+library(ggplot2)
+library(scales) # for muted function
+
+rel_plot = ggcorrplot(new_mat , method = "circle", hc.order = TRUE, lab = TRUE)+ 
+    scale_fill_gradient2(
+    low = ("green"), 
+    mid = "white", 
+    high = "red", midpoint = mean(new_mat)
+)+ guides(fill=guide_legend(title="% FN"))+ theme(legend.position ="top", text=element_text(size=14,face="bold"))
+
+abs_plot = ggplot(melted_cormat, aes(Var1, Var2)) + # x and y axes => Var1 and Var2
+  geom_tile(aes(fill = value)) + # background colours are mapped according to the value column
+  geom_text(aes( label = round(melted_cormat$value, 2)), col = "black") + # write the values
+  scale_fill_gradient2(low = ("green"), 
+                       mid = "white", 
+                       high = "red", midpoint = 30) +
+  theme(panel.grid.major.x=element_blank(), #no gridlines
+        panel.grid.minor.x=element_blank(), 
+        panel.grid.major.y=element_blank(), 
+        panel.grid.minor.y=element_blank(),
+        panel.background=element_rect(fill="white"), # background=white
+        axis.text.x = element_text(angle=90, hjust = 1,vjust=1,size = 12,face = "bold"),
+        plot.title = element_text(size=20,face="bold"),
+        axis.text.y = element_text(size = 12,face = "bold"),
+        legend.position = "top") + 
+  ggtitle("") + 
+  theme(text=element_text(face="bold", size=14)) + 
+  scale_x_discrete(name="") +
+  scale_y_discrete(name="") +
+  labs(fill="FNs")+ theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+prow2 = plot_grid(
+  abs_plot,
+  rel_plot,
+  labels=c("A", "B"),
+  ncol = 2,
+  nrow = 1,
+  scale = 1.04
+)+ theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
+
+jpeg("~/Dropbox/Uniquorn_project/Figures/4_FN_sources.jpg", width = 2048,height = 1536)
+    prow2
+dev.off()
+
+p2 = plot_grid(
+  prow,
+  ncol = 1, rel_heights = c( .05, 1)
+)
+p
