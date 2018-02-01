@@ -3,9 +3,13 @@
 require(ggplot2)
 require(grid)
 require(gridExtra)
+library("reshape")
 library("cowplot")
 library("scales")
 source("~/Uniquorn_rna_panel_project/Scripts/calculations_vis.R")
+library("ggcorrplot")
+library(ggplot2)
+library(scales) # for muted function
 
 # Sensitivity
 
@@ -90,8 +94,6 @@ p = plot_grid(
     prow,
     ncol = 1, rel_heights = c( .05, 1)
 )
-p
-
 
 #jpeg("~/Dropbox/Uniquorn_project/Figures/performance.jpg", width = 1024,height = 512)
     p
@@ -99,7 +101,7 @@ p
 
 ### Confusion matrices
 
-i_table = read.table("~/Uniquorn_data/benchmark_vcf_files/0_5_Benchmark_identification_result.tab",sep="\t", header = T)
+i_table = read.table("~/Uniquorn_data/benchmark_vcf_files/Finished/Results/Conf_35_top1/0_5_Benchmark_identification_result.tab",sep="\t", header = T)
 i_table[1:5,1:5]
 
 confusion_matrix <<- matrix(integer(), ncol= 5, nrow = 0)
@@ -143,10 +145,11 @@ new_mat = confusion_matrix / gold_matrix
 #library_names[library_names=="COSMIC"] = "CGP"
 
 melted_cormat <- melt(confusion_matrix, na.rm = TRUE, as.is = T)
-melted_cormat$Var1[ melted_cormat$Var1 == "COSMIC" ] = "CGP" 
-melted_cormat$Var2[ melted_cormat$Var2 == "COSMIC" ] = "CGP"
-melted_cormat$Var1[ melted_cormat$Var1 == "EGA" ] = "Klijn"
-melted_cormat$Var2[ melted_cormat$Var2 == "EGA" ] = "Klijn"
+melted_cormat$X1 = as.character(melted_cormat$X1); melted_cormat$X2 = as.character(melted_cormat$X2)
+melted_cormat$X1[ melted_cormat$X1 == "COSMIC" ] = "CGP" 
+melted_cormat$X2[ melted_cormat$X2 == "COSMIC" ] = "CGP"
+melted_cormat$X1[ melted_cormat$X1 == "EGA" ] = "Klijn"
+melted_cormat$X2[ melted_cormat$X2 == "EGA" ] = "Klijn"
 colnames(confusion_matrix)[colnames(confusion_matrix) == "COSMIC"] = "CGP"
 colnames(confusion_matrix)[colnames(confusion_matrix) == "EGA"] = "Klijn"
 rownames(confusion_matrix)[rownames(confusion_matrix) == "COSMIC"] = "CGP"
@@ -155,16 +158,17 @@ rownames(confusion_matrix)[rownames(confusion_matrix) == "EGA"] = "Klijn"
 # reorder
 #pheatmap::pheatmap(confusion_matrix) + geom_text(aes(label = round(value, 1)))
 
-library("ggcorrplot")
-library(ggplot2)
-library(scales) # for muted function
-
-rel_plot = ggcorrplot(new_mat , method = "circle", hc.order = TRUE, lab = TRUE)+ 
-    scale_fill_gradient2(
+rel_plot = ggcorrplot(
+    new_mat,
+    method = "circle",
+    hc.order = TRUE,
+    lab = TRUE)
+rel_plot = rel_plot + scale_fill_gradient2(
     low = ("green"), 
     mid = "white", 
-    high = "red", midpoint = mean(new_mat)
-)+ guides(fill=guide_legend(title="% FN"))+ theme(legend.position ="top", text=element_text(size=14,face="bold"))
+    high = "red",
+    midpoint = mean(new_mat)) 
+#rel_plot = rel_plot + guides(fill=guide_legend(title="% FN"))+ theme(legend.position ="top", text=element_text(size=14,face="bold"))
 
 abs_plot = ggplot(melted_cormat, aes(Var1, Var2)) + # x and y axes => Var1 and Var2
   geom_tile(aes(fill = value)) + # background colours are mapped according to the value column
@@ -196,9 +200,9 @@ prow2 = plot_grid(
   scale = 1.04
 )+ theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
 
-jpeg("~/Dropbox/Uniquorn_project/Figures/4_FN_sources.jpg", width = 2048,height = 1536)
+#jpeg("~/Dropbox/Uniquorn_project/Figures/4_FN_sources.jpg", width = 2048,height = 1536)
     prow2
-dev.off()
+#dev.off()
 
 p2 = plot_grid(
   prow,
