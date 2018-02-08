@@ -3,9 +3,13 @@
 require(ggplot2)
 require(grid)
 require(gridExtra)
+library("reshape")
 library("cowplot")
 library("scales")
 source("~/Uniquorn_rna_panel_project/Scripts/calculations_vis.R")
+library("ggcorrplot")
+library(ggplot2)
+library(scales) # for muted function
 
 # Sensitivity
 
@@ -90,8 +94,6 @@ p = plot_grid(
     prow,
     ncol = 1, rel_heights = c( .05, 1)
 )
-p
-
 
 #jpeg("~/Dropbox/Uniquorn_project/Figures/performance.jpg", width = 1024,height = 512)
     p
@@ -99,6 +101,7 @@ p
 
 ### Confusion matrices
 
+#i_table = read.table("~/Uniquorn_data/benchmark_vcf_files/Finished/Results/Conf_35_top1/0_5_Benchmark_identification_result.tab",sep="\t", header = T)
 i_table = read.table("~/Uniquorn_data/benchmark_vcf_files/0_5_Benchmark_identification_result.tab",sep="\t", header = T)
 i_table[1:5,1:5]
 
@@ -143,62 +146,66 @@ new_mat = confusion_matrix / gold_matrix
 #library_names[library_names=="COSMIC"] = "CGP"
 
 melted_cormat <- melt(confusion_matrix, na.rm = TRUE, as.is = T)
-melted_cormat$Var1[ melted_cormat$Var1 == "COSMIC" ] = "CGP" 
-melted_cormat$Var2[ melted_cormat$Var2 == "COSMIC" ] = "CGP"
-melted_cormat$Var1[ melted_cormat$Var1 == "EGA" ] = "Klijn"
-melted_cormat$Var2[ melted_cormat$Var2 == "EGA" ] = "Klijn"
+melted_cormat$X1 = as.character(melted_cormat$X1); melted_cormat$X2 = as.character(melted_cormat$X2)
+melted_cormat$X1[ melted_cormat$X1 == "COSMIC" ] = "CGP" 
+melted_cormat$X2[ melted_cormat$X2 == "COSMIC" ] = "CGP"
+melted_cormat$X1[ melted_cormat$X1 == "EGA" ] = "Klijn"
+melted_cormat$X2[ melted_cormat$X2 == "EGA" ] = "Klijn"
 colnames(confusion_matrix)[colnames(confusion_matrix) == "COSMIC"] = "CGP"
 colnames(confusion_matrix)[colnames(confusion_matrix) == "EGA"] = "Klijn"
 rownames(confusion_matrix)[rownames(confusion_matrix) == "COSMIC"] = "CGP"
 rownames(confusion_matrix)[rownames(confusion_matrix) == "EGA"] = "Klijn"
+colnames(new_mat)[colnames(new_mat) == "COSMIC"] = "CGP"
+colnames(new_mat)[colnames(new_mat) == "EGA"] = "Klijn"
+rownames(new_mat)[rownames(new_mat) == "COSMIC"] = "CGP"
+rownames(new_mat)[rownames(new_mat) == "EGA"] = "Klijn"
 
 # reorder
-#pheatmap::pheatmap(confusion_matrix) + geom_text(aes(label = round(value, 1)))
 
-library("ggcorrplot")
-library(ggplot2)
-library(scales) # for muted function
+rel_plot = corrplot::corrplot(
+    new_mat,
+    method = "square",
+    col = colorRampPalette(c("green","white","red"))(200),
+    p.mat = new_mat, sig.level = -1, insig = "p-value",
+    cl.lim = c(0,1),
+    tl.pos = "n"
+    #hc.order = FALSE,
+    #lab = TRUE
+    )
+rel_plot
 
-rel_plot = ggcorrplot(new_mat , method = "circle", hc.order = TRUE, lab = TRUE)+ 
-    scale_fill_gradient2(
+abs_plot = ggplot(melted_cormat, aes(X1, X2))
+abs_plot = abs_plot +  geom_tile(aes(fill = value))
+abs_plot = abs_plot + geom_text(aes( label = round(melted_cormat$value, 2)), col = "black", size = 8)
+abs_plot = abs_plot + scale_fill_gradient2(
     low = ("green"), 
     mid = "white", 
-    high = "red", midpoint = mean(new_mat)
-)+ guides(fill=guide_legend(title="% FN"))+ theme(legend.position ="top", text=element_text(size=14,face="bold"))
-
-abs_plot = ggplot(melted_cormat, aes(Var1, Var2)) + # x and y axes => Var1 and Var2
-  geom_tile(aes(fill = value)) + # background colours are mapped according to the value column
-  geom_text(aes( label = round(melted_cormat$value, 2)), col = "black") + # write the values
-  scale_fill_gradient2(low = ("green"), 
-                       mid = "white", 
-                       high = "red", midpoint = 30) +
-  theme(panel.grid.major.x=element_blank(), #no gridlines
-        panel.grid.minor.x=element_blank(), 
-        panel.grid.major.y=element_blank(), 
-        panel.grid.minor.y=element_blank(),
-        panel.background=element_rect(fill="white"), # background=white
-        axis.text.x = element_text(angle=90, hjust = 1,vjust=1,size = 12,face = "bold"),
-        plot.title = element_text(size=20,face="bold"),
-        axis.text.y = element_text(size = 12,face = "bold"),
-        legend.position = "top") + 
-  ggtitle("") + 
-  theme(text=element_text(face="bold", size=14)) + 
-  scale_x_discrete(name="") +
-  scale_y_discrete(name="") +
-  labs(fill="FNs")+ theme(axis.text.x = element_text(angle = 45, hjust = 1))
+    high = "red", midpoint = 30)
+abs_plot = abs_plot + theme(
+    panel.grid.major.x=element_blank(),
+    panel.grid.minor.x=element_blank(), 
+    panel.grid.major.y=element_blank(), 
+    panel.grid.minor.y=element_blank(),
+    panel.background=element_rect(fill="white"),
+    axis.text.x = element_text(angle=90, hjust = 1,vjust=1,size = 12,face = "bold"),
+    plot.title = element_text(size=20,face="bold"),
+    axis.text.y = element_text(size = 12,face = "bold"),
+    legend.position = "none")
+abs_plot = abs_plot + ggtitle("") + scale_x_discrete(name="") +  scale_y_discrete(name="") +theme(axis.text.x = element_text(angle = 45, hjust = 1))
+abs_plot
 
 prow2 = plot_grid(
-  abs_plot,
-  rel_plot,
-  labels=c("A", "B"),
-  ncol = 2,
-  nrow = 1,
-  scale = 1.04
-)+ theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
+    abs_plot,
+    rel_plot,
+    labels=c("A", "B"),
+    ncol = 2,
+    nrow = 1,
+    scale = 1.04
+) + theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
 
-jpeg("~/Dropbox/Uniquorn_project/Figures/4_FN_sources.jpg", width = 2048,height = 1536)
+#jpeg("~/Dropbox/Uniquorn_project/Figures/4_FN_sources.jpg", width = 2048,height = 1536)
     prow2
-dev.off()
+#dev.off()
 
 p2 = plot_grid(
   prow,
