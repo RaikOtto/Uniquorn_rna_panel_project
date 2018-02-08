@@ -35,6 +35,7 @@
 #' Note that if you set the confidence score, the confidence score
 #' overrides the p-value
 #' @param n_threads Number of threads to be used
+#' @param write_results Write identification results to file
 #' @import WriteXLS
 #' @usage 
 #' identify_vcf_file( 
@@ -50,12 +51,17 @@
 #'     verbose,
 #'     p_value,
 #'     confidence_score,
-#'     n_threads
+#'     n_threads,
+#'     write_results
 #' )
 #' @examples 
 #' HT29_vcf_file = system.file("extdata/HT29.vcf.gz", package = "Uniquorn");
 #' 
-#' identification = identify_vcf_file(HT29_vcf_file)
+#' identification = identify_vcf_file(
+#'     vcf_file = HT29_vcf_file, 
+#'     verbose = FALSE,
+#'     write_results = FALSE
+#' )
 #' @return R table with a statistic of the identification result
 #' @export
 identify_vcf_file = function(
@@ -71,7 +77,8 @@ identify_vcf_file = function(
     verbose = TRUE,
     p_value = .05,
     confidence_score = NA,
-    n_threads = 1
+    n_threads = 1,
+    write_results = TRUE
 ){
     
     if ( ! is.na(confidence_score) ){
@@ -154,14 +161,16 @@ identify_vcf_file = function(
         )
         message("Storing information in table: ", output_file)
     }
-        
-    utils::write.table( 
-        match_t,
-        output_file,
-        sep ="\t",
-        row.names = FALSE,
-        quote = FALSE
-    )
+       
+    if (write_results){ 
+        utils::write.table( 
+            match_t,
+            output_file,
+            sep ="\t",
+            row.names = FALSE,
+            quote = FALSE
+        )
+    }
     
     if (output_bed_file & ( sum( as.logical(match_t$Q_value_sig) ) > 0 ))
         create_bed_file( 

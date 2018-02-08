@@ -17,7 +17,8 @@ identify_vcf_file(
     verbose,
     p_value,
     confidence_score,
-    n_threads
+    n_threads,
+    write_results
 )
 }
 \arguments{
@@ -62,6 +63,8 @@ Note that if you set the confidence score, the confidence score
 overrides the p-value}
 
 \item{n_threads}{Number of threads to be used}
+
+\item{write_results}{Write identification results to file}
 }
 \value{
 R table with a statistic of the identification result
@@ -77,5 +80,9 @@ the identity of the sample
 \examples{
 HT29_vcf_file = system.file("extdata/HT29.vcf.gz", package = "Uniquorn");
 
-identification = identify_vcf_file(HT29_vcf_file)
+identification = identify_vcf_file(
+    vcf_file = HT29_vcf_file, 
+    verbose = FALSE,
+    write_results = FALSE
+)
 }
