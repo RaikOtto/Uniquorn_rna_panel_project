@@ -162,53 +162,47 @@ rownames(new_mat)[rownames(new_mat) == "EGA"] = "Klijn"
 
 # reorder
 
-rel_plot = corrplot::corrplot(
-    new_mat,
-    method = "square",
-    col = colorRampPalette(c("green","white","red"))(200),
-    p.mat = new_mat, sig.level = -1, insig = "p-value",
-    cl.lim = c(0,1),
-    tl.pos = "n"
-    #hc.order = FALSE,
-    #lab = TRUE
-    )
-rel_plot
+library("gridGraphics")
+grab_grob <- function(){
+  grid.echo()
+  grid.grab()
+}
 
-abs_plot = ggplot(melted_cormat, aes(X1, X2))
-abs_plot = abs_plot +  geom_tile(aes(fill = value))
-abs_plot = abs_plot + geom_text(aes( label = round(melted_cormat$value, 2)), col = "black", size = 8)
-abs_plot = abs_plot + scale_fill_gradient2(
-    low = ("green"), 
-    mid = "white", 
-    high = "red", midpoint = 30)
-abs_plot = abs_plot + theme(
-    panel.grid.major.x=element_blank(),
-    panel.grid.minor.x=element_blank(), 
-    panel.grid.major.y=element_blank(), 
-    panel.grid.minor.y=element_blank(),
-    panel.background=element_rect(fill="white"),
-    axis.text.x = element_text(angle=90, hjust = 1,vjust=1,size = 12,face = "bold"),
-    plot.title = element_text(size=20,face="bold"),
-    axis.text.y = element_text(size = 12,face = "bold"),
-    legend.position = "none")
-abs_plot = abs_plot + ggtitle("") + scale_x_discrete(name="") +  scale_y_discrete(name="") +theme(axis.text.x = element_text(angle = 45, hjust = 1))
-abs_plot
-
-prow2 = plot_grid(
-    abs_plot,
-    rel_plot,
-    labels=c("A", "B"),
-    ncol = 2,
-    nrow = 1,
-    scale = 1.04
-) + theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
-
-#jpeg("~/Dropbox/Uniquorn_project/Figures/4_FN_sources.jpg", width = 2048,height = 1536)
-    prow2
+#tiff("~/Dropbox/Uniquorn_project/Figures/5_FN_Abs.tif")#, width = 624,height = 512)
+abs_plot = corrplot::corrplot(
+  confusion_matrix,
+  method = "square",
+  col = c(rep("green",5),rep("yellow",2),rep("red",1)),
+  p.mat = confusion_matrix,
+  is.corr = FALSE,
+  insig = "p-value",
+  #tl.pos = "ld",
+  tl.srt = 45,
+  cl.lim = c(0,max(confusion_matrix)), mar = c(0, 0, 0, 0)
+)+ theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
 #dev.off()
 
-p2 = plot_grid(
-  prow,
-  ncol = 1, rel_heights = c( .05, 1)
-)
-p
+g <- grab_grob()
+
+new_mat_2 = new_mat *100
+#tiff("~/Dropbox/Uniquorn_project/Figures/5_FN_Rel.tif")#, width = 624,height = 512)
+rel_plot = corrplot::corrplot(
+    new_mat_2,
+    method = "square",
+    p.mat = new_mat_2,
+    is.corr = FALSE,
+    col = c(rep("green",10),rep("yellow",2),rep("red",2)),
+    sig.level = -1,
+    insig = "p-value",
+    #tl.pos = "n",
+    tl.srt = 45,
+    cl.lim = c(0,max(new_mat_2)),
+    low = min(new_mat_2), upp = max(new_mat_2), mar = c(0, 0, 0, 0)
+)+ theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
+#dev.off()
+
+g2 <- grab_grob()
+library(gridExtra)
+grid.newpage()
+grid.arrange( g,g2, nrow = 1 )
+plot_grid(g, g2,  scale = .75,labels = c("A","B"), align = "h", mar = c(0, 0, 0, 0),align="v")
