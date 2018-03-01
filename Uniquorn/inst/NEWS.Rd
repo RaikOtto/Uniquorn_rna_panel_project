@@ -1,5 +1,12 @@
 \name{NEWS}
 \title{NEWS file for the \pkg{Uniquorn} bioconductor package }
+\section{Changes in version 1.99.3 [2018-31-03]}{
+    \subsection{Minor modifications}{
+        \itemize{
+            \item Minor modifications to comply with Bioconductor regulations
+        }
+    }
+}
 \section{Changes in version 1.99.2 [2018-15-01]}{
     \subsection{Added RNA-seq and panel-seq capability}{
         \itemize{
