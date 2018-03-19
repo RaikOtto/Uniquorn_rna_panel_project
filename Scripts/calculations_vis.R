@@ -119,3 +119,33 @@ ccl_mat = data.frame(
   "CCLs" = as.integer(c(904, 60,1020,675,937)),
   stringsAsFactors = F
 )
+
+### Per_ccl_success
+
+avg_file   = read.table("~/Uniquorn_data/benchmark_vcf_files/0_5_Benchmark_identification_result.tab", sep = "\t", header = T)
+c = show_contained_variants_for_ccl("105KC", library_name = "EGA")
+
+ref_ccls = show_contained_variants_in_library( library_name = "CELLMINER")$Member_CCLs
+ref_ccls = c(ref_ccls,show_contained_variants_in_library( library_name = "COSMIC")$Member_CCLs )
+all_ccls = unique( as.character(unlist( str_split( ref_ccls$Member_CCLs, pattern = "," ))))
+
+ref_counts <<- data.frame(
+  "CCL" = as.character(),
+  "Count" = as.character(),
+  "Library" = as.character()
+)
+
+count_per_ccl = sapply( all_ccls, FUN= function(ref_ccl){
+    
+    ref_ccl = as.character(ref_ccl)
+    count = as.character( sum ( str_detect( ref_ccls$Member_CCLs, pattern = ref_ccl ) ))
+    library = as.character( tail( as.character( unlist( str_split(ref_ccl, pattern = "_") ) ), 1 ) )
+    
+    ref_counts <<- data.frame(
+        "CCL" = c(  as.character( ref_counts$CCL) , ref_ccl ),
+        "Count" = c( as.character( ref_counts$Count), count),
+        "Library" = c( as.character( ref_counts$Library), library)
+    )
+  }
+)
+ref_counts$Library[ref_counts$Library == "COSMIC" ] = "CGP"
