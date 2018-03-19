@@ -123,11 +123,19 @@ ccl_mat = data.frame(
 ### Per_ccl_success
 
 avg_file   = read.table("~/Uniquorn_data/benchmark_vcf_files/0_5_Benchmark_identification_result.tab", sep = "\t", header = T)
-c = show_contained_variants_for_ccl("105KC", library_name = "EGA")
+#c = show_contained_variants_for_ccl("105KC", library_name = "EGA", mutational_weight_inclusion_threshold = 0.5)
 
-ref_ccls = show_contained_variants_in_library( library_name = "CELLMINER")$Member_CCLs
-ref_ccls = c(ref_ccls,show_contained_variants_in_library( library_name = "COSMIC")$Member_CCLs )
-all_ccls = unique( as.character(unlist( str_split( ref_ccls$Member_CCLs, pattern = "," ))))
+ref_ccls_cellminer = show_contained_variants_in_library( library_name = "CELLMINER", mutational_weight_inclusion_threshold = 0.5)$Member_CCLs
+ref_ccls_cosmic = show_contained_variants_in_library( library_name = "COSMIC", mutational_weight_inclusion_threshold = 0.5)$Member_CCLs
+ref_ccls_cosmic = str_to_upper( ref_ccls_cosmic )
+ref_ccls_cosmic = str_replace_all( ref_ccls_cosmic, pattern = "-", "_")
+ref_ccls_cosmic = str_replace_all( ref_ccls_cosmic, pattern = "\\.", "_")
+#ref_ccls_cosmic = paste(ref_ccls_cosmic, "GDC", sep = "_")
+ref_ccls_ccle = show_contained_variants_in_library( library_name = "CCLE", mutational_weight_inclusion_threshold = 0.5)$Member_CCLs
+ref_ccls_ega = show_contained_variants_in_library( library_name = "EGA", mutational_weight_inclusion_threshold = 0.5)$Member_CCLs
+ref_ccls_gdc = show_contained_variants_in_library( library_name = "GDC", mutational_weight_inclusion_threshold = 0.5)$Member_CCLs
+
+all_ccls = unique( as.character(unlist( str_split( ref_ccls, pattern = "," ))))
 
 ref_counts <<- data.frame(
   "CCL" = as.character(),
