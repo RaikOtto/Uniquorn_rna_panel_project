@@ -105,6 +105,8 @@ p = plot_grid(
 i_table = read.table("~/Uniquorn_data/benchmark_vcf_files/0_5_Benchmark_identification_result.tab",sep="\t", header = T)
 i_table[1:5,1:5]
 
+# confusion_matrix
+
 confusion_matrix <<- matrix(integer(), ncol= 5, nrow = 0)
 
 sapply(library_names, FUN = function(lib){
@@ -120,6 +122,46 @@ sapply(library_names, FUN = function(lib){
     confusion_matrix <<- rbind( confusion_matrix, false_neg)
 })
 rownames(confusion_matrix) = library_names
+
+# exp_matrix
+
+exp_matrix <<- matrix(integer(), ncol= 5, nrow = 0)
+
+sapply(library_names, FUN = function(lib){
+  
+  index = grep(i_table$Query, pattern = lib)
+  exp_tp = sapply( library_names , function(vec){
+    
+    return(
+      sum( str_count(i_table$Expected[index], pattern = vec) )
+    )
+  })
+  
+  exp_matrix <<- rbind( exp_matrix, exp_tp)
+})
+rownames(exp_matrix) = library_names
+
+# tp_matrix
+
+tp_matrix <<- matrix(integer(), ncol= 5, nrow = 0)
+
+sapply(library_names, FUN = function(lib){
+  
+  index = grep(i_table$Query, pattern = lib)
+  tp_tp = sapply( library_names , function(vec){
+    
+    return(
+      sum( str_count(i_table$True_positive[index], pattern = vec) )
+    )
+  })
+  
+  tp_matrix <<- rbind( tp_matrix, tp_tp)
+})
+rownames(tp_matrix) = library_names
+
+# rel_fn_mat
+
+new_mat = confusion_matrix / exp_matrix
 
 # gold mat
 
@@ -159,6 +201,7 @@ colnames(new_mat)[colnames(new_mat) == "COSMIC"] = "CGP"
 colnames(new_mat)[colnames(new_mat) == "EGA"] = "Klijn"
 rownames(new_mat)[rownames(new_mat) == "COSMIC"] = "CGP"
 rownames(new_mat)[rownames(new_mat) == "EGA"] = "Klijn"
+new_mat = new_mat[c("CELLMINER","GDC","CCLE","CGP","Klijn"),c("Klijn","CELLMINER","CCLE","GDC","CGP")]
 
 # reorder
 
@@ -169,10 +212,11 @@ grab_grob <- function(){
 }
 
 #tiff("~/Dropbox/Uniquorn_project/Figures/5_FN_Abs.tif")#, width = 624,height = 512)
+mat = confusion_matrix
 abs_plot = corrplot::corrplot(
   confusion_matrix,
   method = "square",
-  col = c(rep("green",5),rep("yellow",2),rep("red",1)),
+  #col = c(rep("green",5),rep("yellow",2),rep("red",1)),
   p.mat = confusion_matrix,
   is.corr = FALSE,
   insig = "p-value",
@@ -183,21 +227,23 @@ abs_plot = corrplot::corrplot(
 #dev.off()
 
 g <- grab_grob()
-
-new_mat_2 = new_mat *100
+col2 <- colfunc<-colorRampPalette(c("red","yellow","springgreen","royalblue"))
 #tiff("~/Dropbox/Uniquorn_project/Figures/5_FN_Rel.tif")#, width = 624,height = 512)
+par(cex = 1.3)
 rel_plot = corrplot::corrplot(
-    new_mat_2,
+    new_mat,
     method = "square",
-    p.mat = new_mat_2,
+    p.mat = new_mat,
     is.corr = FALSE,
-    col = c(rep("green",10),rep("yellow",2),rep("red",2)),
+    col = rev(c( col2(50), col2(50) )),
     sig.level = -1,
     insig = "p-value",
     #tl.pos = "n",
     tl.srt = 45,
-    cl.lim = c(0,max(new_mat_2)),
-    low = min(new_mat_2), upp = max(new_mat_2), mar = c(0, 0, 0, 0)
+    tl.cex = .7,
+    cl.cex = .7
+    #cl.lim = c(0,max(new_mat_2)),
+    #low = min(new_mat_2), upp = max(new_mat_2), mar = c(0, 0, 0, 0)
 )+ theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
 #dev.off()
 
