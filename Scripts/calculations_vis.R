@@ -257,11 +257,11 @@ vis_mat = reshape2::melt(perf_mat)
 colnames(vis_mat) = c("Technology","Parameter","Value")
 vis_mat$Technology = as.character(vis_mat$Technology)
 
-vis_mat$Technology[vis_mat$Technology == "COSMIC"] = "Exome_seq_HiSeq_2500"
+vis_mat$Technology[vis_mat$Technology == "COSMIC"] = "Exome_HiSeq_2500"
 vis_mat$Technology[vis_mat$Technology == "CCLE"] = "Hybrid_capture"
-vis_mat$Technology[vis_mat$Technology == "EGA"] = "RNA_seq"
+vis_mat$Technology[vis_mat$Technology == "EGA"] = "RNA_HiSeq_2000"
 vis_mat$Technology[vis_mat$Technology == "GDC"] = "RNA_seq"
-vis_mat$Technology[vis_mat$Technology == "CELLMINER"] = "Exome_seq_Genome_Analyzer"
+vis_mat$Technology[vis_mat$Technology == "CELLMINER"] = "Exome_Genome_Analyzer"
 
 means = c(perf_mat$Sensitivity, perf_mat$F1, perf_mat$PPV)
 sds = c(perf_mat$Sensitivity_SD, perf_mat$F1_SD, perf_mat$PPV_SD)
