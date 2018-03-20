@@ -165,6 +165,7 @@ ref_counts <<- data.frame(
 all_ccls = c(ref_ccls_cellminer,ref_ccls_cosmic,ref_ccls_ccle,ref_ccls_ega,ref_ccls_gdc)
 
 all_ccls = ref_ccls_cosmic
+
 all_ccls_uni = unique( as.character(unlist( str_split( all_ccls, pattern = "," ))))
 
 i <<- 0
@@ -172,13 +173,21 @@ i <<- 0
 count_per_ccl = sapply( all_ccls_uni, FUN= function(ref_ccl){
     
     ref_ccl = as.character(ref_ccl)
-    count = as.character( sum ( str_detect( all_ccls, pattern = ref_ccl ) ))
-    library = as.character( tail( as.character( unlist( str_split(ref_ccl, pattern = "_") ) ), 1 ) )
+    ref_ccl = str_replace_all( ref_ccl, pattern = "\\)", "")
+    ref_ccl = str_replace_all( ref_ccl, pattern = "\\(", "")
     
+    library = as.character( tail( as.character( unlist( str_split(ref_ccl, pattern = "_") ) ), 1 ) )
+    ref_ccl_pure = str_replace( ref_ccl, pattern = paste("",library, sep = "_"),""  )
+    ref_ccl = str_replace_all( ref_ccl, pattern = "_", "")
+    ref_ccl = str_replace_all( ref_ccl, pattern = library, "")
+    ref_ccl = paste(ref_ccl, library,sep = "_")
+    
+    count = as.character( sum ( str_detect( all_ccls, pattern = ref_ccl ) ))
+
     i <<- i + 1
     print(i)
     
-    perf_t = avg_file[ match( ref_ccl, avg_file$Query, nomatch = 0), ]
+    perf_t = avg_file[ match( ref_ccl, str_to_upper(avg_file$Query), nomatch = 0), ]
     expected = as.character( unlist( str_split( perf_t$Expected, pattern = ",") ) )
     expected = expected[expected != ""]
     expected = length(expected)
@@ -196,10 +205,8 @@ count_per_ccl = sapply( all_ccls_uni, FUN= function(ref_ccl){
     F1 = round( 2 * (Sensitivity * Specificity) / (Sensitivity + Specificity), 0)
     PPV = round( tp / (tp + fp)  * 100,0)
     
-    ref_ccl = str_replace( ref_ccl, pattern = paste("",library, sep = "_"),""  )
-    
     ref_counts <<- data.frame(
-        "CCL" = c(  as.character( ref_counts$CCL) , ref_ccl ),
+        "CCL" = c(  as.character( ref_counts$CCL) , ref_ccl_pure ),
         "Count" = c( as.character( ref_counts$Count), count),
         "Library" = c( as.character( ref_counts$Library), library),
         "Sensitivity" = c( as.character( ref_counts$Sensitivity), Sensitivity),
@@ -208,6 +215,7 @@ count_per_ccl = sapply( all_ccls_uni, FUN= function(ref_ccl){
     )
   }
 )
-ref_counts[1:5,]
+table(ref_counts$Library)
+ref_counts[(ncol(ref_counts)-5) : ncol(ref_counts),]
 
 write.table(ref_counts,"~/U",sep ="\t", quote = F)
