@@ -26,15 +26,18 @@ m_bench$Seq_Type = as.character(m_bench$Seq_Type)
 m_bench$Parameter = factor(m_bench$Parameter, levels = c("Sensitivity","F1","PPV"))
 m_bench$Seq_Type = factor(m_bench$Seq_Type, levels = c("AVG","RNA","TruSight","ClearSight","Hotspot_v2"))
 m_bench = m_bench[m_bench$Weight == "0.5",]
+m_bench
 
 # merged
 
 g_bench = ggplot( data = m_bench, aes( x = Parameter, y = Value, colour = Seq_Type))
 g_bench = g_bench + geom_boxplot(size=1)
 g_bench = g_bench + theme(legend.position="top", legend.background = element_rect(fill="gray90", size =5 )  )
+
+
 g_bench + geom_segment(
   aes( x = 4.8,xend = 5,y = benchmark_Sensitivity[ which( (benchmark_Sensitivity[,1] == "0.5") & (benchmark_Sensitivity[,3] == "Hotspot_v2") )[4],2], 
-                                            yend = benchmark_Sensitivity[ which( (benchmark_Sensitivity[,1] == "0.5") & (benchmark_Sensitivity[,3] == "Hotspot_v2") )[4],2]), size = 1.5)
+  yend = benchmark_Sensitivity[ which( (benchmark_Sensitivity[,1] == "0.5") & (benchmark_Sensitivity[,3] == "Hotspot_v2") )[4],2]), size = 1.5)
 
 
 # Sensitivity

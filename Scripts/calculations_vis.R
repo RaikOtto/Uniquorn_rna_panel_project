@@ -159,12 +159,14 @@ ref_counts <<- data.frame(
   "Library" = as.character(),
   "Sensitivity" = as.character(),
   "F1" = as.character(),
-  "PPV" = as.character()
+  "TP" = as.character(),
+  "FP" = as.character(),
+  "FN" = as.character()
 )
 
-all_ccls = c(ref_ccls_cellminer,ref_ccls_cosmic,ref_ccls_ccle,ref_ccls_ega,ref_ccls_gdc)
+#all_ccls = c(ref_ccls_cellminer,ref_ccls_cosmic,ref_ccls_ccle,ref_ccls_ega,ref_ccls_gdc)
 
-all_ccls = ref_ccls_cosmic
+all_ccls = ref_ccls_cellminer
 
 all_ccls_uni = unique( as.character(unlist( str_split( all_ccls, pattern = "," ))))
 
@@ -203,6 +205,8 @@ count_per_ccl = sapply( all_ccls_uni, FUN= function(ref_ccl){
     Sensitivity = round( tp / expected * 100, 0 )
     Specificity = round( tp / (tp + fp) * 100, 0 )
     F1 = round( 2 * (Sensitivity * Specificity) / (Sensitivity + Specificity), 0)
+    if(F1 == "NaN")
+      F1 = "0"
     PPV = round( tp / (tp + fp)  * 100,0)
     
     ref_counts <<- data.frame(
@@ -211,11 +215,71 @@ count_per_ccl = sapply( all_ccls_uni, FUN= function(ref_ccl){
         "Library" = c( as.character( ref_counts$Library), library),
         "Sensitivity" = c( as.character( ref_counts$Sensitivity), Sensitivity),
         "F1" = c( as.character( ref_counts$F1), F1),
-        "PPV" = c( as.character( ref_counts$PPV), PPV)
+        "PPV" = c( as.character( ref_counts$PPV), PPV),
+        "TP" = c( as.character( ref_counts$TP), tp),
+        "FP" = c( as.character( ref_counts$FP), fp),
+        "FN" = c( as.character( ref_counts$FN), fn)
     )
   }
 )
 table(ref_counts$Library)
 ref_counts[(ncol(ref_counts)-5) : ncol(ref_counts),]
+ref_counts[ref_counts$Sensitivity == "NaN",]
 
-write.table(ref_counts,"~/U",sep ="\t", quote = F)
+write.table(ref_counts,"~/Uniquorn_data/benchmark_vcf_files/Benchmark_Per_CCL_stat.tsv",sep ="\t", quote = F, row.names = F)
+
+####
+
+ref_counts = read.table("~/Uniquorn_data/benchmark_vcf_files/Benchmark_Per_CCL_stat.tsv", sep ="\t", header = T)
+
+ref_counts$F1 = as.character(ref_counts$F1)
+ref_counts$F1[ is.na(ref_counts$F1)] = "0"
+ref_counts$F1 = as.integer(ref_counts$F1)
+
+ref_counts$Sensitivity = as.integer(as.character(ref_counts$Sensitivity))
+ref_counts$F1 = as.integer(as.character(ref_counts$F1))
+ref_counts$PPV = as.integer(as.character(ref_counts$PPV))
+
+perf_mat = ref_counts[c("Count","Sensitivity","F1","PPV","TP","FN","FP")]
+perf_mat = perf_mat[ref_counts$Sensitivity <100,]
+perf_mat$Count = perf_mat$Count / max(perf_mat$Count) * 100
+
+meta_data = as.data.frame(ref_counts[c("CCL","Library")])
+meta_data = meta_data[ref_counts$Sensitivity <100,]
+rownames(meta_data) = rownames(perf_mat)
+
+cor(
+  y = log(perf_mat$Count),
+  x = perf_mat$TP
+)
+summary(perf_mat$Count)
+
+quantile(ref_counts$Count,seq(0,1,by=.1))
+
+chisq.test(
+  log(as.integer(ref_counts$Sensitivity)),
+  ref_counts$Library
+)
+
+cor.test(
+  as.integer(perf_mat$F1),
+  log(perf_mat$Count),
+  method = "pearson"
+)
+
+perf_mat_norm = perf_mat
+perf_mat_norm$Count = perf_mat_norm$Count / max(perf_mat_norm$Count) * 100
+per_mat_norm = perf_mat_norm[order(as.integer(perf_mat_norm$Sensitivity), decreasing = T),]
+#per_mat_norm$Count = log(per_mat_norm$Count)
+pheatmap::pheatmap(
+  t(perf_mat_norm),
+  show_colnames = F,
+  annotation_col = meta_data[c("Library")],
+  cluster_rows = F,
+  cluster_cols = F
+)
+
+sen_p = ggplot( data = ref_counts, aes(x = Library, y = Sensitivity))
+sen_p = sen_p + geom_boxplot()
+sen_p
+
