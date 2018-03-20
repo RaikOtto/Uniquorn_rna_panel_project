@@ -240,46 +240,38 @@ ref_counts$Sensitivity = as.integer(as.character(ref_counts$Sensitivity))
 ref_counts$F1 = as.integer(as.character(ref_counts$F1))
 ref_counts$PPV = as.integer(as.character(ref_counts$PPV))
 
-perf_mat = ref_counts[c("Count","Sensitivity","F1","PPV","TP","FN","FP")]
-perf_mat = perf_mat[ref_counts$Sensitivity <100,]
-perf_mat$Count = perf_mat$Count / max(perf_mat$Count) * 100
+perf_mat = reshape2::melt(ref_counts)
+perf_mat$value = as.integer(perf_mat$value)
+# barplot
 
-meta_data = as.data.frame(ref_counts[c("CCL","Library")])
-meta_data = meta_data[ref_counts$Sensitivity <100,]
-rownames(meta_data) = rownames(perf_mat)
+perf_mat = aggregate(ref_counts$Sensitivity, by = list(ref_counts$Library), FUN = mean)
+perf_mat$Sens_SD = aggregate(ref_counts$Sensitivity, by = list(ref_counts$Library), FUN = sd)[,2]
+perf_mat$F1 = aggregate(ref_counts$F1, by = list(ref_counts$Library), FUN = mean)[,2]
+perf_mat$SF1_SD = aggregate(ref_counts$F1, by = list(ref_counts$Library), FUN = sd)[,2]
+perf_mat$SPPV = aggregate(ref_counts$PPV, by = list(ref_counts$Library), FUN = mean)[,2]
+perf_mat$SPPV_SD = aggregate(ref_counts$PPV, by = list(ref_counts$Library), FUN = sd)[,2]
+perf_mat = as.data.frame(perf_mat)
 
-cor(
-  y = log(perf_mat$Count),
-  x = perf_mat$TP
-)
-summary(perf_mat$Count)
+colnames(perf_mat) = c("Technology", "Sensitivity","Sensitivity_SD","F1","F1_SD","PPV","PPV_SD")
+vis_mat = reshape2::melt(perf_mat)
+colnames(vis_mat) = c("Technology","Parameter","Value")
+vis_mat$Technology = as.character(vis_mat$Technology)
 
-quantile(ref_counts$Count,seq(0,1,by=.1))
+vis_mat$Technology[vis_mat$Technology == "COSMIC"] = "Exome_seq_HiSeq_2500"
+vis_mat$Technology[vis_mat$Technology == "CCLE"] = "Hybrid_capture"
+vis_mat$Technology[vis_mat$Technology == "EGA"] = "RNA_seq"
+vis_mat$Technology[vis_mat$Technology == "GDC"] = "RNA_seq"
+vis_mat$Technology[vis_mat$Technology == "CELLMINER"] = "Exome_seq_Genome_Analyzer"
 
-chisq.test(
-  log(as.integer(ref_counts$Sensitivity)),
-  ref_counts$Library
-)
+means = c(perf_mat$Sensitivity, perf_mat$F1, perf_mat$PPV)
+sds = c(perf_mat$Sensitivity_SD, perf_mat$F1_SD, perf_mat$PPV_SD)
+sds_min = means - sds / 2
+sds_max = means + sds / 2
 
-cor.test(
-  as.integer(perf_mat$F1),
-  log(perf_mat$Count),
-  method = "pearson"
-)
-
-perf_mat_norm = perf_mat
-perf_mat_norm$Count = perf_mat_norm$Count / max(perf_mat_norm$Count) * 100
-per_mat_norm = perf_mat_norm[order(as.integer(perf_mat_norm$Sensitivity), decreasing = T),]
-#per_mat_norm$Count = log(per_mat_norm$Count)
-pheatmap::pheatmap(
-  t(perf_mat_norm),
-  show_colnames = F,
-  annotation_col = meta_data[c("Library")],
-  cluster_rows = F,
-  cluster_cols = F
-)
-
-sen_p = ggplot( data = ref_counts, aes(x = Library, y = Sensitivity))
-sen_p = sen_p + geom_boxplot()
-sen_p
-
+g_bench = ggplot(
+  subset(vis_mat,Parameter %in% c("Sensitivity","F1","PPV")),
+  aes( x = Parameter, y = Value, fill = Technology))
+g_bench = g_bench + geom_bar(stat="identity", position=position_dodge())
+g_bench = g_bench +  geom_errorbar(aes( ymin = sds_min, ymax = sds_max), width=.2,position=position_dodge(.9))
+g_bench = g_bench + theme(legend.position="top", legend.background = element_rect(fill="gray90", size =5 )  )
+g_bench# + coord_cartesian(ylim = c(50, 105)) 
