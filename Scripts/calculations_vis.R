@@ -137,7 +137,7 @@ ref_ccls_cosmic = str_to_upper( ref_ccls_cosmic )
 ref_ccls_cosmic = str_replace_all( ref_ccls_cosmic, pattern = "-", "")
 ref_ccls_cosmic = str_replace_all( ref_ccls_cosmic, pattern = "\\.", "")
 ref_ccls_cosmic = as.character(unlist( str_split( ref_ccls_cosmic, pattern = "," )))
-ref_ccls_cosmic = paste(ref_ccls_cosmic, "GDC", sep = "_")
+ref_ccls_cosmic = paste(ref_ccls_cosmic, "COSMIC", sep = "_")
 
 ref_ccls_ccle = show_contained_variants_in_library( library_name = "CCLE", mutational_weight_inclusion_threshold = 0.5)$Member_CCLs
 ref_ccls_ccle = as.character(unlist( str_split( ref_ccls_ccle, pattern = "," )))
