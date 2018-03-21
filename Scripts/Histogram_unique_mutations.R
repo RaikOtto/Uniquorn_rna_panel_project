@@ -48,6 +48,6 @@ p = plot_grid(
 )
 p
 
-jpeg("~/Dropbox/Uniquorn_project//Figures/2_Library_composition.jpg", width = 1024,height = 512)
+#jpeg("~/Dropbox/Uniquorn_project//Figures/2_Library_composition.jpg", width = 1024,height = 512)
 p
-dev.off()
+#dev.off()

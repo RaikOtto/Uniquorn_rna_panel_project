@@ -7,7 +7,7 @@ ccl_mat = data.frame(
   stringsAsFactors = F
 )
 
-if (F){
+
   
   ### Per_ccl_success
   
@@ -175,9 +175,9 @@ if (F){
   vis_mat$Technology[vis_mat$Technology == "COSMIC"] = "Exome_HiSeq_2500"
   vis_mat$Technology[vis_mat$Technology == "CCLE"] = "Hybrid_capture"
   vis_mat$Technology[vis_mat$Technology == "EGA"] = "RNA_HiSeq_2000"
-  vis_mat$Technology[vis_mat$Technology == "GDC"] = "RNA_seq"
+  vis_mat$Technology[vis_mat$Technology == "GDC"] = "RNA_HiSeq_2500"
   vis_mat$Technology[vis_mat$Technology == "CELLMINER"] = "Exome_Genome_Analyzer"
-  vis_mat$Technology = factor(vis_mat$Technology, levels = c("RNA_seq","RNA_HiSeq_2000","Exome_HiSeq_2500","Hybrid_capture","Exome_Genome_Analyzer","ClearSeq","TruSight","Hotspot_v2"))
+  vis_mat$Technology = factor(vis_mat$Technology, levels = c("RNA_HiSeq_2500","RNA_HiSeq_2000","Exome_HiSeq_2500","Hybrid_capture","Exome_Genome_Analyzer","ClearSeq","TruSight","Hotspot_v2"))
   
   means = c(perf_mat$Sensitivity, perf_mat$F1, perf_mat$PPV)
   sds = c(perf_mat$Sensitivity_SD, perf_mat$F1_SD, perf_mat$PPV_SD)
@@ -191,25 +191,95 @@ if (F){
   g_bench = g_bench +  geom_errorbar(aes( ymin = sds_min, ymax = sds_max), width=.2,position=position_dodge(.9))
   g_bench = g_bench + theme(legend.position="top", legend.background = element_rect(fill="gray90", size =5 )  )
   g_bench + xlab("")
-  
-}
+
+#
 
 counts = aggregate(ref_counts$Count, by = list(ref_counts$Library), FUN = mean)[,2]
-count_vs_sens = as.data.frame( cbind(log(counts),perf_mat$Sensitivity,perf_mat$Sensitivity_SD) )
-colnames(count_vs_sens) = c("Log_counts","Sensitivity","Sensitivity_SD")
-estimator = lm(formula = Sensitivity_SD ~ Log_counts, data = count_vs_sens)
-summary(estimator )
+count_vs_sens_sd = count_vs_sens = as.data.frame( cbind(log(counts),perf_mat$Technology,perf_mat$Sensitivity,perf_mat$Sensitivity_SD) )
+colnames(count_vs_sens) = colnames(count_vs_sens_sd) = c("Log_counts","Technology","Sensitivity","Sensitivity_SD")
+count_vs_ppv_sd = count_vs_ppv = as.data.frame( cbind(log(counts),perf_mat$Technology,perf_mat$PPV,perf_mat$PPV_SD) )
+colnames(count_vs_ppv_sd) = colnames(count_vs_ppv) = c("Log_counts","Technology","PPV","PPV_SD")
 
-temp_var <- predict(estimator, interval="prediction")
+# sensitivity
+
+count_vs_sens$Log_counts = as.double(as.character(count_vs_sens$Log_counts))
+count_vs_sens$Sensitivity = as.double(as.character(count_vs_sens$Sensitivity))
+count_vs_sens$Sensitivity_SD = as.double(as.character(count_vs_sens$Sensitivity_SD))
+
+estimator_sens = lm(formula = Sensitivity ~ Log_counts, data = count_vs_sens)
+summary( estimator_sens )
+cor(count_vs_sens$Log_counts, count_vs_sens$Sensitivity)
+
+temp_var <- predict(estimator_sens, interval="prediction")
 count_vs_sens = cbind( count_vs_sens, temp_var )
 
-reg_plot = ggplot(
+reg_plot_sens = ggplot(
   count_vs_sens,
+  aes(x=Log_counts, y = Sensitivity)
+)
+reg_plot_sens = reg_plot_sens + geom_point()
+reg_plot_sens = reg_plot_sens + geom_line(aes( y = lwr ), color = "red", linetype = "dashed")
+reg_plot_sens = reg_plot_sens + geom_line(aes( y = upr ), color = "red", linetype = "dashed")
+reg_plot_sens = reg_plot_sens + geom_smooth( method = lm , se=TRUE )
+reg_plot_sens = reg_plot_sens + xlab("Log variants per CCL") + ylab("Sensitivity")
+reg_plot_sens
+
+# sensitivity sd
+
+count_vs_sens_sd$Log_counts = as.double(as.character(count_vs_sens_sd$Log_counts))
+count_vs_sens_sd$Sensitivity = as.double(as.character(count_vs_sens_sd$Sensitivity))
+count_vs_sens_sd$Sensitivity_SD = as.double(as.character(count_vs_sens_sd$Sensitivity_SD))
+
+estimator_sens_sd = lm(formula = Sensitivity_SD ~ Log_counts, data = count_vs_sens_sd)
+summary( estimator_sens_sd )
+cor(count_vs_sens$Log_counts, count_vs_sens$Sensitivity_SD)
+
+temp_var <- predict(estimator_sens_sd, interval="prediction")
+count_vs_sens_sd = cbind( count_vs_sens_sd, temp_var )
+
+reg_plot_sens_sd = ggplot(
+  count_vs_sens_sd,
   aes(x=Log_counts, y = Sensitivity_SD)
 )
-reg_plot = reg_plot + geom_point()
-reg_plot = reg_plot + geom_line(aes( y = lwr ), color = "red", linetype = "dashed")
-reg_plot = reg_plot + geom_line(aes( y = upr ), color = "red", linetype = "dashed")
-reg_plot = reg_plot + geom_smooth( method = lm , se=TRUE)
-reg_plot = reg_plot + 
-  reg_plot
+reg_plot_sens_sd = reg_plot_sens_sd + geom_point()
+reg_plot_sens_sd = reg_plot_sens_sd + geom_line(aes( y = lwr ), color = "red", linetype = "dashed")
+reg_plot_sens_sd = reg_plot_sens_sd + geom_line(aes( y = upr ), color = "red", linetype = "dashed")
+reg_plot_sens_sd = reg_plot_sens_sd + geom_smooth( method = lm , se=TRUE)
+reg_plot_sens_sd = reg_plot_sens_sd + xlab("Log variants per CCL") + ylab("Standard Deviation Sensitivity")
+reg_plot_sens_sd
+
+# PPV
+
+estimator_ppv = lm(formula = PPV ~ Log_counts, data = count_vs_ppv)
+summary( estimator_ppv )
+
+temp_var <- predict(estimator_ppv, interval="prediction")
+count_vs_ppv = cbind( count_vs_ppv, temp_var )
+
+reg_plot_ppv = ggplot(
+  count_vs_ppv,
+  aes(x=Log_counts, y = PPV)
+)
+reg_plot_ppv = reg_plot_ppv + geom_point()
+reg_plot_ppv = reg_plot_ppv + geom_line(aes( y = lwr ), color = "red", linetype = "dashed")
+reg_plot_ppv = reg_plot_ppv + geom_line(aes( y = upr ), color = "red", linetype = "dashed")
+reg_plot_ppv = reg_plot_ppv + geom_smooth( method = lm , se = TRUE )
+reg_plot_ppv = reg_plot_ppv + xlab("Log variants per CCL") + ylab("Standard Deviation Sensitivity")
+reg_plot_ppv + theme( legend() )
+
+library("cowplot")
+
+legend_b = get_legend( reg_plot_sens_sd )
+prow = plot_grid(
+  reg_plot_sens + theme(legend.position="none") ,
+  reg_plot_sens_sd + theme(legend.position="none") , 
+  labels=c("A", "B"),
+  ncol = 2,
+  nrow = 1
+)
+p = plot_grid( 
+  #legend_b,
+  prow,
+  ncol = 1, rel_heights = c( .05, .95)
+) + ggtitle("Test")
+p
