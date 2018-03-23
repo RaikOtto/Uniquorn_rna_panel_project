@@ -170,6 +170,44 @@ sapply(library_names, FUN = function(lib){
 })
 rownames(exp_matrix) = library_names
 
+# FN_matrix
+
+FN_matrix <<- matrix(integer(), ncol= 5, nrow = 0)
+
+sapply(library_names, FUN = function(lib){
+  
+  index = grep(i_table$Query, pattern = lib)
+  FN_FN = sapply( library_names , function(vec){
+    
+    return(
+      sum( str_count(i_table$False_negative[index], pattern = vec) )
+    )
+  })
+  
+  FN_matrix <<- rbind( FN_matrix, FN_FN)
+})
+rownames(FN_matrix) = library_names
+FN_matrix = round( (FN_matrix / exp_matrix) * 100, 1 )
+
+# FP_matrix
+
+FP_matrix <<- matrix(integer(), ncol= 5, nrow = 0)
+
+sapply(library_names, FUN = function(lib){
+  
+  index = grep(i_table$Query, pattern = lib)
+  FP_FP = sapply( library_names , function(vec){
+    
+    return(
+      sum( str_count(i_table$False_positive[index], pattern = vec) )
+    )
+  })
+  
+  FP_matrix <<- rbind( FP_matrix, FP_FP)
+})
+rownames(FP_matrix) = library_names
+FP_matrix = round( (FP_matrix / exp_matrix) * 100, 1 )
+
 # tp_matrix
 
 tp_matrix <<- matrix(integer(), ncol= 5, nrow = 0)
@@ -187,13 +225,18 @@ sapply(library_names, FUN = function(lib){
   tp_matrix <<- rbind( tp_matrix, tp_tp)
 })
 rownames(tp_matrix) = library_names
+TP_matrix = round( (tp_matrix / exp_matrix) * 100, 1 )
+
+# PPV
+
+PPV_matrix = round( TP_matrix / (TP_matrix + FP_matrix) * 100, 1 )
+F1_matrix = round( 2 * ( TP_matrix * 99.9  ) / ( TP_matrix + 99.9) , 1 )
 
 # rel_fn_mat
 
 new_mat = confusion_matrix / exp_matrix
 
 # gold mat
-
 
 gold_std = read.table("~/Dropbox/Uniquorn_project/Misc/Goldstandard.tsv",sep ="\t", header = T)
 gold_matrix <<- matrix(integer(), ncol= 5, nrow = 0)
@@ -213,10 +256,8 @@ sapply(library_names, FUN = function(lib){
 rownames(gold_matrix) = library_names
 new_mat = confusion_matrix / gold_matrix
 
-#library_names[library_names=="EGA"] = "Klijn"
-#library_names[library_names=="COSMIC"] = "CGP"
-
 melted_cormat <- melt(confusion_matrix, na.rm = TRUE, as.is = T)
+#colnames( melted_cormat ) = c("")
 melted_cormat$X1 = as.character(melted_cormat$X1); melted_cormat$X2 = as.character(melted_cormat$X2)
 melted_cormat$X1[ melted_cormat$X1 == "COSMIC" ] = "CGP" 
 melted_cormat$X2[ melted_cormat$X2 == "COSMIC" ] = "CGP"
@@ -243,7 +284,8 @@ grab_grob <- function(){
 #tiff("~/Dropbox/Uniquorn_project/Figures/5_FN_Abs.tif")#, width = 624,height = 512)
 mat = confusion_matrix
 abs_plot = corrplot::corrplot(
-  confusion_matrix,
+  # reset the margins
+  par(mar=c(5,4,4,2)),
   method = "square",
   #col = c(rep("green",5),rep("yellow",2),rep("red",1)),
   p.mat = confusion_matrix,
@@ -267,13 +309,11 @@ rel_plot = corrplot::corrplot(
     col = rev(c( col2(50), col2(50) )),
     sig.level = -1,
     insig = "p-value",
-    #tl.pos = "n",
     tl.srt = 45,
     tl.cex = .7,
     cl.cex = .7
-    #cl.lim = c(0,max(new_mat_2)),
-    #low = min(new_mat_2), upp = max(new_mat_2), mar = c(0, 0, 0, 0)
-)+ theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
+) + theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
+
 #dev.off()
 
 g2 <- grab_grob()
@@ -282,3 +322,42 @@ grid.newpage()
 grid.arrange( g,g2, nrow = 1 )
 plot_grid(g, g2,  scale = .75,labels = c("A","B"), align = "h", mar = c(0, 0, 0, 0),align="v")
 
+### heatmap
+
+draw_colnames_45 <- function (coln, gaps, ...) {coord = pheatmap:::find_coordinates(length(coln), gaps);x = coord$coord - 0.5 * coord$size;  res = textGrob(coln, x = x, y = unit(1, "npc") - unit(3,"bigpts"), vjust = 0.5, hjust = 1, rot = 45, gp = gpar(...));  return(res)}
+assignInNamespace(x="draw_colnames", value="draw_colnames_45",ns=asNamespace("pheatmap"))
+
+vis_mat_fn = round(new_mat*100,0)
+
+vis_mat = rbind(
+  colMeans(FP_matrix),
+  colMeans(TP_matrix),
+  colMeans(FN_matrix),
+  colMeans(F1_matrix),
+  colMeans(PPV_matrix)
+)
+rownames( vis_mat ) = c("FP","TP","FN","F1", "PPV")
+
+melt_vis_mat = reshape2::melt(vis_mat)
+colnames(melt_vis_mat) =  c("Parameter","Library","Value")
+
+clust_mat = vis_mat[c(1,3),]
+clust_mat = clust_mat[, order(clust_mat[1,], decreasing = T)]
+
+meta_data = data.frame(
+  "SNPs_unfiltered" = c("Yes","Yes","No","No","No"),
+  "Contained_CCLs" = c(675,937,1020,60,994)
+)
+rownames(meta_data) = colnames(clust_mat)
+
+pheatmap::pheatmap(
+  clust_mat,
+  cluster_rows = F,
+  cluster_cols = F,
+  display_numbers = 1,
+  fontsize_number = 20,
+  treeheight_row =  0,
+  treeheight_col = 0,
+  number_format = "%.0f",
+  annot_col = meta_data
+)
