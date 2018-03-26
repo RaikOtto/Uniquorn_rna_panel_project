@@ -30,7 +30,10 @@ m_bench
 
 # merged
 
-g_bench = ggplot( subset(per_mat,variable %in% c("Sensitivity","F1","PPV")), aes( x = variable, y = value, colour = Library))
+g_bench = ggplot(
+    data = ref_counts,
+    aes( x = Library, y = log2(as.double(ref_counts$Count)), fill = Library)
+)
 g_bench = g_bench + geom_boxplot(size=1)
 #g_bench = g_bench + theme(legend.position="top", legend.background = element_rect(fill="gray90", size =5 )  )
 g_bench

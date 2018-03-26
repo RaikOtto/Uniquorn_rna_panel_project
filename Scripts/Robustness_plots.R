@@ -130,7 +130,7 @@ avg_file = read.table("~/Uniquorn_data/benchmark_vcf_files/Finished/Results/Hots
 
 ref_counts = read.table("~/Uniquorn_data/benchmark_vcf_files/Benchmark_Per_CCL_stat.tsv", sep ="\t", header = T,stringsAsFactors = F)
 
-perf_mat = reshape2::melt(ref_counts, value.name = "CCL")
+perf_mat = reshape2::melt(ref_counts, value.name = "Value")
 
 # barplot
 
@@ -149,18 +149,19 @@ ref_counts$F1 = 2 * ( as.integer(as.character(ref_counts$Sensitivity) ) * as.int
 ref_counts$PPV = as.integer(as.character(ref_counts$TP)) /
   ( as.integer(as.character(ref_counts$TP) ) + as.integer(as.character(ref_counts$FP) ) ) * 100
 
-perf_mat = aggregate( as.double(ref_counts$Sensitivity), by = list(ref_counts$Library), FUN = mean)
-perf_mat$Sens_SD = aggregate( as.double( ref_counts$Sensitivity), by = list(ref_counts$Library), FUN = sd)[,2]
-perf_mat$F1 = aggregate( as.double( ref_counts$F1), by = list(ref_counts$Library), FUN = mean)[,2]
-perf_mat$F1_SD = aggregate( as.double( ref_counts$F1 ), by = list(ref_counts$Library), FUN = sd)[,2]
+perf_mat = aggregate( as.double(as.character(ref_counts$Sensitivity)), by = list(ref_counts$Library), FUN = mean)
+perf_mat$Sens_SD = aggregate( as.double( as.character(ref_counts$Sensitivity)), by = list(ref_counts$Library), FUN = sd)[,2]
+perf_mat$F1 = aggregate( as.double( as.character(ref_counts$F1)), by = list(ref_counts$Library), FUN = mean)[,2]
+perf_mat$F1_SD = aggregate( as.double( as.character(ref_counts$F1 )), by = list(ref_counts$Library), FUN = sd)[,2]
 
 ref_counts$PPV[ ( is.na(ref_counts$PPV) ) ] = 0
 
-perf_mat$PPV = aggregate(ref_counts$PPV, by = list(ref_counts$Library), FUN = mean)[,2]
-perf_mat$PPV_SD = aggregate(ref_counts$PPV, by = list(ref_counts$Library), FUN = sd)[,2]
+perf_mat$PPV = aggregate( as.double( as.character(ref_counts$PPV)), by = list(ref_counts$Library), FUN = mean)[,2]
+perf_mat$PPV_SD = aggregate( as.double( as.character(ref_counts$PPV)), by = list(ref_counts$Library), FUN = sd)[,2]
+perf_mat$Counts = log2( aggregate( as.integer(as.character(ref_counts$Count)), by = list(ref_counts$Library), FUN = mean)[,2] )
 perf_mat = as.data.frame(perf_mat)
 
-colnames(perf_mat) = c("Technology", "Sensitivity","Sensitivity_SD","F1","F1_SD","PPV","PPV_SD")
+colnames(perf_mat) = c("Technology", "Sensitivity","Sensitivity_SD","F1","F1_SD","PPV","PPV_SD", "Counts")
 vis_mat = reshape2::melt(perf_mat)
 colnames(vis_mat) = c("Technology","Parameter","Value")
 vis_mat$Technology = as.character(vis_mat$Technology)
@@ -184,6 +185,33 @@ g_bench = g_bench + geom_bar(stat="identity", position=position_dodge())
 g_bench = g_bench +  geom_errorbar(aes( ymin = sds_min, ymax = sds_max), width=.2,position=position_dodge(.9))
 g_bench = g_bench + theme(legend.position="top", legend.background = element_rect(fill="gray90", size =5 )  )
 g_bench + xlab("")
+
+# linear correlation
+
+vis_mat = reshape2::melt(perf_mat)
+colnames(vis_mat) = c("Technology","Parameter","Value")
+vis_mat$Technology = as.character(vis_mat$Technology)
+vis_mat$Value = as.double(vis_mat$Value)
+
+lm.model <- lm(perf_mat$Sensitivity_SD ~ perf_mat$Counts) # Fit linear model
+summary(lm.model)
+cor(perf_mat$Sensitivity,perf_mat$Counts)
+
+# Extract fitted coefficients from model object
+b0 <- lm.model$coefficients[1]
+b1 <- lm.model$coefficients[2]
+
+# Warnings of mismatched lengths are suppressed
+slope.upper <- suppressWarnings(y.fit2 + t.val * se)
+slope.lower <- suppressWarnings(y.fit2 - t.val * se)
+
+g_bench = ggplot(
+  data = perf_mat,
+  aes( y =  Sensitivity,x = Counts))
+g_bench = g_bench + geom_point( aes( color = perf_mat$Technology, size = 4))
+g_bench = g_bench + geom_smooth(method = "lm")
+
+g_bench + xlab("Log2 variants per CCL-profile")
 
 # capacity to identify
 
