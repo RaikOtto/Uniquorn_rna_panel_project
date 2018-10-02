@@ -11,11 +11,11 @@ parser$add_argument('-nt', "--number_threads", type="integer", default = "1")
 parser$add_argument('-mp', "--manual_path", type="character", default = "")
 args = parser$parse_args()
 
-#args$inclusion_weight = .5
+args$inclusion_weight = .5
 inclusion_weight = args$inclusion_weight
 panel_mode = args$panel_mode
 manual_path = args$manual_path
-#panel_mode = FALSE
+panel_mode = FALSE
 
 run_small_statistics = function( 
   input_path_comparison = input_path_comparison,
