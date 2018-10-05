@@ -29,7 +29,7 @@ show_contained_ccls = function(
     if ( ! dir.exists( library_path ))
         stop("No libraries found!")
     
-    libraries = list.dirs(library_path,full.names = FALSE)
+    libraries = list.dirs(library_path, full.names = FALSE)
     libraries = libraries[ libraries != ""]
     
     ccls_all <<- data.frame(
@@ -47,7 +47,7 @@ show_contained_ccls = function(
             "/CCL_List_Uniquorn_DB.RData"), sep ="", collapse= "")
         g_library = readRDS(stats_path)
         cl_id_no_library = str_replace_all( g_library$CCL, pattern = 
-            paste("_",library_name,sep = ""),"" )
+            paste("_", library_name, sep = ""), "" )
         g_library$CCL = cl_id_no_library
         
         if (verbose) {
@@ -60,6 +60,7 @@ show_contained_ccls = function(
     }
     return(ccls_all)
 }
+
 
 #' All variants contained in reference library
 #' 
@@ -75,14 +76,19 @@ show_contained_ccls = function(
 #' with a weight of at least x. Range: 0.0 to 1.0. 1 = unique to CL. 
 #' ~0 = found in many CL samples. 
 #' @usage
-#' show_contained_variants_in_library(ref_gen)
+#' show_contained_variants_in_library(
+#'     ref_gen,
+#'     library_name,
+#'     mutational_weight_inclusion_threshold
+#' )
 #' @import stringr
 #' @examples
 #' ## Show all variants contained in reference library CELLMINER
 #' show_contained_variants_in_library(
-#' ref_gen = "GRCH37",
-#' library_name = "CELLMINER",
-#' mutational_weight_inclusion_threshold = 0)
+#'     ref_gen = "GRCH37",
+#'     library_name = "CELLMINER",
+#'     mutational_weight_inclusion_threshold = 0
+#' )
 #' @return Returns a GenomicRanges object that contains the variants
 #' @export
 show_contained_variants_in_library = function(
@@ -112,7 +118,8 @@ show_contained_variants_in_library = function(
         library_name = library_name,
         ref_gen = ref_gen,
         mutational_weight_inclusion_threshold = 
-            mutational_weight_inclusion_threshold
+            mutational_weight_inclusion_threshold,
+        test_mode = FALSE
     )
     
     return(g_mat)
@@ -134,17 +141,20 @@ show_contained_variants_in_library = function(
 #' ~0 = found in many CCL samples. 
 #' @import stringr
 #' @usage 
-#' show_contained_variants_for_ccl(name_ccl, 
-#' ref_gen,
-#' library_name,
-#' mutational_weight_inclusion_threshold)
+#' show_contained_variants_for_ccl(
+#'     name_ccl, 
+#'     ref_gen,
+#'     library_name,
+#'     mutational_weight_inclusion_threshold
+#' )
 #' @examples 
 #' ## Show all mutations for Cancer Cell Line 'SK_OV_3'
 #' show_contained_variants_for_ccl(
-#' name_ccl = "SK_OV_3",
-#' ref_gen = "GRCH37",
-#' library_name = "CELLMINER",
-#' mutational_weight_inclusion_threshold = 0)
+#'     name_ccl = "SK_OV_3",
+#'     ref_gen = "GRCH37",
+#'     library_name = "CELLMINER",
+#'     mutational_weight_inclusion_threshold = 0
+#' )
 #' @return GenomicRanges object that contains the ccl's variants
 #' @export
 show_contained_variants_for_ccl = function(
@@ -175,7 +185,8 @@ show_contained_variants_for_ccl = function(
         library_name = library_name,
         ref_gen = ref_gen,
         mutational_weight_inclusion_threshold = 
-            mutational_weight_inclusion_threshold
+            mutational_weight_inclusion_threshold,
+        test_mode = FALSE
     )
     
     g_query_index = stringr::str_detect(g_mat$Member_CCLs, pattern = name_ccl)
@@ -190,7 +201,7 @@ show_contained_variants_for_ccl = function(
 #' contain a specified variant. Utilizes closed interval coordinates.
 #' 
 #' @param start Start coordinate
-#' @param stop Stop coordinate
+#' @param end Stop coordinate
 #' @param chromosome Chromosome, 'chr' prefixes are ignored
 #' @param ref_gen a character vector specifying the reference genome 
 #' version. All training sets are associated with a reference genome 
@@ -203,21 +214,23 @@ show_contained_variants_for_ccl = function(
 #' @importFrom IRanges IRanges
 #' @importFrom IRanges subsetByOverlaps
 #' @usage 
-#' show_which_cls_contain_variant(
-#' start,
-#' stop,
-#' chromosome,
-#' ref_gen,
-#' library_name,
-#' mutational_weight_inclusion_threshold)
+#' show_which_ccls_contain_variant(
+#'     start,
+#'     end,
+#'     chromosome,
+#'     ref_gen,
+#'     library_name,
+#'     mutational_weight_inclusion_threshold
+#' )
 #' @examples
 #' show_which_ccls_contain_variant(
-#' start = 92030762,
-#' end = 92030762,
-#' chromosome = 8,
-#' ref_gen = "GRCH37",
-#' library_name = "CELLMINER",
-#' mutational_weight_inclusion_threshold = 0)
+#'     start = 92030762,
+#'     end = 92030762,
+#'     chromosome = 8,
+#'     ref_gen = "GRCH37",
+#'     library_name = "CELLMINER",
+#'     mutational_weight_inclusion_threshold = 0
+#' )
 #' @return Returns a GenomicRanges object that contains the variant if present.
 #' Member ccls can be found in the $Member_ccl vector
 #' @export
@@ -251,7 +264,8 @@ show_which_ccls_contain_variant = function(
         library_name = library_name,
         ref_gen = ref_gen,
         mutational_weight_inclusion_threshold = 
-        mutational_weight_inclusion_threshold
+        mutational_weight_inclusion_threshold,
+        test_mode = FALSE
     )
     
     chromosome = stringr::str_to_upper(chromosome)
@@ -278,12 +292,11 @@ show_which_ccls_contain_variant = function(
 #' version. Default is \code{"GRCH37"}.
 #' @import stringr
 #' @usage
-#' read_library_names(
-#' ref_gen)
+#' read_library_names(ref_gen)
 #' @examples
-#' read_library_names(
-#' ref_gen = "GRCH37")
+#' read_library_names(ref_gen = "GRCH37")
 #' @return Returns a character vector of the contained libraries
+#' @export
 read_library_names = function(
     ref_gen
 ){

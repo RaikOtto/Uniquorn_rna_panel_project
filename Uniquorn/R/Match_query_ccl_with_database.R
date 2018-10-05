@@ -21,7 +21,8 @@ match_query_ccl_to_database = function(
         ref_gen = ref_gen,
         library_name = library_name,
         mutational_weight_inclusion_threshold = 
-            mutational_weight_inclusion_threshold
+            mutational_weight_inclusion_threshold,
+        test_mode = FALSE
     )
     
     fo_query = GenomicRanges::findOverlaps(

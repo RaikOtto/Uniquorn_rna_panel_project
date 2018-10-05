@@ -7,7 +7,7 @@
 #' @param ref_gen a character string specifying the reference genome version.
 #'  All training sets are associated with a reference genome version.
 #'  Default is \code{"GRCH37"}. 
-#' @param library a character string giving the name of the library to add the
+#' @param library_name a character string giving the name of the library to add the
 #'  cancer cell lines to. Default is \code{"CUSTOM"}. 
 #'  Library name will be automatically added as a suffix to the identifier.
 #' @param n_threads an integer specifying the number of threads to be used.
@@ -18,19 +18,20 @@
 #' add_custom_vcf_to_database(
 #'     vcf_input_files,
 #'     ref_gen = "GRCH37",
-#'     library = "CUSTOM",
+#'     library_name = "CUSTOM",
 #'     n_threads = 1,
 #'     test_mode = FALSE
 #' )
-#' @examples 
-#' HT29_vcf_file = system.file("extdata/HT29.vcf.gz", package = "Uniquorn");
+#' @examples
+#' HT29_vcf_file = system.file("extdata/HT29_TEST.vcf", package = "Uniquorn");
 #' add_custom_vcf_to_database(
 #'     vcf_input_files = HT29_vcf_file,
-#'     library = "CUSTOM",
+#'     library_name = "CELLMINER",
 #'     ref_gen = "GRCH37",
 #'     n_threads = 1,
 #'     test_mode = TRUE
 #' )
+#' 
 #' @export
 add_custom_vcf_to_database = function(
     vcf_input_files,
@@ -122,7 +123,8 @@ parse_vcf_query_into_db = function(
     g_mat = read_mutation_grange_objects(
         library_name = library_name,
         ref_gen = ref_gen,
-        mutational_weight_inclusion_threshold = 0
+        mutational_weight_inclusion_threshold = 0,
+        test_mode = test_mode
     )
     
     if ( "Member_CCLs" %in% names(mcols(g_mat)) ){
@@ -180,11 +182,13 @@ parse_vcf_query_into_db = function(
     )
     g_mat = g_mat_new
     
-    write_w0_and_split_w0_into_lower_weights(
-        g_mat = g_mat,
-        ref_gen = ref_gen,
-        library_name = library_name
-    )
+    if(test_mode == FALSE){
+        write_w0_and_split_w0_into_lower_weights(
+            g_mat = g_mat,
+            ref_gen = ref_gen,
+            library_name = library_name
+        )
+    }
     
     message("Finished parsing ", cl_id, ", library: ", library_name)
 }

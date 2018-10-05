@@ -21,7 +21,7 @@
 #' @param top_hits_per_library Limit the number of significant similarities
 #' per library to n (default 3) many hits. Is particularrly used in contexts
 #' when heterogeneous query and reference CCLs are being compared.
-#' @param manual_identifier_bed_file Manually enter a vector of CL 
+#' @param manual_identifier Manually enter a vector of CL 
 #' name(s) whose bed files should be created, independently from 
 #' them passing the detection threshold
 #' @param output_bed_file If BED files for IGV visualization should be 
@@ -35,25 +35,33 @@
 #' Note that if you set the confidence score, the confidence score
 #' overrides the p-value
 #' @param n_threads Number of threads to be used
+#' @param write_results Write identification results to file
 #' @import WriteXLS
 #' @usage 
-#' identify_vcf_files( 
-#' vcf_file,
-#' output_file = "",
-#' ref_gen = "GRCH37",
-#' minimum_matching_mutations = 0,
-#' mutational_weight_inclusion_threshold = 0.5,
-#' write_xls = FALSE,
-#' output_bed_file = FALSE,
-#' top_hits_per_library = 3,
-#' manual_identifier_bed_file = "",
-#' verbose = TRUE,
-#' p_value = .05,
-#' n_threads = 1)
+#' identify_vcf_file( 
+#'     vcf_file,
+#'     output_file,
+#'     ref_gen,
+#'     minimum_matching_mutations,
+#'     mutational_weight_inclusion_threshold,
+#'     write_xls,
+#'     output_bed_file,
+#'     top_hits_per_library,
+#'     manual_identifier,
+#'     verbose,
+#'     p_value,
+#'     confidence_score,
+#'     n_threads,
+#'     write_results
+#' )
 #' @examples 
-#' HT29_vcf_file = system.file("extdata/HT29.vcf.gz", package="Uniquorn");
+#' HT29_vcf_file = system.file("extdata/HT29.vcf.gz", package = "Uniquorn");
 #' 
-#' identification = identify_vcf_files(HT29_vcf_file)
+#' identification = identify_vcf_file(
+#'     vcf_file = HT29_vcf_file, 
+#'     verbose = FALSE,
+#'     write_results = FALSE
+#' )
 #' @return R table with a statistic of the identification result
 #' @export
 identify_vcf_file = function(
@@ -65,11 +73,12 @@ identify_vcf_file = function(
     write_xls = FALSE,
     output_bed_file = FALSE,
     top_hits_per_library = 3,
-    manual_identifier_bed_file = "",
+    manual_identifier = "",
     verbose = TRUE,
     p_value = .05,
     confidence_score = NA,
-    n_threads = 1
+    n_threads = 1,
+    write_results = TRUE
 ){
     
     if ( ! is.na(confidence_score) ){
@@ -152,23 +161,23 @@ identify_vcf_file = function(
         )
         message("Storing information in table: ", output_file)
     }
-        
-    utils::write.table( 
-        match_t,
-        output_file,
-        sep ="\t",
-        row.names = FALSE,
-        quote = FALSE
-    )
+       
+    if (write_results){ 
+        utils::write.table( 
+            match_t,
+            output_file,
+            sep ="\t",
+            row.names = FALSE,
+            quote = FALSE
+        )
+    }
     
     if (output_bed_file & ( sum( as.logical(match_t$Q_value_sig) ) > 0 ))
         create_bed_file( 
             match_t, 
             vcf_fingerprint, 
-            res_table, 
             output_file, 
-            ref_gen, 
-            manual_identifier_bed_file
+            manual_identifier
         )
     
     if ( !verbose )
