@@ -1,13 +1,34 @@
 \name{NEWS}
 \title{NEWS file for the \pkg{Uniquorn} bioconductor package }
-\section{Changes in version 1.99.3 [2018-12-02]}{
+\section{Changes in version 2.1.3 [2018-10-03]}{
+    \subsection{Bioconductor compliance}{
+        \itemize{
+            \item Minor bugfixes regarding the removal of CCLs and reference libraries
+        }
+    }
+}
+\section{Changes in version 1.99.3 [2018-01-03]}{
+    \subsection{Bioconductor compliance}{
+        \itemize{
+            \item Minor modifications to comply with Bioconductor regulations
+        }
+    }
+}
+\section{Changes in version 1.99.2 [2018-20-02]}{
+    \subsection{Added RNA-seq and panel-seq capability}{
+        \itemize{
+            \item Some more minor bugfixes
+        }
+    }
+}
+\section{Changes in version 1.99.1 [2018-12-02]}{
     \subsection{Added RNA-seq and panel-seq capability}{
         \itemize{
             \item Minor bugfixes
         }
     }
 }
-\section{Changes in version 1.99.2 [2018-15-01]}{
+\section{Changes in version 1.99.0 [2018-15-01]}{
     \subsection{Added RNA-seq and panel-seq capability}{
         \itemize{
             \item Modified the package to work with large scale RNA-seq and small scale panel-seq data
