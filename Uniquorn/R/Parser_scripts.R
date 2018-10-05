@@ -30,14 +30,14 @@ parse_vcf_file = function(
     g_query =  VariantAnnotation::readVcf(file = vcf_file)
     
     # process variants
-    chroms = stringr::str_replace(as.character(seqnames(g_query)),
+    chroms = stringr::str_replace(as.character(GenomicRanges::seqnames(g_query)),
                          pattern = "chr|CHR", "")
-    start_var = start(g_query)
-    end_var = start_var + width(g_query) - 1
+    start_var = GenomicRanges::start(g_query)
+    end_var = start_var + GenomicRanges::width(g_query) - 1
     
     chroms_pure = grep(chroms, pattern = "_", invert = TRUE)
     chroms      = chroms[chroms_pure]
-    chroms      = str_replace(chroms, pattern = "^chr", "")
+    chroms      = stringr::str_replace(chroms, pattern = "^chr", "")
     start_var   = start_var[chroms_pure]
     end_var     = end_var[chroms_pure]
     
@@ -46,14 +46,14 @@ parse_vcf_file = function(
     cl_id = gsub(".VCF", "", cl_id, fixed = TRUE)
     cl_id = gsub(".hg19", "", cl_id, fixed = TRUE)
     cl_id = toupper(cl_id)
-    cl_id = str_replace_all(cl_id, pattern = "\\.", "_")
+    cl_id = stringr::str_replace_all(cl_id, pattern = "\\.", "_")
     cl_id = paste0(cl_id, "_", library_name)
     
     # build fingerprint and return
     g_query = GenomicRanges::GRanges(
         seqnames = chroms,
-        ranges = IRanges(start = start_var, end = end_var),
-        Member_CCLs = rep(cl_id, length(g_query))
+        ranges = IRanges::IRanges(start = start_var, end = end_var),
+        Member_CCLs = rep(cl_id, length(chroms))
     )
 
     return(g_query)

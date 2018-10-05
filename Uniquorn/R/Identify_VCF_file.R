@@ -72,7 +72,7 @@ identify_vcf_file = function(
     mutational_weight_inclusion_threshold = 0.5,
     write_xls = FALSE,
     output_bed_file = FALSE,
-    top_hits_per_library = 3,
+    top_hits_per_library = 1,
     manual_identifier = "",
     verbose = TRUE,
     p_value = .05,
@@ -80,7 +80,6 @@ identify_vcf_file = function(
     n_threads = 1,
     write_results = TRUE
 ){
-    
     if ( ! is.na(confidence_score) ){
         message(
             "Confidence score has been set to ",
@@ -174,7 +173,7 @@ identify_vcf_file = function(
     
     if (output_bed_file & ( sum( as.logical(match_t$Q_value_sig) ) > 0 ))
         create_bed_file( 
-            match_t, 
+            # match_t, 
             vcf_fingerprint, 
             output_file, 
             manual_identifier
