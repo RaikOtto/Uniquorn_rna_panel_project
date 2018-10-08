@@ -33,8 +33,7 @@ remove_ccls_from_database = function(
   message("Reference genome: ", ref_gen)
   
   package_path = system.file("", package = "Uniquorn")
-  library_path = paste(c(package_path, "/Libraries/", ref_gen),
-                       sep ="", collapse= "")
+  library_path = paste(package_path, "Libraries", ref_gen, sep = "/")
   
   if (length(library_name) > 1)
     stop("Cannot process more than one library per run, please 
@@ -118,7 +117,7 @@ remove_ccls_from_database = function(
 #' @examples 
 #' remove_custom_vcf_from_database(library = "CELLMINER",
 #'                                 ref_gen = "GRCH37",
-#'                                 test_mode = FALSE)
+#'                                 test_mode = TRUE)
 #' @return Message that indicates whether the removal was succesful.
 #' @export
 remove_library_from_database = function( 
@@ -129,8 +128,21 @@ remove_library_from_database = function(
     message("Reference genome: ", ref_gen)
     message("Removing library ", library, " and all associated",
             " cancer cell lines.")
-    ccls = show_contained_ccls(ref_gen= ref_gen)
-    ccls = ccls[ccls$Library == library, "CCL"]
-    remove_ccls_from_database(ccls, library_name = library)
-    message("Done")
+    package_path = system.file("", package = "Uniquorn")
+    present = list.dirs(path = paste(package_path, "Libraries", ref_gen, sep = "/"), 
+        recursive = FALSE, full.names = FALSE)
+    if(!(library %in% present)){
+        stop("Specified library is not present in Uniquorn database.")
+    }
+    library_path = paste(package_path, "Libraries", ref_gen, library,
+                         sep ="/")
+    unlink(library_path, recursive = !test_mode)
+    
+    remain = list.dirs(path = paste(package_path, "Libraries", ref_gen, sep = "/"), 
+                            recursive = FALSE, full.names = FALSE)
+    if(library %in% remain){
+        message("Removal was not successful.")
+    } else{
+        message("Removal was successful.")
+    }
 }
